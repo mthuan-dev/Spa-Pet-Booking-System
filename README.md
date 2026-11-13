@@ -4,7 +4,7 @@
 
 ## Công nghệ sử dụng
 
-- Frontend: React, Vite, JavaScript, React Router, Axios
+- Frontend: React/React DOM 19.3.1, Vite, JavaScript, React Router, Ant Design 6, Tailwind CSS, Axios
 - Backend: Spring Boot, Java 23, Maven, Spring Web, Spring Data JPA, Validation, Security, OAuth2 Client, Spring Mail
 - Database: MySQL/MariaDB chạy qua XAMPP
 
@@ -35,55 +35,52 @@ Spa-Pet-Booking-System/
 │           └── resources/
 ├── database/
 ├── docs/
-├── frontend/
-│   ├── public/
-│   │   └── rive/
-│   └── src/
-│       ├── api/
-│       ├── assets/
-│       │   ├── icons/
-│       │   └── images/
-│       │       ├── common/
-│       │       ├── home/
-│       │       ├── pets/
-│       │       └── services/
-│       ├── components/
-│       │   ├── booking/
-│       │   ├── common/
-│       │   ├── home/
-│       │   │   ├── AboutSection/
-│       │   │   ├── Hero/
-│       │   │   ├── ReviewsSection/
-│       │   │   └── ServicesSection/
-│       │   ├── layout/
-│       │   │   ├── admin/
-│       │   │   └── user/
-│       │   ├── pet/
-│       │   ├── review/
-│       │   └── service/
-│       ├── context/
-│       ├── hooks/
-│       ├── layouts/
-│       ├── pages/
-│       │   ├── admin/
-│       │   │   ├── bookings/
-│       │   │   ├── customers/
-│       │   │   ├── dashboard/
-│       │   │   ├── pets/
-│       │   │   ├── services/
-│       │   │   └── staff/
-│       │   ├── auth/
-│       │   ├── customer/
-│       │   │   ├── booking/
-│       │   │   ├── pets/
-│       │   │   └── profile/
-│       │   └── public/
-│       ├── routes/
-│       ├── styles/
-│       └── utils/
-└── uploads/
-    ├── pets/
-    └── services/
+└── frontend/
+    ├── public/
+    │   └── rive/
+    └── src/
+        ├── api/
+        ├── assets/
+        │   ├── icons/
+        │   └── images/
+        │       ├── common/
+        │       ├── home/
+        │       ├── pets/
+        │       └── services/
+        ├── components/
+        │   ├── booking/
+        │   ├── common/
+        │   ├── home/
+        │   │   ├── AboutSection/
+        │   │   ├── Hero/
+        │   │   ├── ReviewsSection/
+        │   │   └── ServicesSection/
+        │   ├── layout/
+        │   │   ├── admin/
+        │   │   └── user/
+        │   ├── pet/
+        │   ├── review/
+        │   └── service/
+        ├── context/
+        ├── hooks/
+        ├── layouts/
+        ├── pages/
+        │   ├── admin/
+        │   │   ├── bookings/
+        │   │   ├── customers/
+        │   │   ├── dashboard/
+        │   │   ├── pets/
+        │   │   ├── services/
+        │   │   └── staff/
+        │   ├── auth/
+        │   ├── customer/
+        │   │   ├── booking/
+        │   │   ├── pets/
+        │   │   └── profile/
+        │   └── public/
+        ├── routes/
+        ├── styles/
+        └── utils/
 ```
 
 ## Yêu cầu môi trường
@@ -117,9 +114,11 @@ Cấu hình database đọc từ các biến `DB_URL`, `DB_USERNAME` và `DB_PAS
 
 ```powershell
 cd frontend
-npm install
+npm ci
 npm run dev
 ```
+
+Giao diện người dùng và quản trị dùng chung React 19.3.1. Chức năng kéo thả dùng `@dnd-kit/react`; Ant Design 6 hỗ trợ React 19 trực tiếp. Cài dependency bằng lệnh chuẩn, không cần `--force`, `--legacy-peer-deps` hoặc gói vá React 19.
 
 - Giao diện người dùng (placeholder): <http://localhost:5173>
 - Giao diện admin (placeholder): <http://localhost:5173/admin>

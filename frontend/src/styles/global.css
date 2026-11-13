@@ -1593,9 +1593,9 @@ body:has(.meomeo-home) {
     opacity: 1;
   }
 
-  *,
-  *::before,
-  *::after {
+  body:not(.railway-admin) *,
+  body:not(.railway-admin) *::before,
+  body:not(.railway-admin) *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;

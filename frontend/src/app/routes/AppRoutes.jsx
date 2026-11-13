@@ -1,17 +1,18 @@
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
-import PublicLayout from '../../user/layouts/PublicLayout.jsx'
-import { RequireCustomer } from '../../user/features/auth/providers/AuthProvider.jsx'
-import LogoutPage from '../../user/features/auth/pages/LogoutPage.jsx'
-import CustomerLayout from '../../user/layouts/CustomerLayout.jsx'
+import { createBrowserRouter, createRoutesFromElements, Navigate, Route, RouterProvider } from 'react-router-dom'
+import { createAdminRoute } from './adminRoutes.jsx'
+import { queryClient } from '../../lib/query-client.js'
+import PublicLayout from '../../layouts/PublicLayout.jsx'
+import { RequireCustomer } from '../providers/AuthProvider.jsx'
+import LogoutPage from '../../pages/auth/LogoutPage.jsx'
+import CustomerLayout from '../../layouts/CustomerLayout.jsx'
 import { ROUTES } from './routePaths.js'
-import NotFoundPage from '../../user/features/errors/pages/NotFoundPage.jsx'
+import NotFoundPage from '../../pages/errors/NotFoundPage.jsx'
 import {
-  AboutPage, AdminBookingDetailPage, AdminBookingsPage, AdminCustomersPage,
-  AdminDashboardPage, AdminPetsPage, AdminServicesPage, AdminStaffPage,
+  AboutPage,
   BookingDetailPage, BookingPage, BookingReschedulePage,
   ForgotPasswordPage, HomePage, LoginPage, MyBookingsPage, PetsPage,
   ProfilePage, RegisterPage, ServiceDetailPage, ServicesPage,
-} from './pages.js'
+} from '../../pages/index.js'
 
 const pageRoutes = [
   [ROUTES.HOME, HomePage], [ROUTES.ABOUT, AboutPage], [ROUTES.SERVICES, ServicesPage],
@@ -20,10 +21,7 @@ const pageRoutes = [
   [ROUTES.PROFILE, ProfilePage], [ROUTES.PETS, PetsPage], [ROUTES.BOOKING, BookingPage],
   [ROUTES.BOOKINGS, MyBookingsPage],
   [ROUTES.BOOKING_DETAIL(), BookingDetailPage],
-  [ROUTES.BOOKING_RESCHEDULE(), BookingReschedulePage], [ROUTES.ADMIN, AdminDashboardPage],
-  [ROUTES.ADMIN_BOOKINGS, AdminBookingsPage], [ROUTES.ADMIN_BOOKING_DETAIL(), AdminBookingDetailPage],
-  [ROUTES.ADMIN_CUSTOMERS, AdminCustomersPage], [ROUTES.ADMIN_PETS, AdminPetsPage],
-  [ROUTES.ADMIN_STAFF, AdminStaffPage], [ROUTES.ADMIN_SERVICES, AdminServicesPage],
+  [ROUTES.BOOKING_RESCHEDULE(), BookingReschedulePage],
 ]
 
 const publicPaths = new Set([ROUTES.HOME, ROUTES.ABOUT, ROUTES.SERVICES, ROUTES.SERVICE_DETAIL()])
@@ -33,35 +31,33 @@ const customerPaths = new Set([
   ROUTES.BOOKING_RESCHEDULE(),
 ])
 
-function RouteContent() {
-  return (
-    <>
-      <Routes>
-        <Route path="/contact" element={<Navigate to={ROUTES.ABOUT} replace />} />
-        <Route path={ROUTES.LOGOUT} element={<LogoutPage />} />
-        <Route element={<PublicLayout />}>
-          {pageRoutes.filter(([path]) => publicPaths.has(path)).map(([path, Page]) => (
-            <Route key={path} path={path} element={<Page />} />
-          ))}
-          <Route path="*" element={<NotFoundPage />} />
-        </Route>
-        <Route element={<CustomerLayout />}>
-          {pageRoutes.filter(([path]) => customerPaths.has(path)).map(([path, Page]) => (
-            <Route key={path} path={path} element={[ROUTES.PROFILE, ROUTES.PETS].includes(path) ? <RequireCustomer><Page /></RequireCustomer> : <Page />} />
-          ))}
-        </Route>
-        {pageRoutes.filter(([path]) => !publicPaths.has(path) && !customerPaths.has(path)).map(([path, Page]) => (
-          <Route key={path} path={path} element={<Page />} />
-        ))}
-      </Routes>
-    </>
-  )
-}
+const userRoutes = createRoutesFromElements(
+  <>
+    <Route path="/auth/login" element={<Navigate to={ROUTES.LOGIN} replace />} />
+    <Route path="/contact" element={<Navigate to={ROUTES.ABOUT} replace />} />
+    <Route path={ROUTES.LOGOUT} element={<LogoutPage />} />
+    <Route element={<PublicLayout />}>
+      {pageRoutes.filter(([path]) => publicPaths.has(path)).map(([path, Page]) => (
+        <Route key={path} path={path} element={<Page />} />
+      ))}
+      <Route path="*" element={<NotFoundPage />} />
+    </Route>
+    <Route element={<CustomerLayout />}>
+      {pageRoutes.filter(([path]) => customerPaths.has(path)).map(([path, Page]) => (
+        <Route key={path} path={path} element={[ROUTES.PROFILE, ROUTES.PETS].includes(path) ? <RequireCustomer><Page /></RequireCustomer> : <Page />} />
+      ))}
+    </Route>
+    {pageRoutes.filter(([path]) => !publicPaths.has(path) && !customerPaths.has(path)).map(([path, Page]) => (
+      <Route key={path} path={path} element={<Page />} />
+    ))}
+  </>
+)
+
+const router = createBrowserRouter([
+  createAdminRoute(queryClient),
+  ...userRoutes,
+])
 
 export default function AppRoutes() {
-  return (
-    <BrowserRouter>
-      <RouteContent />
-    </BrowserRouter>
-  )
+  return <RouterProvider router={router} />
 }

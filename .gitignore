@@ -14,14 +14,6 @@ logs/
 frontend/node_modules/
 frontend/dist/
 
-# Locally uploaded media (keep the upload directories in Git)
-/uploads/**
-!/uploads/README.md
-!/uploads/pets/
-!/uploads/pets/.gitkeep
-!/uploads/services/
-!/uploads/services/.gitkeep
-
 # Environment and local configuration
 .env
 .env.*
