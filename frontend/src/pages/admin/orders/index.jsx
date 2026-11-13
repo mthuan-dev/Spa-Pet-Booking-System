@@ -2,12 +2,12 @@ import { DatePicker, Flex, Input, Select, Space } from 'antd';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import PageHeader from '~/components/ui/page-header.jsx';
-import OrdersTable from '~/features/orders/components/OrdersTable.jsx';
+import OrdersTable from '~/features/admin/orders/components/OrdersTable.jsx';
 import {
   DATE_FILTER_OPTIONS,
   PAYMENT_METHOD_FILTER_OPTIONS,
   STATUS_FILTER_OPTIONS,
-} from '~/features/orders/utils/constants.js';
+} from '~/features/admin/orders/utils/constants.js';
 
 const { RangePicker } = DatePicker;
 

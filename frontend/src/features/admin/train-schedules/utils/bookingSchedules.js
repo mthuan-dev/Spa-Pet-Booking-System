@@ -1,7 +1,7 @@
-import { MOCK_BOOKINGS } from '../../bookings/mocks/bookings.js';
-import { MOCK_STAFF } from '../../bookings/mocks/staff.js';
-import { mapBookingResponse } from '../../bookings/mappers/bookingMapper.js';
-import { searchWithoutDiacritics } from '../../../utils/searchWithoutDiacritics.js';
+import { MOCK_BOOKINGS } from '../../../bookings/mocks/bookings.js';
+import { MOCK_STAFF } from '../../../bookings/mocks/staff.js';
+import { mapBookingResponse } from '../../../bookings/mappers/bookingMapper.js';
+import { searchWithoutDiacritics } from '../../../../utils/searchWithoutDiacritics.js';
 import { createSampleBookingSchedules } from '../mocks/bookingSchedules.js';
 
 export const SCHEDULE_BOOKING_STATUS = {

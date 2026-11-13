@@ -1,4 +1,4 @@
-import { MOCK_SERVICES } from '../features/catalog/mocks/services.js';
+import { MOCK_SERVICES } from '../../features/catalog/mocks/services.js';
 
 // Admin preview data uses the columns of dichvu, chitietcombo and giadichvu.
 export const SERVICE_CATALOG_STORAGE_KEY = 'petspa-admin-service-catalog-v1';

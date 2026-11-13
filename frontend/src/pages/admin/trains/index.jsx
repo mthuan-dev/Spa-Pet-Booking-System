@@ -1,1 +1,1 @@
-export { default } from '~/features/service-management/components/WeightPriceManagementPage.jsx';
+export { default } from '~/features/admin/service-management/components/WeightPriceManagementPage.jsx';

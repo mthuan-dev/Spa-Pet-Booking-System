@@ -1,5 +1,5 @@
 import { Col, Form, Input, InputNumber, Modal, Row, Select, TimePicker } from 'antd';
-import { useStations } from '~/features/trains/api/get-stations.jsx';
+import { useStations } from '~/features/admin/trains/api/get-stations.jsx';
 import { searchWithoutDiacritics } from '~/utils/searchWithoutDiacritics.js';
 
 const AddStopPointModal = ({ open, closeModal, handleAddItem, dataSource, isPending }) => {

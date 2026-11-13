@@ -1,7 +1,7 @@
 import { Col, Form, Input, InputNumber, Modal, Row, Select, TimePicker } from 'antd';
 import dayjs from 'dayjs';
 import { useEffect, useMemo } from 'react';
-import { useStations } from '~/features/trains/api/get-stations.jsx';
+import { useStations } from '~/features/admin/trains/api/get-stations.jsx';
 import { searchWithoutDiacritics } from '~/utils/searchWithoutDiacritics.js';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 dayjs.extend(customParseFormat);

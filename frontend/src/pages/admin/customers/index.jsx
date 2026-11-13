@@ -2,9 +2,9 @@ import { PlusSquareOutlined } from '@ant-design/icons';
 import { App, Button, Flex, Modal, Space } from 'antd';
 import { useState } from 'react';
 import PageHeader from '~/components/ui/page-header.jsx';
-import { useUpdateCustomer } from '~/features/customers/api/save-customer.jsx';
-import CustomerFormModal from '~/features/customers/components/CustomerFormModal.jsx';
-import { CustomerTable } from '~/features/customers/components/CustomerTable.jsx';
+import { useUpdateCustomer } from '~/features/admin/customers/api/save-customer.jsx';
+import CustomerFormModal from '~/features/admin/customers/components/CustomerFormModal.jsx';
+import { CustomerTable } from '~/features/admin/customers/components/CustomerTable.jsx';
 
 const CustomerPage = () => {
   const { message } = App.useApp();

@@ -5,12 +5,12 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useBoolean } from '~/hooks/useBoolean.jsx';
 import dayjs from 'dayjs';
 import { useLoaderData, useParams } from 'react-router-dom';
-import { trainQuery } from '~/features/trains/api/get-route-segments.jsx';
+import { trainQuery } from '~/features/admin/trains/api/get-route-segments.jsx';
 import PageHeader from '~/components/ui/page-header.jsx';
-import AddStopPointModal from '~/features/trains/components/route-segments/AddStopPointModal.jsx';
-import RouteSegmentsTable from '~/features/trains/components/route-segments/RouteSegmentsTable.jsx';
-import { useSaveRouteSegments } from '~/features/trains/api/save-route-segments.jsx';
-import UpdateStopPointModal from '~/features/trains/components/route-segments/UpdateStopPointModal.jsx';
+import AddStopPointModal from '~/features/admin/trains/components/route-segments/AddStopPointModal.jsx';
+import RouteSegmentsTable from '~/features/admin/trains/components/route-segments/RouteSegmentsTable.jsx';
+import { useSaveRouteSegments } from '~/features/admin/trains/api/save-route-segments.jsx';
+import UpdateStopPointModal from '~/features/admin/trains/components/route-segments/UpdateStopPointModal.jsx';
 import { calculateTravelTime } from '~/utils/calculateTravelTime.js';
 
 export const RouteSegmentsLoader =

@@ -1,7 +1,7 @@
 import { AxiosError } from 'axios';
 import dayjs from 'dayjs';
 import { DEMO_CREDENTIALS, DEMO_TOKEN, STORAGE_KEY, loadSampleData } from './data.js';
-import { currentUser } from '../features/profile/mocks/customerRepository.js';
+import { currentUser } from '../../features/profile/mocks/customerRepository.js';
 import { handleServiceCatalog } from './serviceCatalog.js';
 
 const normalize = (value) =>

@@ -1,5 +1,13 @@
 # Refactor cấu trúc frontend MEOMEO
 
+## Cập nhật cấu trúc hiện tại
+
+Chức năng quản trị đã được gom vào `src/features/admin/`: `booking`, `carriages`, `customers`, `employees`, `orders`, `reports`, `seat-types`, `service-management`, `train-schedules`, `trains`. Các trang vẫn ở `src/pages/admin/`; thành phần layout quản trị ở `src/layouts/admin/`. API mock và dữ liệu quản trị chuyển vào `src/mocks/admin/`.
+
+Auth, hồ sơ tài khoản và dữ liệu mà cả hai phía cùng đọc tiếp tục dùng một nguồn. Các component UI, hook, tiện ích và query client ở cấp chung để tái sử dụng. Đường dẫn `user/...` trong báo cáo cũ bên dưới không còn phản ánh cấu trúc hiện tại; xem cây thư mục trong [README](../README.md#cấu-trúc-dự-án).
+
+## Báo cáo refactor trước đây
+
 Đã chuyển 90 file sang kiến trúc theo feature cho Public, Authentication và Customer. Nội dung được lấy từ working tree hiện hữu, bao gồm các thay đổi chưa commit trước khi refactor. Không sửa backend, database, URL route, quy tắc nghiệp vụ, JSX hiển thị, selector CSS hoặc nội dung tiếng Việt.
 
 ## Tổ chức và di chuyển

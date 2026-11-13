@@ -3,7 +3,7 @@ import { Button, Flex, Input, Space, Table, Tag } from 'antd';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ROW_PER_PAGE } from '~/app/config/constants.js';
-import { useGetAllTrain } from '~/features/trains/api/get-all-train.jsx';
+import { useGetAllTrain } from '~/features/admin/trains/api/get-all-train.jsx';
 import { useCustomers } from '../api/get-customers.jsx';
 
 const DogIcon = () => (

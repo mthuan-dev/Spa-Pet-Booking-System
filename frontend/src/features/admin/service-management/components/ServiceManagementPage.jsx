@@ -37,7 +37,7 @@ const ServiceManagementPage = ({ category }) => {
     { title: isCombo ? 'Tên combo' : 'Tên dịch vụ', dataIndex: 'ten', width: 210 },
     ...(isCombo ? [{ title: 'Dịch vụ thành phần', key: 'chitietcombo', width: 260, render: (_, service) => (
       <Flex vertical align="start" gap={4}>{catalog.chitietcombo.filter((item) => item.macombo === service.madichvu)
-        .map((item) => <Tag key={item.madichvucon} style={{ fontSize: 14, whiteSpace: 'normal', marginInlineEnd: 0 }}>
+        .map((item) => <Tag key={item.madichvucon} style={{ whiteSpace: 'normal', marginInlineEnd: 0 }}>
           {services.find((child) => child.madichvu === item.madichvucon)?.ten}
         </Tag>)}
       </Flex>

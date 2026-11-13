@@ -1,4 +1,4 @@
-import CatalogEditorPage from '~/features/service-management/components/CatalogEditorPage.jsx';
+import CatalogEditorPage from '~/features/admin/service-management/components/CatalogEditorPage.jsx';
 
 export default function CatalogEditor() {
   return <CatalogEditorPage kind="price" />;

@@ -39,7 +39,7 @@ Spa-Pet-Booking-System/
     ├── public/
     │   └── rive/
     └── src/
-        ├── api/
+        ├── app/                 # Router, provider và cấu hình ứng dụng
         ├── assets/
         │   ├── icons/
         │   └── images/
@@ -48,40 +48,52 @@ Spa-Pet-Booking-System/
         │       ├── pets/
         │       └── services/
         ├── components/
-        │   ├── booking/
         │   ├── common/
+        │   └── ui/              # Thành phần giao diện tái sử dụng
+        ├── features/
+        │   ├── admin/           # Chức năng chỉ dành cho quản trị
+        │   │   ├── booking/
+        │   │   ├── carriages/
+        │   │   ├── customers/
+        │   │   ├── employees/
+        │   │   ├── orders/
+        │   │   ├── reports/
+        │   │   ├── seat-types/
+        │   │   ├── service-management/
+        │   │   ├── train-schedules/
+        │   │   └── trains/
+        │   ├── about/
+        │   ├── auth/            # Đăng nhập dùng chung cho ADMIN và CUSTOMER
+        │   ├── bookings/
+        │   ├── catalog/
+        │   ├── errors/
         │   ├── home/
-        │   │   ├── AboutSection/
-        │   │   ├── Hero/
-        │   │   ├── ReviewsSection/
-        │   │   └── ServicesSection/
-        │   ├── layout/
-        │   │   ├── admin/
-        │   │   └── user/
-        │   ├── pet/
-        │   ├── review/
-        │   └── service/
-        ├── context/
+        │   ├── pets/
+        │   └── profile/         # Hồ sơ và kho tài khoản mock dùng chung
         ├── hooks/
         ├── layouts/
+        │   ├── admin/           # Menu, sidebar, footer và tài khoản quản trị
+        │   └── components/      # Header/footer phía người dùng
+        ├── lib/
+        ├── mocks/
+        │   └── admin/           # API mock và dữ liệu quản trị
         ├── pages/
-        │   ├── admin/
-        │   │   ├── bookings/
-        │   │   ├── customers/
-        │   │   ├── dashboard/
-        │   │   ├── pets/
-        │   │   ├── services/
-        │   │   └── staff/
+        │   ├── admin/           # Các trang route /admin
+        │   ├── about/
         │   ├── auth/
-        │   ├── customer/
-        │   │   ├── booking/
-        │   │   ├── pets/
-        │   │   └── profile/
-        │   └── public/
-        ├── routes/
+        │   ├── bookings/
+        │   ├── catalog/
+        │   ├── errors/
+        │   ├── home/
+        │   ├── pets/
+        │   └── profile/
+        ├── shared/
+        ├── stores/
         ├── styles/
         └── utils/
 ```
+
+Code quản lý chỉ dành cho admin đặt trong `src/features/admin/<chức-năng>/`; trang tương ứng đặt trong `src/pages/admin/`. Đăng nhập, kho tài khoản và dữ liệu nghiệp vụ được cả hai phía sử dụng nằm ngoài nhóm admin để tránh tạo hai bản độc lập. Một số tên `trains`, `carriages`, `seat-types` còn được giữ từ giao diện gốc; chúng hiện thuộc khu vực admin.
 
 ## Yêu cầu môi trường
 

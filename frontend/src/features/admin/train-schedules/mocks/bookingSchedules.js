@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { MOCK_STAFF } from '../../bookings/mocks/staff.js';
+import { MOCK_STAFF } from '../../../bookings/mocks/staff.js';
 
 // Preview data for the admin calendar, kept separate from customer booking history.
 const SAMPLE_APPOINTMENTS = [

@@ -1,16 +1,16 @@
 import { App, Button, Card, Col, DatePicker, Flex, Form, Input, Row, Select, Space, Table, Tag } from 'antd';
 import PageHeader from '~/components/ui/page-header.jsx';
 import { SearchOutlined } from '@ant-design/icons';
-import { useSearchPassengers } from '~/features/train-schedules/api/get-passengers.jsx';
+import { useSearchPassengers } from '~/features/admin/train-schedules/api/get-passengers.jsx';
 import { convertToVnCurrency } from '~/utils/convert.js';
-import { useGetAllPersonTypes } from '~/features/booking/api/get-all-person-types.js';
-import { useGetAllTrain } from '~/features/trains/api/get-all-train.jsx';
-import { useRouteSegments } from '~/features/trains/api/get-route-segments.jsx';
+import { useGetAllPersonTypes } from '~/features/admin/booking/api/get-all-person-types.js';
+import { useGetAllTrain } from '~/features/admin/trains/api/get-all-train.jsx';
+import { useRouteSegments } from '~/features/admin/trains/api/get-route-segments.jsx';
 import dayjs from 'dayjs';
 import { useEffect, useMemo } from 'react';
 import { searchWithoutDiacritics } from '~/utils/searchWithoutDiacritics.js';
 import { useSearchParams } from 'react-router-dom';
-import { useGetCarriagesByTrain } from '~/features/train-schedules/api/get-carriages-by-train.jsx';
+import { useGetCarriagesByTrain } from '~/features/admin/train-schedules/api/get-carriages-by-train.jsx';
 
 const ManagePassengerPage = () => {
   const [form] = Form.useForm();

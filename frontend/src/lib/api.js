@@ -4,7 +4,7 @@
 import Axios from 'axios';
 import { BACKEND_ENDPOINT } from '~/app/config/env.js';
 import LocalStorageManager from '~/utils/localStorageManager.js';
-import { mockAdapter } from '~/mocks/api.js';
+import { mockAdapter } from '~/mocks/admin/api.js';
 
 const USE_MOCK_API = import.meta.env.VITE_USE_MOCK_API !== 'false';
 

@@ -1,8 +1,8 @@
 import { Card, Col, DatePicker, Flex, Row, Select, Space } from 'antd';
 import PageHeader from '~/components/ui/page-header.jsx';
-import { useTicketsReport } from '~/features/reports/api/get-ticket-report.js';
+import { useTicketsReport } from '~/features/admin/reports/api/get-ticket-report.js';
 import { useEffect, useMemo, useState } from 'react';
-import { useTrainsReport } from '~/features/reports/api/get-train-report.js';
+import { useTrainsReport } from '~/features/admin/reports/api/get-train-report.js';
 import { convertToVnCurrency } from '~/utils/convert.js';
 import dayjs from 'dayjs';
 import BarChart from '~/components/ui/charts/BarChart.jsx';

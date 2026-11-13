@@ -1,10 +1,10 @@
 import { Alert, Button, Calendar, Flex, Tag } from 'antd';
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import TrainScheduleModal from '~/features/train-schedules/components/TrainScheduleModal.jsx';
+import TrainScheduleModal from '~/features/admin/train-schedules/components/TrainScheduleModal.jsx';
 import dayjs from 'dayjs';
 import PageHeader from '~/components/ui/page-header.jsx';
-import { countBookingsByDate, getBookingSchedules } from '~/features/train-schedules/utils/bookingSchedules.js';
+import { countBookingsByDate, getBookingSchedules } from '~/features/admin/train-schedules/utils/bookingSchedules.js';
 
 const TrainScheDulesPage = () => {
   const [open, setOpen] = useState(false);

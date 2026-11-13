@@ -3,10 +3,10 @@ import { App, Button, Flex, Space } from 'antd';
 import { useState } from 'react';
 import ConfirmModal from '~/components/ui/modals/ConfirmModal.jsx';
 import PageHeader from '~/components/ui/page-header.jsx';
-import { useUpdateEmployee } from '~/features/employees/api/update-employee.jsx';
-import CreateEmployeeModal from '~/features/employees/components/CreateEmployeeModal.jsx';
-import { EmployeeTable } from '~/features/employees/components/EmployeeTable.jsx';
-import UpdateEmployeeModal from '~/features/employees/components/UpdateEmployeeModal.jsx';
+import { useUpdateEmployee } from '~/features/admin/employees/api/update-employee.jsx';
+import CreateEmployeeModal from '~/features/admin/employees/components/CreateEmployeeModal.jsx';
+import { EmployeeTable } from '~/features/admin/employees/components/EmployeeTable.jsx';
+import UpdateEmployeeModal from '~/features/admin/employees/components/UpdateEmployeeModal.jsx';
 import { useBoolean } from '~/hooks/useBoolean.jsx';
 
 const EmployeePage = () => {
