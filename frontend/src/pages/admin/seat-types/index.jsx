@@ -12,8 +12,8 @@ const SeatsManagement = () => {
     <>
       <Flex align="center" justify="space-between" className="mb-2">
         <PageHeader
-          heading="Quản lý ghế ngồi"
-          links={[{ title: 'Trang chủ', href: '/admin' }, { title: 'Ghế ngồi' }]}
+          heading="Quản lý dịch vụ lẻ"
+          links={[{ title: 'Trang chủ', href: '/admin' }, { title: 'Dịch vụ lẻ' }]}
         />
         <Space>
           <Button onClick={openCreateModal} type="primary" icon={<PlusOutlined />}>

@@ -56,10 +56,10 @@ const TrainDetails = () => {
     <div>
       <Flex align="center" justify="space-between" className="mb-2">
         <PageHeader
-          heading="Thông tin tàu hoả"
+          heading="Thông tin giá theo cân nặng"
           links={[
             { title: 'Trang chủ', href: '/admin' },
-            { title: 'Toa hỏa', href: '/admin/trains' },
+            { title: 'Giá theo cân nặng', href: '/admin/trains' },
             {
               title: (
                 <Flex gap={8} align="center">

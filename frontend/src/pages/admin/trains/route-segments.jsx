@@ -69,8 +69,8 @@ const RouteSegments = () => {
   const pageHeaderLinks = useMemo(
     () => [
       { title: 'Trang chủ', href: '/admin' },
-      { title: 'Tàu hoả', href: '/admin/trains' },
-      { title: 'Lịch trình' },
+      { title: 'Khách hàng', href: '/admin/customers' },
+      { title: 'Thú cưng' },
     ],
     [],
   );
@@ -111,7 +111,7 @@ const RouteSegments = () => {
   return (
     <>
       <Flex align="center" justify="space-between" className="mb-4">
-        <PageHeader heading="Lịch trình" links={pageHeaderLinks} />
+        <PageHeader heading="Quản lý thú cưng" links={pageHeaderLinks} />
         <Button type="primary" icon={<SaveOutlined />} onClick={handleSave} loading={mutation.isPending}>
           Lưu
         </Button>

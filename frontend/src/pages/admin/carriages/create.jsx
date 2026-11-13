@@ -98,11 +98,11 @@ const CreateCarriage = () => {
     <>
       <Flex align="center" justify="space-between" className="mb-2">
         <PageHeader
-          heading="Quản lý toa tàu"
+          heading="Tạo combo dịch vụ"
           links={[
             { title: 'Trang chủ', href: '/admin' },
-            { title: 'Toa tàu', href: '/admin/carriage-layouts' },
-            { title: 'Tạo toa tàu' },
+            { title: 'Combo dịch vụ', href: '/admin/carriage-layouts' },
+            { title: 'Tạo combo dịch vụ' },
           ]}
         />
         <Space>

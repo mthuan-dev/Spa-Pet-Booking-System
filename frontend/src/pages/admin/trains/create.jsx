@@ -114,11 +114,11 @@ const TrainsManagement = () => {
     <>
       <Flex align="center" justify="space-between" className="mb-2">
         <PageHeader
-          heading="Tạo tàu"
+          heading="Thêm giá theo cân nặng"
           links={[
             { title: 'Trang chủ', href: '/admin' },
-            { title: 'Tàu hỏa', href: '/admin/trains' },
-            { title: 'Tạo tàu hỏa' },
+            { title: 'Giá theo cân nặng', href: '/admin/trains' },
+            { title: 'Thêm giá theo cân nặng' },
           ]}
         />
         <Space>

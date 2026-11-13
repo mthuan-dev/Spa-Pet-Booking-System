@@ -95,8 +95,8 @@ export const CustomerTable = () => {
             <Button
               size="small"
               icon={<DogIcon />}
-              title="Tuyến đường"
-              aria-label="Tuyến đường"
+              title="Quản lý thú cưng"
+              aria-label="Quản lý thú cưng"
               disabled={!trainId}
               onClick={() => navigate(`/admin/trains/${trainId}/route-segments`)}
             />

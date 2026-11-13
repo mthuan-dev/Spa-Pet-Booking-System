@@ -45,7 +45,7 @@ const OrderManagement = () => {
   return (
     <>
       <Flex align="center" justify="space-between" className="mb-2">
-        <PageHeader heading="Quản lý hoá đơn" links={[{ title: 'Trang chủ', href: '/admin' }, { title: 'Hóa đơn' }]} />
+        <PageHeader heading="Xử lý đặt lịch" links={[{ title: 'Trang chủ', href: '/admin' }, { title: 'Xử lý đặt lịch' }]} />
         <Space>
           <Space>
             <Input.Search

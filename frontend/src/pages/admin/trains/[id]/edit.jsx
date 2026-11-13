@@ -121,10 +121,10 @@ const EditTrainPage = () => {
     <>
       <Flex align="center" justify="space-between" className="mb-2">
         <PageHeader
-          heading="Tạo tàu"
+          heading="Chỉnh sửa giá theo cân nặng"
           links={[
             { title: 'Trang chủ', href: '/admin' },
-            { title: 'Toa hỏa', href: '/admin/trains' },
+            { title: 'Giá theo cân nặng', href: '/admin/trains' },
             { title: train?.name || 'Chi tiết', href: `/admin/trains/${id}` },
             { title: 'Chỉnh sửa' },
           ]}

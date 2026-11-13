@@ -1,206 +1,181 @@
-import { App, Button, Drawer, Flex, Form, Popconfirm, Select, Space, Table, Tag } from 'antd';
-import { useMemo } from 'react';
-import { PlusOutlined, DeleteOutlined, FieldTimeOutlined, UserSwitchOutlined } from '@ant-design/icons';
-import { useGetAllTrain } from '~/features/trains/api/get-all-train.jsx';
-import { useScheduleByDate } from '~/features/train-schedules/api/get-schedule-by-date.jsx';
-import { useDeleteSchedule } from '~/features/train-schedules/api/delete-schedule.jsx';
-import { useQueryClient } from '@tanstack/react-query';
-import { useCreateSchedules } from '~/features/train-schedules/api/create-schedules.jsx';
+import { Alert, App, Button, Col, Drawer, Dropdown, Empty, Flex, Form, Input, Row, Select, Table, Tag, Typography } from 'antd';
+import { DownOutlined } from '@ant-design/icons';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMemo, useState } from 'react';
+import { filterBookingSchedules, SCHEDULE_BOOKING_STATUS, updateBookingScheduleStatus } from '../utils/bookingSchedules.js';
 
-const TrainScheduleModal = ({ date, open, onCancel }) => {
+const EMPTY_FILTERS = { keyword: '', status: undefined, serviceId: undefined };
+const STATUS_OPTIONS = Object.entries(SCHEDULE_BOOKING_STATUS).map(([value, status]) => ({ value, label: status.label }));
+const STATUS_ACTIONS = [
+  { key: 'COMPLETED', label: 'COMPLETED' },
+  { key: 'CANCELLED', label: 'CANCELLED', danger: true },
+];
+
+const bookingColumns = [
+  {
+    title: 'Giờ hẹn',
+    key: 'appointment',
+    width: 115,
+    render: (_, booking) => [booking.appointment.startTime.slice(0, 5), booking.appointment.endTime.slice(0, 5)].join(' – '),
+  },
+  {
+    title: 'Khách & thú cưng',
+    key: 'contact',
+    width: 200,
+    render: (_, booking) => (
+      <Flex vertical>
+        <span>{booking.contact.name}</span>
+        <Typography.Text type="secondary">Thú cưng: {booking.pet.name}</Typography.Text>
+      </Flex>
+    ),
+  },
+  {
+    title: 'Dịch vụ',
+    key: 'services',
+    width: 180,
+    render: (_, booking) => booking.services.map((service) => (
+      <div key={service.bookingDetailId ?? service.serviceId}>{service.name}</div>
+    )),
+  },
+];
+
+const TrainScheduleModal = ({ date, open, onCancel, bookings = [], isLoading, isError, onRetry }) => {
   const queryClient = useQueryClient();
   const { message } = App.useApp();
-  const { data, isLoading } = useScheduleByDate({ date: date?.format('YYYY-MM-DD') });
-
-  const deleteScheduleMutation = useDeleteSchedule({
-    mutationConfig: {
-      onSuccess: () => {
-        message.success('Xoá chuyến thành công !');
-        queryClient.invalidateQueries({
-          queryKey: ['schedule', date?.format('YYYY-MM-DD')],
-        });
-      },
-      onError: (error) => {
-        message.error(error?.response?.data?.detail);
+  const [filters, setFilters] = useState(EMPTY_FILTERS);
+  const updateStatus = useMutation({
+    mutationFn: updateBookingScheduleStatus,
+    onSuccess: (updatedBooking) => {
+      queryClient.setQueryData(['admin-booking-schedules'], (current) => current?.map(
+        (booking) => booking.id === updatedBooking.id ? updatedBooking : booking,
+      ));
+      message.success('Đã đổi trạng thái đặt lịch thành ' + updatedBooking.bookingStatus + '.');
+    },
+    onError: (error) => message.error(error.message),
+  });
+  const columns = [
+    ...bookingColumns,
+    {
+      title: 'Trạng thái đặt lịch',
+      dataIndex: 'bookingStatus',
+      key: 'status',
+      width: 140,
+      render: (value, booking) => {
+        if (value !== 'CONFIRMED') {
+          return <Tag color={SCHEDULE_BOOKING_STATUS[value]?.color} style={{ fontSize: 12 }}>{value}</Tag>;
+        }
+        return (
+          <Dropdown
+            trigger={['click']}
+            disabled={updateStatus.isPending}
+            menu={{
+              items: STATUS_ACTIONS,
+              onClick: ({ key }) => updateStatus.mutate({ id: booking.id, status: key }),
+            }}
+          >
+            <Button
+              size="small"
+              color={SCHEDULE_BOOKING_STATUS.CONFIRMED.color}
+              variant="filled"
+              style={{ fontSize: 12 }}
+              disabled={updateStatus.isPending}
+              loading={updateStatus.isPending && updateStatus.variables?.id === booking.id}
+              aria-label={'Đổi trạng thái đặt lịch ' + booking.code}
+            >
+              CONFIRMED <DownOutlined />
+            </Button>
+          </Dropdown>
+        );
       },
     },
-  });
-
-  const columns = useMemo(
-    () => [
-      {
-        title: '#',
-        dataIndex: 'id',
-        key: 'id',
-        width: 70,
-        align: 'center',
-      },
-      {
-        title: 'Mác tàu',
-        dataIndex: ['train', 'name'],
-        key: 'name',
-        width: 80,
-        align: 'center',
-        render: (label, record) => (
-          <Tag color="orange" variant="solid" key={record.train.id}>
-            {record.train.name}
-          </Tag>
-        ),
-      },
-      {
-        title: 'Tuyến đường',
-        dataIndex: ['train', 'route', 'name'],
-        key: 'route',
-      },
-      {
-        render: (label, record) => (
-          <Space>
-            <Button
-              size="small"
-              icon={<UserSwitchOutlined />}
-              variant="filled"
-              color="default"
-              href={`/admin/passengers/?trainId=${record.train.id}&departureTime=${date?.format('YYYY-MM-DD')}`}
-              target="_blank"
-            >
-              Hành khách
-            </Button>
-            <Button
-              size="small"
-              icon={<FieldTimeOutlined />}
-              variant="filled"
-              color="primary"
-              href={`/admin/trains/${record.train.id}/route-segments`}
-              target="_blank"
-            >
-              Giờ tàu
-            </Button>
-            <Popconfirm
-              title="Xoá chuyến?"
-              description="Bạn có chắc chắn xoá không ?"
-              okText="Yes"
-              cancelText="No"
-              placement="topRight"
-              onConfirm={() => deleteScheduleMutation.mutate({ id: record.id })}
-            >
-              <Button size="small" icon={<DeleteOutlined />} color="danger" variant="filled" />
-            </Popconfirm>
-          </Space>
-        ),
-        fixed: 'right',
-        width: 250,
-      },
-    ],
-    [deleteScheduleMutation],
+  ];
+  const dateKey = date?.format('YYYY-MM-DD');
+  const dayBookings = useMemo(() => filterBookingSchedules(bookings, { date: dateKey }), [bookings, dateKey]);
+  const filteredBookings = useMemo(
+    () => filterBookingSchedules(dayBookings, { date: dateKey, ...filters }),
+    [dayBookings, dateKey, filters],
   );
+  const serviceOptions = useMemo(() => Array.from(new Map(
+    dayBookings.flatMap((booking) => booking.services.map((service) => [service.serviceId, { value: service.serviceId, label: service.name }])),
+  ).values()), [dayBookings]);
+
+  const updateFilter = (field, value) => setFilters((current) => ({ ...current, [field]: value }));
 
   return (
     <Drawer
-      title={`Danh sách tàu chạy ${date?.format('dddd')} ngày ${date?.format('DD-MM-YYYY')}`}
+      title={'Lịch hẹn ngày ' + date?.format('DD/MM/YYYY')}
       open={open}
       onClose={onCancel}
       size="large"
     >
-      <AddTrainScheduleForm date={date} currentList={data} />
-      <Table
-        rowKey="id"
-        size="small"
-        columns={columns}
-        dataSource={data}
-        loading={isLoading}
-        pagination={false}
-        bordered
-      />
-    </Drawer>
-  );
-};
-
-const AddTrainScheduleForm = ({ date, currentList }) => {
-  const { data } = useGetAllTrain();
-  const [form] = Form.useForm();
-  const { message } = App.useApp();
-
-  const createSchedules = useCreateSchedules({
-    mutationConfig: {
-      onSuccess: () => {
-        message.success('Thêm chuyến thành công!');
-        form.resetFields();
-      },
-      onError: (error) => {
-        message.error(error?.response?.data?.detail);
-      },
-    },
-  });
-
-  const options = useMemo(
-    () =>
-      data?.map((item) => ({
-        ...item,
-        disabled: currentList?.some((current) => current.train.id === item.id),
-      })),
-    [data, currentList],
-  );
-
-  const onFinish = (values) => {
-    createSchedules.mutate({ data: values });
-  };
-
-  return (
-    <Form
-      form={form}
-      initialValues={{
-        trains: [],
-        date: date?.format('YYYY-MM-DD'),
-      }}
-      onFinish={onFinish}
-      layout="vertical"
-      variant="filled"
-    >
-      <Form.Item name="date" noStyle />
-      <Form.Item
-        name="trains"
-        label="Chọn tàu chạy"
-        rules={[
-          {
-            required: true,
-            message: 'Vui lòng chọn tàu chạy',
-          },
-        ]}
-      >
-        <Select
-          placeholder="Chọn tàu"
-          options={options}
-          fieldNames={{ label: 'name', value: 'id' }}
-          optionRender={(option) => {
-            const { name = '', route = {} } = option.data;
-            return (
-              <Flex justify="space-between">
-                <span>{name}</span>
-                <Space>
-                  <Tag color="cyan">{route?.name}</Tag>
-                  {option.data.disabled && <Tag color="red">Đã chọn</Tag>}
-                </Space>
-              </Flex>
-            );
-          }}
-          filterOption={(input, option) => option.name.toLowerCase().includes(input.toLowerCase())}
-          mode="multiple"
-          allowClear
-          showSearch
+      {isError ? (
+        <Alert
+          type="error"
+          title="Chưa tải được lịch hẹn trong ngày."
+          action={<Button size="small" onClick={onRetry}>Thử lại</Button>}
         />
-      </Form.Item>
-      <Form.Item>
-        <Button
-          className="w-full"
-          type="primary"
-          htmlType="submit"
-          icon={<PlusOutlined />}
-          loading={createSchedules.isPending}
-        >
-          Thêm chuyến
-        </Button>
-      </Form.Item>
-    </Form>
+      ) : (
+        <>
+          <Form layout="vertical">
+            <Form.Item label="Tìm lịch hẹn" htmlFor="day-booking-search">
+              <Input
+                id="day-booking-search"
+                placeholder="Mã lịch, khách hàng, số điện thoại, thú cưng"
+                value={filters.keyword}
+                onChange={(event) => updateFilter('keyword', event.target.value)}
+                allowClear
+              />
+            </Form.Item>
+            <Row gutter={12}>
+              <Col xs={24} sm={12}>
+                <Form.Item label="Trạng thái đặt lịch" htmlFor="day-booking-status">
+                  <Select
+                    id="day-booking-status"
+                    placeholder="Tất cả trạng thái"
+                    options={STATUS_OPTIONS}
+                    value={filters.status}
+                    onChange={(value) => updateFilter('status', value)}
+                    allowClear
+                  />
+                </Form.Item>
+              </Col>
+              <Col xs={24} sm={12}>
+                <Form.Item label="Dịch vụ" htmlFor="day-booking-service">
+                  <Select
+                    id="day-booking-service"
+                    placeholder="Tất cả dịch vụ"
+                    options={serviceOptions}
+                    value={filters.serviceId}
+                    onChange={(value) => updateFilter('serviceId', value)}
+                    allowClear
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+          </Form>
+          <Flex align="center" justify="space-between" gap={12} className="mb-3">
+            <Typography.Text aria-live="polite">Hiển thị {filteredBookings.length} / {dayBookings.length} lịch hẹn trong ngày</Typography.Text>
+            <Button onClick={() => setFilters(EMPTY_FILTERS)}>Xóa bộ lọc</Button>
+          </Flex>
+          <Table
+            rowKey="id"
+            size="small"
+            columns={columns}
+            dataSource={filteredBookings}
+            loading={isLoading}
+            scroll={{ x: 635 }}
+            pagination={{ pageSize: 8, hideOnSinglePage: true, showSizeChanger: false }}
+            locale={{ emptyText: (
+              <Empty
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                description={dayBookings.length ? 'Không có lịch hẹn phù hợp với bộ lọc.' : 'Chưa có lịch hẹn đã xác nhận trong ngày này.'}
+              />
+            ) }}
+            bordered
+          />
+        </>
+      )}
+    </Drawer>
   );
 };
 

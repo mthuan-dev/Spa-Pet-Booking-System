@@ -136,10 +136,10 @@ const CarriageDetails = () => {
     <div>
       <Flex align="center" justify="space-between" className="mb-2">
         <PageHeader
-          heading="Quản lý toa tàu"
+          heading="Chỉnh sửa combo dịch vụ"
           links={[
             { title: 'Trang chủ', href: '/admin' },
-            { title: 'Toa tàu', href: '/admin/carriage-layouts' },
+            { title: 'Combo dịch vụ', href: '/admin/carriage-layouts' },
             { title: carriageLayout?.name, href: `/admin/carriage-layouts/${id}` },
             { title: 'Chỉnh sửa' },
           ]}

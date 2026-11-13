@@ -98,8 +98,8 @@ const ReportPage = () => {
     <>
       <Flex align="center" justify="space-between" className="mb-2">
         <PageHeader
-          heading="Thống kê"
-          links={[{ title: 'Trang chủ', href: '/admin' }, { title: 'Báo cáo và thống kê' }]}
+          heading="Báo cáo & Thống kê"
+          links={[{ title: 'Trang chủ', href: '/admin' }, { title: 'Báo cáo & Thống kê' }]}
         />
         <Space>
           <Select

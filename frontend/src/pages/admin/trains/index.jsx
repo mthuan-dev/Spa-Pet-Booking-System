@@ -8,7 +8,7 @@ const TrainsManagement = () => {
   return (
     <>
       <Flex align="center" justify="space-between" className="mb-2">
-        <PageHeader heading="Quản lý tàu hỏa" links={[{ title: 'Trang chủ', href: '/admin' }, { title: 'Tàu hỏa' }]} />
+        <PageHeader heading="Quản lý giá theo cân nặng" links={[{ title: 'Trang chủ', href: '/admin' }, { title: 'Giá theo cân nặng' }]} />
         <Space>
           <Link to="create">
             <Button type="primary" icon={<PlusOutlined />}>

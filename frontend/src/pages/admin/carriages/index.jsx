@@ -8,7 +8,7 @@ const CarriagesManagement = () => {
   return (
     <>
       <Flex align="center" justify="space-between" className="mb-2">
-        <PageHeader heading="Quản lý toa tàu" links={[{ title: 'Trang chủ', href: '/admin' }, { title: 'Toa tàu' }]} />
+        <PageHeader heading="Quản lý combo dịch vụ" links={[{ title: 'Trang chủ', href: '/admin' }, { title: 'Combo dịch vụ' }]} />
         <Space>
           <Link to="create">
             <Button type="primary" icon={<PlusOutlined />}>
