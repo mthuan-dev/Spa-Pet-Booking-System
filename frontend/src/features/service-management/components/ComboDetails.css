@@ -1,0 +1,157 @@
+.combo-details-card.ant-card > .ant-card-body {
+  padding: 20px;
+}
+
+.combo-details-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(240px, 1fr);
+  align-items: start;
+  gap: 28px;
+}
+
+.combo-details-fields {
+  min-width: 0;
+  margin: 0;
+}
+
+.combo-details-field {
+  display: grid;
+  grid-template-columns: 145px minmax(0, 1fr);
+  gap: 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid #edf1f5;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.combo-details-field:first-child {
+  padding-top: 0;
+}
+
+.combo-details-field:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.combo-details-field dt {
+  color: #788597;
+  font-size: 13px;
+}
+
+.combo-details-field dd {
+  min-width: 0;
+  margin: 0;
+  color: #172b41;
+  overflow-wrap: anywhere;
+}
+
+.combo-details-name dt {
+  padding-top: 3px;
+}
+
+.combo-details-name h2 {
+  margin: 0;
+  color: #172b41;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.combo-details-components {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.combo-details-components li {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  font-size: 14px;
+}
+
+.combo-details-components .anticon {
+  flex: none;
+  padding: 4px;
+  border-radius: 50%;
+  background: #edf7fd;
+  color: #006dae;
+  font-size: 10px;
+}
+
+.combo-details-description {
+  white-space: pre-wrap;
+}
+
+.combo-details-muted {
+  color: #929dab;
+}
+
+.combo-details-image {
+  overflow: hidden;
+  border: 1px solid #e8edf3;
+  border-radius: 8px;
+  background: #f7f9fc;
+}
+
+.combo-details-image .ant-image {
+  display: block;
+}
+
+.combo-details-image .ant-image-img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+}
+
+.combo-details-image-empty {
+  display: flex;
+  aspect-ratio: 1 / 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: #929dab;
+  font-size: 13px;
+}
+
+.combo-details-image-empty > .anticon {
+  color: #b6c7d7;
+  font-size: 40px;
+}
+
+@media (max-width: 1000px) {
+  .combo-details-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+  }
+
+  .combo-details-image {
+    width: 100%;
+    max-width: 420px;
+  }
+}
+
+@media (max-width: 575px) {
+  .combo-details-card.ant-card > .ant-card-body {
+    padding: 16px;
+  }
+
+  .combo-details-field {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 5px;
+    padding: 12px 0;
+  }
+
+  .combo-details-name dt {
+    padding-top: 0;
+  }
+
+  .combo-details-name h2 {
+    font-size: 18px;
+  }
+}

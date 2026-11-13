@@ -2,7 +2,7 @@ import { Col, Form, Input, InputNumber, Modal, Row, Select, TimePicker } from 'a
 import { useStations } from '~/features/trains/api/get-stations.jsx';
 import { searchWithoutDiacritics } from '~/utils/searchWithoutDiacritics.js';
 
-const AddStopPointModal = ({ open, closeModal, handleAddItem, dataSource }) => {
+const AddStopPointModal = ({ open, closeModal, handleAddItem, dataSource, isPending }) => {
   const { data } = useStations();
   const [form] = Form.useForm();
   const onFinish = (values) => {
@@ -18,7 +18,6 @@ const AddStopPointModal = ({ open, closeModal, handleAddItem, dataSource }) => {
     };
 
     handleAddItem(formattedValues);
-    form.resetFields();
   };
 
   return (
@@ -26,11 +25,15 @@ const AddStopPointModal = ({ open, closeModal, handleAddItem, dataSource }) => {
       title="Thêm điểm dừng"
       open={open}
       onOk={form.submit}
-      onCancel={closeModal}
+      onCancel={() => { if (!isPending) closeModal(); }}
+      confirmLoading={isPending}
+      cancelButtonProps={{ disabled: isPending }}
+      closable={!isPending}
+      keyboard={!isPending}
       mask={{ closable: false }}
       destroyOnHidden
     >
-      <Form form={form} layout="vertical" variant="filled" onFinish={onFinish} clearOnDestroy>
+      <Form form={form} layout="vertical" variant="filled" onFinish={onFinish} clearOnDestroy disabled={isPending}>
         <Row gutter={16}>
           <Col span={24}>
             <Form.Item

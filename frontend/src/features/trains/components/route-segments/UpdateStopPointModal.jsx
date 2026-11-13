@@ -6,7 +6,7 @@ import { searchWithoutDiacritics } from '~/utils/searchWithoutDiacritics.js';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 dayjs.extend(customParseFormat);
 
-const UpdateStopPointModal = ({ open, closeModal, handleUpdateItem, dataSource, selectedRow }) => {
+const UpdateStopPointModal = ({ open, closeModal, handleUpdateItem, dataSource, selectedRow, isPending }) => {
   const { data } = useStations();
   const [form] = Form.useForm();
   const onFinish = (values) => {
@@ -43,8 +43,18 @@ const UpdateStopPointModal = ({ open, closeModal, handleUpdateItem, dataSource, 
   }, [form, open, initialValues]);
 
   return (
-    <Modal title="Cập nhật điểm dừng" open={open} onOk={form.submit} onCancel={closeModal} mask={{ closable: false }}>
-      <Form form={form} initialValues={initialValues} layout="vertical" variant="filled" onFinish={onFinish}>
+    <Modal
+      title="Cập nhật điểm dừng"
+      open={open}
+      onOk={form.submit}
+      onCancel={() => { if (!isPending) closeModal(); }}
+      confirmLoading={isPending}
+      cancelButtonProps={{ disabled: isPending }}
+      closable={!isPending}
+      keyboard={!isPending}
+      mask={{ closable: false }}
+    >
+      <Form form={form} initialValues={initialValues} layout="vertical" variant="filled" onFinish={onFinish} disabled={isPending}>
         <Row gutter={16}>
           <Col span={24}>
             <Form.Item

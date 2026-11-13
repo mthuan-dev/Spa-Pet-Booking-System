@@ -5,7 +5,7 @@ const { Footer: FooterAnt } = Layout;
 const FooterAdmin = () => {
   return (
     <FooterAnt className="text-center">
-      Copyright © {new Date().getFullYear()} Ticket Booking
+      Copyright © {new Date().getFullYear()} PetSpa Booking
     </FooterAnt>
   );
 };

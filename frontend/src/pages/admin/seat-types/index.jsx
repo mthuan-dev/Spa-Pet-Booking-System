@@ -1,31 +1,5 @@
-import { PlusOutlined } from '@ant-design/icons';
-import { Button, Flex, Space } from 'antd';
-import PageHeader from '~/components/ui/page-header.jsx';
-import CreateSeatTypeModal from '~/features/seat-types/components/CreateSeatTypeModal.jsx';
-import SeatTypesTable from '~/features/seat-types/components/SeatTypesTable.jsx';
-import { useBoolean } from '~/hooks/useBoolean.jsx';
+import ServiceManagementPage from '~/features/service-management/components/ServiceManagementPage.jsx';
 
-const SeatsManagement = () => {
-  const { value: isOpenCreateModal, setFalse: closeCreateModal, setTrue: openCreateModal } = useBoolean(false);
-
-  return (
-    <>
-      <Flex align="center" justify="space-between" className="mb-2">
-        <PageHeader
-          heading="Quản lý dịch vụ lẻ"
-          links={[{ title: 'Trang chủ', href: '/admin' }, { title: 'Dịch vụ lẻ' }]}
-        />
-        <Space>
-          <Button onClick={openCreateModal} type="primary" icon={<PlusOutlined />}>
-            Thêm mới
-          </Button>
-        </Space>
-      </Flex>
-
-      <SeatTypesTable />
-      <CreateSeatTypeModal open={isOpenCreateModal} handleCancel={closeCreateModal} />
-    </>
-  );
-};
-
-export default SeatsManagement;
+export default function ServicesManagement() {
+  return <ServiceManagementPage category="SINGLE" />;
+}

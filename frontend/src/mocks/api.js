@@ -2,6 +2,7 @@ import { AxiosError } from 'axios';
 import dayjs from 'dayjs';
 import { DEMO_CREDENTIALS, DEMO_TOKEN, STORAGE_KEY, loadSampleData } from './data.js';
 import { currentUser } from '../features/profile/mocks/customerRepository.js';
+import { handleServiceCatalog } from './serviceCatalog.js';
 
 const normalize = (value) =>
   String(value ?? '')
@@ -65,6 +66,8 @@ function handle(config) {
   }
   const sessionUser = currentUser();
   if (sessionUser?.role !== 'ADMIN') fail('Vui lòng đăng nhập tài khoản quản trị', 401);
+  if (/^\/ad\/(services|service-prices)(\/\d+)?$/.test(path))
+    return handleServiceCatalog({ path, method, body, fail });
   if (path === '/auth/me') return { ...sessionUser, userRole: sessionUser.role };
   if (path === '/auth/refresh') return { token: DEMO_TOKEN, refreshToken: DEMO_TOKEN };
   if (path === '/public/stations') return db.stations;
@@ -73,7 +76,13 @@ function handle(config) {
 
   if (path === '/ad/users') {
     if (method === 'post') {
-      const user = { ...body, id: nextId(db.users), is_deleted: false, is_verified: true };
+      const email = String(body.email || '').trim().toLowerCase();
+      const userRole = body.userRole || 'CUSTOMER';
+      if (!['ADMIN', 'CUSTOMER'].includes(userRole)) fail('Vai trò tài khoản không hợp lệ.');
+      if (db.users.some((user) => String(user.email).toLowerCase() === email))
+        fail('Email này đã được sử dụng.', 409);
+      const user = { ...body, email, userRole, id: nextId(db.users), is_deleted: false, is_verified: true };
+      delete user.password;
       db.users.push(user);
       return save(user);
     }
@@ -90,6 +99,8 @@ function handle(config) {
   if (userMatch) {
     const user = find(db.users, userMatch[1]);
     if (method === 'put') {
+      if (body.userRole !== undefined && !['ADMIN', 'CUSTOMER'].includes(body.userRole))
+        fail('Vai trò tài khoản không hợp lệ.');
       Object.assign(user, body, { id: user.id });
       return save(user);
     }

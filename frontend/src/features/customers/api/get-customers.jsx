@@ -5,7 +5,7 @@ import { api } from '~/lib/api.js';
 export const getCustomers = (page, size, keyword) => {
   return api.get(`/ad/users`, {
     params: {
-      role: USER_ROLES.USER,
+      role: USER_ROLES.CUSTOMER,
       page,
       size,
       keyword,

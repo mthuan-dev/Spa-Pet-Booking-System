@@ -19,6 +19,7 @@ public class DatLich {
     private String codeDatLich;
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "manguoidung", nullable = false)
+    // Customer account (VaiTro.CUSTOMER).
     private NguoiDung nguoiDung;
     @Column(name = "tenlienhe", nullable = false, length = 100)
     private String tenLienHe;
@@ -39,7 +40,8 @@ public class DatLich {
     private String ghiChu;
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "manhanvien", nullable = false)
-    private NhanVien nhanVien;
+    // Assigned employee account (VaiTro.ADMIN), from the same nguoidung table.
+    private NguoiDung nhanVien;
     @Column(name = "ngayhen", nullable = false)
     private LocalDate ngayHen;
     @Column(name = "giobatdau", nullable = false)
@@ -82,8 +84,8 @@ public class DatLich {
     public void setCanNangThuCung(BigDecimal canNangThuCung) { this.canNangThuCung = canNangThuCung; }
     public String getGhiChu() { return ghiChu; }
     public void setGhiChu(String ghiChu) { this.ghiChu = ghiChu; }
-    public NhanVien getNhanVien() { return nhanVien; }
-    public void setNhanVien(NhanVien nhanVien) { this.nhanVien = nhanVien; }
+    public NguoiDung getNhanVien() { return nhanVien; }
+    public void setNhanVien(NguoiDung nhanVien) { this.nhanVien = nhanVien; }
     public LocalDate getNgayHen() { return ngayHen; }
     public void setNgayHen(LocalDate ngayHen) { this.ngayHen = ngayHen; }
     public LocalTime getGioBatDau() { return gioBatDau; }

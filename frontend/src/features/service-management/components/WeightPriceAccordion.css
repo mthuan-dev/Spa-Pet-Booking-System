@@ -1,0 +1,56 @@
+.wp-price-list { color: #172b41; }
+.wp-page-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 8px; }
+.wp-price-body { padding: 16px; }
+.wp-price-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+.wp-service-search { max-width: 300px; }
+.wp-catalog-summary { color: #8491a4; font-size: 13px; white-space: nowrap; }
+.wp-catalog-summary > span { margin: 0 6px; }
+.wp-service-heading { display: flex; align-items: center; gap: 14px; min-width: 0; }
+.wp-service-heading-text { min-width: 0; }
+.wp-service-heading h3 { margin: 0 0 3px; color: #172b41; font-size: 14px; line-height: 1.5; font-weight: 600; }
+.wp-duration { display: inline-flex; align-items: center; gap: 5px; color: #8994a3; font-size: 11px; }
+.wp-price-pencil { color: #006dae; opacity: 0; transition: opacity .18s; }
+.wp-quick-editor { width: 285px; padding: 6px; font-family: 'Be Vietnam Pro', sans-serif; }
+.wp-quick-editor > strong { display: block; margin-bottom: 5px; color: #172b41; font-size: 14px; }
+.wp-quick-context { display: block; margin-bottom: 18px; color: #8491a4; font-size: 11px; line-height: 1.6; }
+.wp-quick-editor label { display: block; margin-bottom: 7px; color: #4c5c70; font-size: 12px; }
+.wp-quick-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
+.wp-service-accordion.ant-collapse { border: 0; background: transparent; }
+.wp-service-accordion.ant-collapse > .ant-collapse-item { overflow: hidden; margin-bottom: 12px; border: 1px solid #e4eaf0; border-radius: 9px; background: #fff; }
+.wp-service-accordion.ant-collapse > .ant-collapse-item > .ant-collapse-header { align-items: center; padding: 17px 20px; }
+.wp-service-accordion .ant-collapse-header-text { min-width: 0; }
+.wp-expand-toggle { position: relative; display: inline-block; box-sizing: border-box; width: 18px; height: 18px; border: 1px solid #f0f0f0; border-radius: 6px; background: #fff; color: rgb(0 0 0 / 88%); line-height: 18px; transition: border-color .3s, color .3s; }
+.wp-expand-toggle::before, .wp-expand-toggle::after { content: ''; position: absolute; background: currentColor; transition: transform .3s ease-out; }
+.wp-expand-toggle::before { top: 7.5px; inset-inline: 3px; height: 1px; }
+.wp-expand-toggle::after { top: 3px; bottom: 3px; inset-inline-start: 7.5px; width: 1px; }
+.wp-expand-toggle-expanded::after { transform: rotate(90deg); }
+.wp-service-accordion .ant-collapse-expand-icon:hover .wp-expand-toggle { color: #006dae; border-color: currentColor; }
+.wp-service-accordion .ant-collapse-expand-icon:focus-visible { outline: none; }
+.wp-service-accordion .ant-collapse-expand-icon:focus-visible .wp-expand-toggle { outline: 2px solid #91caff; outline-offset: 2px; }
+.wp-service-accordion .ant-collapse-content { border-top: 1px solid #edf1f5; background: #fbfcfe; }
+.wp-service-accordion .ant-collapse-content-box { padding: 8px 22px 12px 50px; }
+.wp-service-accordion .ant-collapse-item-active { border-color: #9fc3df; }
+.wp-accordion-summary { display: flex; align-items: center; gap: 40px; padding-left: 20px; }
+.wp-accordion-summary > span { color: #929dab; font-size: 12px; }
+.wp-accordion-summary > strong { min-width: 140px; color: #006dae; font-size: 14px; font-weight: 600; text-align: right; }
+.wp-band-list-heading { display: flex; justify-content: space-between; gap: 16px; padding: 12px 4px; border-bottom: 1px solid #e7edf4; color: #8592a3; font-size: 11px; font-weight: 500; }
+.wp-band-list-heading > span:last-child { padding-right: 26px; }
+.wp-band-row { display: flex; justify-content: space-between; align-items: center; gap: 16px; min-height: 60px; border-bottom: 1px solid #edf1f5; }
+.wp-band-weight { display: inline-flex; align-items: center; gap: 11px; color: #42546a; font-size: 14px; }
+.wp-band-dot { width: 7px; height: 7px; border: 2px solid #85afce; border-radius: 50%; }
+.wp-price-edit { display: flex; align-items: center; justify-content: flex-end; gap: 12px; min-width: 160px; padding: 9px 8px; border: 1px solid transparent; border-radius: 6px; background: transparent; cursor: pointer; transition: border-color .18s, background .18s; }
+.wp-price-edit > strong { color: #172b41; font-size: 15px; font-weight: 600; }
+.wp-price-edit > .wp-price-pencil { font-size: 12px; opacity: .45; }
+.wp-price-edit:hover, .wp-price-edit:focus-visible { border-color: #c3ddef; background: #eef7ff; outline: none; }
+.wp-price-edit:hover > strong, .wp-price-edit:hover > .wp-price-pencil { color: #006dae; opacity: 1; }
+.wp-add-band.ant-btn { margin-top: 12px; color: #006dae; font-size: 12px; }
+@media (max-width: 700px) {
+  .wp-price-body { padding: 10px; }
+  .wp-price-toolbar { align-items: flex-start; flex-direction: column; gap: 10px; }
+  .wp-catalog-summary { font-size: 11px; }
+  .wp-service-accordion.ant-collapse > .ant-collapse-item > .ant-collapse-header { padding: 14px 10px; }
+  .wp-accordion-summary { flex-direction: column; align-items: flex-end; gap: 4px; padding-left: 10px; }
+  .wp-accordion-summary > span { display: none; }
+  .wp-accordion-summary > strong { min-width: 0; font-size: 12px; }
+  .wp-service-accordion .ant-collapse-content-box { padding: 8px 14px; }
+}

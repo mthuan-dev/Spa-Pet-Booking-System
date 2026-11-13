@@ -1,4 +1,4 @@
-import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, ToolOutlined } from '@ant-design/icons';
 import { Button, Flex, Input, Space, Table, Tag } from 'antd';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -28,7 +28,7 @@ const DogIcon = () => (
   </svg>
 );
 
-export const CustomerTable = () => {
+export const CustomerTable = ({ onEdit, onToggleStatus, isUpdating = false }) => {
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [keyword, setKeyword] = useState('');
@@ -88,10 +88,24 @@ export const CustomerTable = () => {
       {
         title: 'Action',
         key: 'action',
-        render: () => (
+        render: (customer) => (
           <Space>
-            <Button disabled onClick={null} icon={<EditOutlined />} iconPlacement={'end'} />
-            <Button disabled onClick={null} icon={<DeleteOutlined />} iconPlacement={'end'} />
+            <Button
+              onClick={() => onEdit(customer)}
+              disabled={isUpdating}
+              icon={<EditOutlined />}
+              iconPlacement={'end'}
+              title="Chỉnh sửa khách hàng"
+              aria-label="Chỉnh sửa khách hàng"
+            />
+            <Button
+              onClick={() => onToggleStatus(customer)}
+              disabled={isUpdating}
+              icon={customer.is_deleted ? <ToolOutlined /> : <DeleteOutlined />}
+              iconPlacement={'end'}
+              title={customer.is_deleted ? 'Khôi phục khách hàng' : 'Vô hiệu hóa khách hàng'}
+              aria-label={customer.is_deleted ? 'Khôi phục khách hàng' : 'Vô hiệu hóa khách hàng'}
+            />
             <Button
               size="small"
               icon={<DogIcon />}
@@ -104,7 +118,7 @@ export const CustomerTable = () => {
         ),
       },
     ],
-    [navigate, trainId],
+    [navigate, trainId, onEdit, onToggleStatus, isUpdating],
   );
 
   return (

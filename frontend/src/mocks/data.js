@@ -99,7 +99,7 @@ export function createSampleData() {
     email: i === 0 ? DEMO_CREDENTIALS.email : `user${i + 1}@example.com`,
     phone: `090${String(1234567 + i)}`,
     address: `${i + 10} Nguyễn Huệ, TP. Hồ Chí Minh`,
-    userRole: i < 5 ? 'ADMIN' : 'USER',
+    userRole: i < 5 ? 'ADMIN' : 'CUSTOMER',
     gender: i % 2 ? 'FEMALE' : 'MALE',
     is_deleted: i === 4,
     is_verified: true,
@@ -206,11 +206,21 @@ export function createSampleData() {
 }
 
 export function loadSampleData() {
+  let saved;
   try {
-    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    if (saved?.trains && saved?.schedules && saved?.users) return saved;
+    saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
   } catch {
     /* Initialize the isolated preview with fresh sample data. */
+  }
+  if (saved?.trains && saved?.schedules && Array.isArray(saved?.users)) {
+    // Keep existing preview records while aligning the old role with nguoidung.vaitro.
+    if (saved.users.some((user) => user.userRole === 'USER')) {
+      saved.users.forEach((user) => {
+        if (user.userRole === 'USER') user.userRole = 'CUSTOMER';
+      });
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+    }
+    return saved;
   }
   const data = createSampleData();
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));

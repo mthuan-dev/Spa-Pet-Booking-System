@@ -1,6 +1,6 @@
 const USER_ROLES = {
   ADMIN: 'ADMIN',
-  USER: 'USER',
+  CUSTOMER: 'CUSTOMER',
 };
 
 const ROW_PER_PAGE = 8;

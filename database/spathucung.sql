@@ -72,7 +72,7 @@ CREATE TABLE `danhgia` (
 CREATE TABLE `datlich` (
   `madatlich` int(11) NOT NULL,
   `codedatlich` varchar(30) NOT NULL,
-  `manguoidung` int(11) NOT NULL,
+  `manguoidung` int(11) NOT NULL COMMENT 'Khach hang: nguoidung.vaitro = CUSTOMER',
   `tenlienhe` varchar(100) NOT NULL,
   `sdtlienhe` varchar(15) NOT NULL,
   `emaillienhe` varchar(100) NOT NULL,
@@ -81,7 +81,7 @@ CREATE TABLE `datlich` (
   `loaithucung` enum('DOG','CAT','OTHER') NOT NULL,
   `cannangthucung` decimal(5,2) NOT NULL,
   `ghichu` text DEFAULT NULL,
-  `manhanvien` int(11) NOT NULL,
+  `manhanvien` int(11) NOT NULL COMMENT 'Nhan vien phu trach: nguoidung.vaitro = ADMIN',
   `ngayhen` date NOT NULL,
   `giobatdau` time NOT NULL,
   `gioketthuc` time NOT NULL,
@@ -120,6 +120,7 @@ CREATE TABLE `dichvu` (
 CREATE TABLE `giadichvu` (
   `magiadichvu` int(11) NOT NULL,
   `madichvu` int(11) NOT NULL,
+  `loaithucung` enum('DOG','CAT','OTHER') NOT NULL,
   `cannangtu` decimal(5,2) NOT NULL,
   `cannangden` decimal(5,2) NOT NULL,
   `gia` decimal(12,2) NOT NULL
@@ -139,24 +140,7 @@ CREATE TABLE `nguoidung` (
   `sodienthoai` varchar(15) DEFAULT NULL,
   `googleid` varchar(255) DEFAULT NULL,
   `nhacungcap` enum('LOCAL','GOOGLE') NOT NULL DEFAULT 'LOCAL',
-  `vaitro` enum('CUSTOMER','ADMIN') NOT NULL DEFAULT 'CUSTOMER',
-  `trangthai` tinyint(4) NOT NULL DEFAULT 1,
-  `ngaytao` datetime NOT NULL DEFAULT current_timestamp(),
-  `ngaycapnhat` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `nhanvien`
---
-
-CREATE TABLE `nhanvien` (
-  `manhanvien` int(11) NOT NULL,
-  `ten` varchar(100) NOT NULL,
-  `gioitinh` enum('MALE','FEMALE','OTHER') NOT NULL DEFAULT 'OTHER',
-  `sodienthoai` varchar(15) NOT NULL,
-  `email` varchar(100) DEFAULT NULL,
+  `vaitro` enum('CUSTOMER','ADMIN') NOT NULL DEFAULT 'CUSTOMER' COMMENT 'CUSTOMER: khach hang; ADMIN: nhan vien',
   `trangthai` tinyint(4) NOT NULL DEFAULT 1,
   `ngaytao` datetime NOT NULL DEFAULT current_timestamp(),
   `ngaycapnhat` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
@@ -258,7 +242,7 @@ ALTER TABLE `dichvu`
 --
 ALTER TABLE `giadichvu`
   ADD PRIMARY KEY (`magiadichvu`),
-  ADD UNIQUE KEY `uq_giadichvu_mucgia` (`madichvu`,`cannangtu`,`cannangden`),
+  ADD UNIQUE KEY `uq_giadichvu_mucgia` (`madichvu`,`loaithucung`,`cannangtu`,`cannangden`),
   ADD KEY `idx_giadichvu_dichvu` (`madichvu`);
 
 --
@@ -269,14 +253,6 @@ ALTER TABLE `nguoidung`
   ADD UNIQUE KEY `uq_nguoidung_email` (`email`),
   ADD UNIQUE KEY `uq_nguoidung_sodienthoai` (`sodienthoai`),
   ADD UNIQUE KEY `uq_nguoidung_googleid` (`googleid`);
-
---
--- Indexes for table `nhanvien`
---
-ALTER TABLE `nhanvien`
-  ADD PRIMARY KEY (`manhanvien`),
-  ADD UNIQUE KEY `uq_nhanvien_sodienthoai` (`sodienthoai`),
-  ADD UNIQUE KEY `uq_nhanvien_email` (`email`);
 
 --
 -- Indexes for table `thanhtoan`
@@ -336,12 +312,6 @@ ALTER TABLE `nguoidung`
   MODIFY `manguoidung` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `nhanvien`
---
-ALTER TABLE `nhanvien`
-  MODIFY `manhanvien` int(11) NOT NULL AUTO_INCREMENT;
-
---
 -- AUTO_INCREMENT for table `thanhtoan`
 --
 ALTER TABLE `thanhtoan`
@@ -382,7 +352,7 @@ ALTER TABLE `danhgia`
 --
 ALTER TABLE `datlich`
   ADD CONSTRAINT `fk_datlich_nguoidung` FOREIGN KEY (`manguoidung`) REFERENCES `nguoidung` (`manguoidung`) ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_datlich_nhanvien` FOREIGN KEY (`manhanvien`) REFERENCES `nhanvien` (`manhanvien`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_datlich_nhanvien` FOREIGN KEY (`manhanvien`) REFERENCES `nguoidung` (`manguoidung`) ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_datlich_thucung` FOREIGN KEY (`mathucung`) REFERENCES `thucung` (`mathucung`) ON UPDATE CASCADE;
 
 --

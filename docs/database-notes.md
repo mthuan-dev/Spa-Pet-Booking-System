@@ -1,6 +1,6 @@
 # Database notes
 
-`database/spathucung.sql` is the source of truth. No schema changes were made. No separate business requirements document was present in the repository when the scaffold was prepared.
+`database/spathucung.sql` is the source of truth. Employee and customer accounts share `nguoidung`: `vaitro = ADMIN` identifies employees, while `vaitro = CUSTOMER` identifies customers. There is no separate employee table.
 
 ## Schema summary
 
@@ -9,9 +9,8 @@
 | `nguoidung` | `manguoidung` (auto increment) | Unique email, nullable unique phone and `googleid`; enums `nhacungcap` (LOCAL/GOOGLE), `vaitro` (CUSTOMER/ADMIN) |
 | `thucung` | `mathucung` (auto increment) | Required owner FK; DOG/CAT/OTHER; decimal weight |
 | `dichvu` | `madichvu` (auto increment) | SINGLE/COMBO enum; duration; nullable image/description |
-| `giadichvu` | `magiadichvu` (auto increment) | Required service FK; unique `(madichvu,cannangtu,cannangden)`; decimal weight band and price |
-| `nhanvien` | `manhanvien` (auto increment) | MALE/FEMALE/OTHER; unique required phone and nullable email |
-| `datlich` | `madatlich` (auto increment) | Unique booking code; required user, pet, staff FKs; copied contact/pet fields; date/time; PENDING/CONFIRMED/COMPLETED/CANCELLED and UNPAID/PAID enums |
+| `giadichvu` | `magiadichvu` (auto increment) | Required service FK; DOG/CAT/OTHER; unique `(madichvu,loaithucung,cannangtu,cannangden)`; decimal weight band and price |
+| `datlich` | `madatlich` (auto increment) | Unique booking code; `manguoidung` and `manhanvien` both reference `nguoidung.manguoidung`; required pet FK; copied contact/pet fields; date/time; PENDING/CONFIRMED/COMPLETED/CANCELLED and UNPAID/PAID enums |
 | `chitietdatlich` | `id` (auto increment) | Required booking and service FKs; unique `(madatlich,madichvu)`; stores service name, price and duration snapshots |
 | `chitietcombo` | `(macombo,madichvucon)` | Both columns are required FKs to `dichvu`; `macombo` cascades on delete |
 | `danhgia` | `madanhgia` (auto increment) | Unique booking FK; nullable comment; `is_hidden` tinyint; timestamps |
@@ -19,8 +18,10 @@
 
 ## Relationships reflected by foreign keys
 
-- One user can own many pets and bookings; each pet and booking has one required user.
-- One pet and one staff member can each be referenced by many bookings; each booking references one of each.
+- One customer account can own many pets and bookings; each pet and booking has one required owner/customer.
+- `datlich.manguoidung` identifies the customer (`CUSTOMER`); `datlich.manhanvien` identifies the assigned employee (`ADMIN`). Both are required foreign keys to `nguoidung.manguoidung`, reflected by two `NguoiDung` associations in `DatLich`.
+- One pet and one employee account can each be referenced by many bookings; each booking references one of each.
+- Account and booking services must filter/check `vaitro` when selecting customers or employees. The foreign keys verify account existence, not role; `NguoiDungRepository` provides role-based lookup methods.
 - One booking can have many booking detail rows and payment rows. The SQL does not make `thanhtoan.madatlich` unique.
 - A booking can have at most one review because `danhgia.madatlich` is unique.
 - One service can have many price bands and booking detail rows.

@@ -1,73 +1,15 @@
 import { Button, Popconfirm, Space, Table } from 'antd';
-import { DeleteOutlined, EditOutlined, HolderOutlined, PlusSquareOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
-import React, { useContext, useMemo } from 'react';
-import { DragDropProvider } from '@dnd-kit/react';
-import { useSortable } from '@dnd-kit/react/sortable';
-import { RestrictToVerticalAxis } from '@dnd-kit/abstract/modifiers';
-import { move } from '@dnd-kit/helpers';
-
-const RowContext = React.createContext({});
-const verticalModifiers = [RestrictToVerticalAxis];
-const DragHandle = () => {
-  const { handleRef } = useContext(RowContext);
-  return (
-    <Button
-      type="text"
-      size="small"
-      icon={<HolderOutlined />}
-      style={{
-        cursor: 'move',
-      }}
-      ref={handleRef}
-      aria-label="Đổi thứ tự điểm dừng"
-    />
-  );
-};
-
-const Row = ({ sortableIndex, ...props }) => {
-  const { ref, handleRef, isDragging } = useSortable({
-    id: props['data-row-key'],
-    index: sortableIndex,
-  });
-
-  const style = {
-    ...props.style,
-    ...(isDragging
-      ? {
-          position: 'relative',
-          zIndex: 99,
-        }
-      : {}),
-  };
-  const contextValue = useMemo(
-    () => ({
-      handleRef,
-    }),
-    [handleRef],
-  );
-  return (
-    <RowContext.Provider value={contextValue}>
-      <tr {...props} ref={ref} style={style} />
-    </RowContext.Provider>
-  );
-};
 
 const RouteSegmentsTable = ({
   dataSource,
-  setDataSource,
-  openAddModal,
   openUpdateModal,
   setSelectedRow,
   handleDelete,
+  isPending,
 }) => {
   const columns = [
-    {
-      key: 'sort',
-      align: 'center',
-      width: 80,
-      render: () => <DragHandle />,
-    },
     {
       title: '#',
       dataIndex: 'stt',
@@ -109,58 +51,43 @@ const RouteSegmentsTable = ({
           <Button
             icon={<EditOutlined />}
             size="small"
+            disabled={isPending}
+            title="Chỉnh sửa"
+            aria-label="Chỉnh sửa"
             onClick={() => {
               setSelectedRow(record);
               openUpdateModal();
             }}
           />
-          <PopconfirmDelete onConfirm={() => handleDelete(index)} />
+          <PopconfirmDelete onConfirm={() => handleDelete(index)} disabled={isPending} />
         </Space>
       ),
     },
   ];
 
-  const handleDragEnd = (event) => {
-    if (event.canceled) return;
-    setDataSource((records) =>
-      move(records.map((record) => ({ id: record.station.id, record })), event).map((item) => item.record),
-    );
-  };
-
   return (
-    <DragDropProvider modifiers={verticalModifiers} onDragEnd={handleDragEnd}>
-        <Table
-          dataSource={dataSource}
-          columns={columns}
-          size="small"
-          footer={() => (
-            <Button icon={<PlusSquareOutlined />} onClick={openAddModal}>
-              Thêm điểm dừng
-            </Button>
-          )}
-          rowKey={(record) => record.station.id}
-          onRow={(_, index) => ({ sortableIndex: index })}
-          pagination={false}
-          components={{
-            body: {
-              row: Row,
-            },
-          }}
-        />
-    </DragDropProvider>
+    <Table
+      dataSource={dataSource}
+      columns={columns}
+      size="small"
+      rowKey={(record) => record.station.id}
+      pagination={false}
+      loading={isPending}
+    />
   );
 };
 
-const PopconfirmDelete = ({ onConfirm }) => {
+const PopconfirmDelete = ({ onConfirm, disabled }) => {
   return (
     <Popconfirm
       title="Bạn có chắc chắn muốn xóa điểm dừng?"
       onConfirm={onConfirm}
+      disabled={disabled}
       okText="Có"
       cancelText="Không"
       placement="topRight"
     >
-      <Button icon={<DeleteOutlined />} size="small" danger />
+      <Button icon={<DeleteOutlined />} size="small" danger disabled={disabled} title="Xóa" aria-label="Xóa" />
     </Popconfirm>
   );
 };

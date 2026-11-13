@@ -1,9 +1,10 @@
 import { App, Button, Card, Descriptions, Flex } from 'antd';
-import { SaveOutlined } from '@ant-design/icons';
-import { useState, useCallback, useMemo } from 'react';
+import { PlusOutlined } from '@ant-design/icons';
+import { useState, useMemo } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useBoolean } from '~/hooks/useBoolean.jsx';
 import dayjs from 'dayjs';
-import { useLoaderData } from 'react-router-dom';
+import { useLoaderData, useParams } from 'react-router-dom';
 import { trainQuery } from '~/features/trains/api/get-route-segments.jsx';
 import PageHeader from '~/components/ui/page-header.jsx';
 import AddStopPointModal from '~/features/trains/components/route-segments/AddStopPointModal.jsx';
@@ -21,41 +22,32 @@ export const RouteSegmentsLoader =
 
 const RouteSegments = () => {
   const { id, name, route, route_segments } = useLoaderData();
+  const { trainId } = useParams();
+  const queryClient = useQueryClient();
   const { message } = App.useApp();
   const [dataSource, setDataSource] = useState(route_segments);
   const [selectedRow, setSelectedRow] = useState(null);
   const { value: isAddModalOpen, setTrue: openAddModal, setFalse: closeAddModal } = useBoolean();
   const { value: isUpdateModalOpen, setTrue: openUpdateModal, setFalse: closeUpdateModal } = useBoolean();
 
-  const handleDeleteItem = useCallback((index) => {
-    setDataSource((prev) => prev.filter((_, i) => i !== index));
-  }, []);
-
-  const handleAddItem = useCallback(
-    (values) => {
-      setDataSource((prev) => [...prev, values]);
-      closeAddModal();
-    },
-    [closeAddModal],
-  );
-
-  const handleUpdateItem = useCallback(
-    (values) => {
-      setDataSource((prev) => prev.map((item) => (item.station.id === values.station.id ? values : item)));
-      closeUpdateModal();
-    },
-    [closeUpdateModal],
-  );
-
   const mutation = useSaveRouteSegments({
     mutationConfig: {
-      onSuccess: () => message.success('Lưu thành công!'),
-      onError: () => message.error('Có lỗi xảy ra!'),
+      onSuccess: (savedTrain) => {
+        setDataSource(savedTrain.route_segments);
+        queryClient.setQueryData(trainQuery(trainId).queryKey, savedTrain);
+        closeAddModal();
+        closeUpdateModal();
+        message.success('Đã lưu thay đổi!');
+      },
+      onError: (error) => {
+        message.error(error?.response?.data?.detail || 'Chưa lưu được thay đổi. Vui lòng thử lại.');
+      },
     },
   });
 
-  const handleSave = useCallback(() => {
-    const data = dataSource.map((item) => ({
+  const saveItems = (items) => {
+    if (mutation.isPending) return;
+    const data = items.map((item) => ({
       station_id: item.station.id,
       distance: item.distance,
       day_number: item.day_number,
@@ -64,7 +56,20 @@ const RouteSegments = () => {
     }));
 
     mutation.mutate({ id, segments: data });
-  }, [dataSource, id, mutation]);
+  };
+
+  const handleDeleteItem = (index) => {
+    saveItems(dataSource.filter((_, i) => i !== index));
+  };
+
+  const handleAddItem = (values) => {
+    saveItems([...dataSource, values]);
+  };
+
+  const handleUpdateItem = (values) => {
+    if (!selectedRow) return;
+    saveItems(dataSource.map((item) => (item.station.id === selectedRow.station.id ? values : item)));
+  };
 
   const pageHeaderLinks = useMemo(
     () => [
@@ -94,17 +99,17 @@ const RouteSegments = () => {
     {
       key: '4',
       label: 'Giờ đi',
-      children: route_segments[0]?.departure_time ?? 'Chưa cập nhật',
+      children: dataSource[0]?.departure_time ?? 'Chưa cập nhật',
     },
     {
       key: '5',
       label: 'Giờ đến',
-      children: route_segments[route_segments.length - 1]?.arrival_time ?? 'Chưa cập nhật',
+      children: dataSource[dataSource.length - 1]?.arrival_time ?? 'Chưa cập nhật',
     },
     {
       key: '6',
       label: 'Thời gian hành trình',
-      children: calculateTravelTime(route_segments[0], route_segments[route_segments.length - 1]),
+      children: calculateTravelTime(dataSource[0], dataSource[dataSource.length - 1]),
     },
   ];
 
@@ -112,8 +117,8 @@ const RouteSegments = () => {
     <>
       <Flex align="center" justify="space-between" className="mb-4">
         <PageHeader heading="Quản lý thú cưng" links={pageHeaderLinks} />
-        <Button type="primary" icon={<SaveOutlined />} onClick={handleSave} loading={mutation.isPending}>
-          Lưu
+        <Button type="primary" icon={<PlusOutlined />} onClick={openAddModal} disabled={mutation.isPending}>
+          Thêm mới
         </Button>
       </Flex>
 
@@ -123,17 +128,17 @@ const RouteSegments = () => {
 
       <RouteSegmentsTable
         dataSource={dataSource}
-        setDataSource={setDataSource}
-        openAddModal={openAddModal}
         openUpdateModal={openUpdateModal}
         handleDelete={handleDeleteItem}
         setSelectedRow={setSelectedRow}
+        isPending={mutation.isPending}
       />
       <AddStopPointModal
         open={isAddModalOpen}
         closeModal={closeAddModal}
         handleAddItem={handleAddItem}
         dataSource={dataSource}
+        isPending={mutation.isPending}
       />
       <UpdateStopPointModal
         open={isUpdateModalOpen}
@@ -141,6 +146,7 @@ const RouteSegments = () => {
         handleUpdateItem={handleUpdateItem}
         selectedRow={selectedRow}
         dataSource={dataSource}
+        isPending={mutation.isPending}
       />
     </>
   );
