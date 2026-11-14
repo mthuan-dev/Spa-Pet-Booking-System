@@ -3,7 +3,9 @@ package com.petspa.petbooking.entity;
 import com.petspa.petbooking.entity.enums.NhaCungCap;
 import com.petspa.petbooking.entity.enums.VaiTro;
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.type.SqlTypes;
 import java.time.LocalDateTime;
 
@@ -30,9 +32,11 @@ public class NguoiDung {
     private VaiTro vaiTro;
     @JdbcTypeCode(SqlTypes.TINYINT) @Column(name = "trangthai", nullable = false)
     private Integer trangThai;
+    @CreationTimestamp
     @Column(name = "ngaytao", nullable = false)
     private LocalDateTime ngayTao;
-    @Column(name = "ngaycapnhat", nullable = false)
+    @UpdateTimestamp
+    @Column(name = "ngaycapnhat")
     private LocalDateTime ngayCapNhat;
 
     public NguoiDung() {}
