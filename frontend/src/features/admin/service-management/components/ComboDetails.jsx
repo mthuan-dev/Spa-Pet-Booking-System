@@ -11,7 +11,7 @@ const ComboImage = ({ combo }) => {
     <div className="combo-details-image">
       {combo.hinhanh && !failed ? (
         <Image
-          src={combo.hinhanh}
+          src={combo.hinhanhUrl || combo.hinhanh}
           alt={combo.ten}
           width="100%"
           onError={() => setFailed(true)}

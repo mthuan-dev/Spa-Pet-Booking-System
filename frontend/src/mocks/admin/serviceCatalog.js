@@ -1,4 +1,5 @@
 import { MOCK_SERVICES } from '../../features/catalog/mocks/services.js';
+import { serviceImageUrl } from './serviceImages.js';
 
 // Admin preview data uses the columns of dichvu, chitietcombo and giadichvu.
 export const SERVICE_CATALOG_STORAGE_KEY = 'petspa-admin-service-catalog-v1';
@@ -107,7 +108,10 @@ export function handleServiceCatalog({ path, method, body, fail }) {
     localStorage.setItem(SERVICE_CATALOG_STORAGE_KEY, JSON.stringify(catalog));
     return result;
   };
-  if (path === '/ad/services' && method === 'get') return catalog;
+  if (path === '/ad/services' && method === 'get') return {
+    ...catalog,
+    dichvu: catalog.dichvu.map((service) => ({ ...service, hinhanhUrl: serviceImageUrl(service.hinhanh) })),
+  };
 
   const serviceMatch = path.match(/^\/ad\/services(?:\/(\d+))?$/);
   if (serviceMatch && ['post', 'put'].includes(method)) {

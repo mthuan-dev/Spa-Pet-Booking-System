@@ -1,24 +1,29 @@
 import { App, Button, Col, Flex, Form, Input, InputNumber, Row, Select } from 'antd';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useSaveCatalogItem } from '../api/catalog.js';
 import { errorMessage } from './catalogShared.jsx';
+import ServiceImageInput from './ServiceImageInput.jsx';
 
 const ServiceForm = ({ category, service, catalog, onSuccess, onCancel, onPendingChange }) => {
   const [form] = Form.useForm();
+  const [imageFile, setImageFile] = useState(null);
+  const [imageBusy, setImageBusy] = useState(false);
   const { message } = App.useApp();
   const isCombo = category === 'COMBO';
   const mutation = useSaveCatalogItem('services', () => {
     message.success(service ? 'Cập nhật dịch vụ thành công!' : 'Thêm dịch vụ thành công!');
     onSuccess();
   });
-  useEffect(() => { onPendingChange?.(mutation.isPending); }, [mutation.isPending, onPendingChange]);
+  useEffect(() => { onPendingChange?.(mutation.isPending || imageBusy); }, [mutation.isPending, imageBusy, onPendingChange]);
   const children = catalog.chitietcombo.filter((item) => item.macombo === service?.madichvu)
     .map((item) => item.madichvucon);
 
   const handleSubmit = async ({ madichvucon, ...values }) => {
+    if (imageBusy || mutation.isPending) return;
     try {
       await mutation.mutateAsync({
         id: service?.madichvu,
+        imageFile,
         data: {
           ...values,
           ten: values.ten.trim(),
@@ -60,15 +65,16 @@ const ServiceForm = ({ category, service, catalog, onSuccess, onCancel, onPendin
         </Col>
       </Row>
       <Form.Item label="Hình ảnh" name="hinhanh" rules={[{ max: 255, message: 'Đường dẫn ảnh tối đa 255 ký tự.' }]}>
-        <Input maxLength={255} placeholder="Nhập đường dẫn hình ảnh..." />
+        <ServiceImageInput file={imageFile} onFileChange={setImageFile} imageUrl={service?.hinhanhUrl}
+          disabled={mutation.isPending} onBusyChange={setImageBusy} />
       </Form.Item>
       <Form.Item label="Mô tả" name="mota">
         <Input.TextArea rows={3} placeholder="Nhập mô tả dịch vụ..." />
       </Form.Item>
       <Form.Item className="mb-0 pt-2">
         <Flex justify="end" gap={12}>
-          <Button onClick={onCancel}>Hủy</Button>
-          <Button type="primary" htmlType="submit" loading={mutation.isPending}>
+          <Button onClick={onCancel} disabled={mutation.isPending || imageBusy}>Hủy</Button>
+          <Button type="primary" htmlType="submit" loading={mutation.isPending} disabled={imageBusy}>
             {service ? 'Lưu thay đổi' : 'Tạo mới'}
           </Button>
         </Flex>

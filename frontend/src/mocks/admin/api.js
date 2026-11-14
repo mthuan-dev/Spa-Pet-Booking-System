@@ -3,6 +3,7 @@ import dayjs from 'dayjs';
 import { DEMO_CREDENTIALS, DEMO_TOKEN, STORAGE_KEY, loadSampleData } from './data.js';
 import { currentUser } from '../../features/profile/mocks/customerRepository.js';
 import { handleServiceCatalog } from './serviceCatalog.js';
+import { uploadServiceImage } from './serviceImages.js';
 
 const normalize = (value) =>
   String(value ?? '')
@@ -66,6 +67,10 @@ function handle(config) {
   }
   const sessionUser = currentUser();
   if (sessionUser?.role !== 'ADMIN') fail('Vui lòng đăng nhập tài khoản quản trị', 401);
+  if (path === '/ad/service-images') {
+    if (method !== 'post') fail('Thao tác ảnh dịch vụ không được hỗ trợ.', 405);
+    return uploadServiceImage(body, fail);
+  }
   if (/^\/ad\/(services|service-prices)(\/\d+)?$/.test(path))
     return handleServiceCatalog({ path, method, body, fail });
   if (path === '/auth/me') return { ...sessionUser, userRole: sessionUser.role };
@@ -276,5 +281,5 @@ function handle(config) {
 
 export async function mockAdapter(config) {
   await new Promise((resolve) => setTimeout(resolve, 100));
-  return { data: structuredClone(handle(config)), status: 200, statusText: 'OK', headers: {}, config };
+  return { data: structuredClone(await handle(config)), status: 200, statusText: 'OK', headers: {}, config };
 }

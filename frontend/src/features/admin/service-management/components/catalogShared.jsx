@@ -20,7 +20,7 @@ export const ServiceStatus = ({ value }) => (
   <Tag color={value === 1 ? 'success' : 'default'}>{value === 1 ? 'Hoạt động' : 'Vô hiệu'}</Tag>
 );
 export const ServiceImage = ({ service }) => service.hinhanh
-  ? <Image width={48} height={48} src={service.hinhanh} alt={service.ten} style={{ objectFit: 'cover', borderRadius: 6 }} />
+  ? <Image width={48} height={48} src={service.hinhanhUrl || service.hinhanh} alt={service.ten} style={{ objectFit: 'cover', borderRadius: 6 }} />
   : <span className="text-gray-400">—</span>;
 
 export const CatalogState = ({ query, missing = false }) => {
