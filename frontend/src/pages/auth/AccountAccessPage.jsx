@@ -84,12 +84,8 @@ export default function AccountAccessPage({ register = false }) {
         className={`access-page wrap ${register ? 'access-page--register' : ''}`}
       >
         <aside className="access-story">
-          <p className="account-eyebrow">MEOMEO · Chăm sóc thú cưng</p>
-          <h2>
-            {register
-              ? 'Bắt đầu một\ncuộc hẹn tốt đẹp.'
-              : 'Chăm chút cho bé,\ntừ lần hẹn đầu.'}
-          </h2>
+          
+      
           <p>
             {register
               ? 'Lưu thông tin thú cưng và chuẩn bị cho lần hẹn tiếp theo.'
