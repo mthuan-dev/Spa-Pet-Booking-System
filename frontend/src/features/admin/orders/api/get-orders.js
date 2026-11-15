@@ -10,7 +10,7 @@ export const getOrders = ({ startDate, endDate, paymentMethod, status, keyword, 
 
 export const getOrdersQueryOptions = ({ startDate, endDate, paymentMethod, status, keyword, page, size }) => {
   return queryOptions({
-    queryKey: ['use-orders', { startDate, endDate, paymentMethod, status, keyword, page, size }],
+    queryKey: ['use-orders', 'createdAt', { startDate, endDate, paymentMethod, status, keyword, page, size }],
     queryFn: () => getOrders({ startDate, endDate, paymentMethod, status, keyword, page, size }),
   });
 };

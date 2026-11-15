@@ -139,6 +139,7 @@ const ReportPage = () => {
             onChange={(value) => setFilter(value)}
           />
           <RangePicker
+            format="DD/MM/YYYY"
             allowClear={false}
             value={[dayjs(dateRange.startDate), dayjs(dateRange.endDate)]}
             onChange={(dates) => {

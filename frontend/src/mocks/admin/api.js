@@ -49,7 +49,8 @@ function handle(config) {
   if (path === '/ad/users' || userMatch) return handleAdminUsers({ userId: userMatch?.[1], method, body, params, fail, search, paginate });
   const filteredBookings = () => mockBookings.filter((row) => inRange(row.ngayhen, params.startDate, params.endDate));
   if (path === '/ad/bookings' && method === 'get') {
-    const rows = filteredBookings().filter((row) => (!params.status || row.trangthaidatlich === params.status)
+    const rows = mockBookings.filter((row) => inRange(row.ngaytao, params.startDate, params.endDate)
+      && (!params.status || row.trangthaidatlich === params.status)
       && (!params.paymentMethod || mockPayments.some((payment) => payment.madatlich === row.madatlich && payment.phuongthuc === params.paymentMethod)));
     return paginate(search(rows.map((row) => bookingBundle(row)), params.keyword), params);
   }

@@ -74,7 +74,6 @@ const OrderManagement = () => {
               onChange={(value) => setPaymentMethod(value)}
             />
             <Select
-              defaultValue={DATE_FILTER_OPTIONS[0].value}
               style={{
                 width: 120,
               }}
@@ -83,12 +82,15 @@ const OrderManagement = () => {
               onChange={(value) => setFilter(value)}
             />
             <RangePicker
-              disabled={filter !== 'CUSTOM'}
+              format="DD/MM/YYYY"
+              allowClear={false}
               value={[dayjs(dateRange.startDate), dayjs(dateRange.endDate)]}
               onChange={(dates) => {
+                if (!dates?.[0] || !dates?.[1]) return;
+                setFilter('CUSTOM');
                 setDateRange({
-                  startDate: dates[0]?.format('YYYY-MM-DD'),
-                  endDate: dates[1]?.format('YYYY-MM-DD'),
+                  startDate: dates[0].format('YYYY-MM-DD'),
+                  endDate: dates[1].format('YYYY-MM-DD'),
                 });
               }}
             />
