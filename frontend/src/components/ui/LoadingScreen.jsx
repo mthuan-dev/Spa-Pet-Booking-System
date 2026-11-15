@@ -1,11 +1,12 @@
-import { Flex, Spin } from 'antd';
-import { LoadingOutlined } from '@ant-design/icons';
-
 const LoadingScreen = () => {
   return (
-    <Flex align="center" justify="center" className="w-screen h-screen">
-      <Spin indicator={<LoadingOutlined spin />} size="large" />
-    </Flex>
+    <div className="admin-loading-screen" role="status" aria-label="Đang tải">
+      <div className="lds-facebook" aria-hidden="true">
+        <div />
+        <div />
+        <div />
+      </div>
+    </div>
   );
 };
 

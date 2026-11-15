@@ -1,9 +1,10 @@
 import { currentUser } from '../../features/profile/mocks/customerRepository.js';
+import LoadingScreen from '../../components/ui/LoadingScreen.jsx';
 
 export const createAdminRoute = (queryClient) => ({
   id: 'admin',
   path: '/admin',
-  hydrateFallbackElement: <p role="status">Đang tải trang quản trị…</p>,
+  hydrateFallbackElement: <LoadingScreen />,
   lazy: async () => {
     const AdminRoot = await import('../AdminRoot.jsx');
     return { Component: AdminRoot.default };
