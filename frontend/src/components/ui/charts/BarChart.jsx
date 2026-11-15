@@ -1,6 +1,6 @@
 import ReactApexChart from 'react-apexcharts';
 
-const BarChart = ({ data = [], xaxis = {}, yaxis = {}, title = '', colors = ['#008FFB'] }) => {
+const BarChart = ({ data = [], xaxis = {}, yaxis = {}, title = '', periodLabel = '', tooltip = {}, colors = ['#008FFB'] }) => {
   return (
     <ReactApexChart
       options={{
@@ -15,6 +15,7 @@ const BarChart = ({ data = [], xaxis = {}, yaxis = {}, title = '', colors = ['#0
         },
         xaxis,
         yaxis,
+        tooltip,
         dataLabels: {
           enabled: false,
         },
@@ -22,6 +23,19 @@ const BarChart = ({ data = [], xaxis = {}, yaxis = {}, title = '', colors = ['#0
         title: {
           text: title,
         },
+        ...(periodLabel && {
+          subtitle: {
+            text: periodLabel,
+            align: 'right',
+            offsetY: 2,
+            floating: true,
+            style: { fontSize: '12px', color: '#8c8c8c' },
+          },
+          responsive: [{
+            breakpoint: 1200,
+            options: { subtitle: { offsetY: 26, floating: false } },
+          }],
+        }),
       }}
       series={data}
       type="bar"

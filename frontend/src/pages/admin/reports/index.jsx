@@ -73,6 +73,34 @@ const ReportPage = () => {
     };
   }, [serviceReportData]);
 
+  const { periodLabel, dateAxis, dateTooltip } = useMemo(() => {
+    const start = dayjs(dateRange.startDate), end = dayjs(dateRange.endDate);
+    const sameMonth = start.isSame(end, 'month');
+    const periodLabel = sameMonth
+      ? `Tháng ${start.format('MM/YYYY')}`
+      : `${start.format(start.isSame(end, 'year') ? 'DD/MM' : 'DD/MM/YYYY')}–${end.format('DD/MM/YYYY')}`;
+    const categories = reportData.map((item) => item.date);
+    const interval = categories.length <= 10 ? 1 : categories.length <= 31 ? 5 : Math.ceil(categories.length / 8);
+    const labels = new Map(categories.map((value, index) => {
+      const date = dayjs(value);
+      const monthChanged = index > 0 && !date.isSame(dayjs(categories[index - 1]), 'month');
+      const endpoint = index === 0 || index === categories.length - 1;
+      const regularTick = interval === 1 || (categories.length <= 31 ? date.date() % interval === 0 : index % interval === 0);
+      const label = endpoint || monthChanged || regularTick
+        ? date.format(!sameMonth && (index === 0 || monthChanged) ? 'DD/MM' : 'DD') : '';
+      return [value, label];
+    }));
+    return {
+      periodLabel,
+      dateAxis: {
+        categories,
+        labels: { rotate: 0, rotateAlways: false, hideOverlappingLabels: true, formatter: (value) => labels.get(value) ?? '' },
+        tooltip: { formatter: (value) => dayjs(value).format('DD/MM/YYYY') },
+      },
+      dateTooltip: { x: { formatter: (value, { dataPointIndex } = {}) => dayjs(categories[dataPointIndex] ?? value).format('DD/MM/YYYY') } },
+    };
+  }, [reportData, dateRange.startDate, dateRange.endDate]);
+
   useEffect(() => {
     switch (filter) {
       case 'WEEK':
@@ -103,7 +131,6 @@ const ReportPage = () => {
         />
         <Space>
           <Select
-            defaultValue={FILTER_OPTIONS[0].value}
             style={{
               width: 220,
             }}
@@ -112,12 +139,14 @@ const ReportPage = () => {
             onChange={(value) => setFilter(value)}
           />
           <RangePicker
-            disabled={filter !== 'CUSTOM'}
+            allowClear={false}
             value={[dayjs(dateRange.startDate), dayjs(dateRange.endDate)]}
             onChange={(dates) => {
+              if (!dates?.[0] || !dates?.[1]) return;
+              setFilter('CUSTOM');
               setDateRange({
-                startDate: dates[0]?.format('YYYY-MM-DD'),
-                endDate: dates[1]?.format('YYYY-MM-DD'),
+                startDate: dates[0].format('YYYY-MM-DD'),
+                endDate: dates[1].format('YYYY-MM-DD'),
               });
             }}
           />
@@ -128,8 +157,10 @@ const ReportPage = () => {
           <Card>
             <BarChart
               title="Thống kê đặt lịch spa"
+              periodLabel={periodLabel}
               data={bookingReport?.data || []}
-              xaxis={{ categories: bookingReport?.categories || [] }}
+              xaxis={dateAxis}
+              tooltip={dateTooltip}
             />
           </Card>
         </Col>
@@ -137,8 +168,10 @@ const ReportPage = () => {
           <Card>
             <BarChart
               title="Thống kê doanh thu spa"
+              periodLabel={periodLabel}
               data={revenueReport?.data || []}
-              xaxis={{ categories: revenueReport?.categories || [] }}
+              xaxis={dateAxis}
+              tooltip={dateTooltip}
               yaxis={[
                 {
                   opposite: true,
@@ -154,6 +187,7 @@ const ReportPage = () => {
           <Card>
             <BarChart
               title="Thống kê lượt đặt và doanh thu theo dịch vụ"
+              periodLabel={periodLabel}
               data={serviceReport?.data || []}
               xaxis={{ categories: serviceReport?.categories || [] }}
               yaxis={[
