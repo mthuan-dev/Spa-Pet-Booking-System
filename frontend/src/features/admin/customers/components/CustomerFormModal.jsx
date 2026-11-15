@@ -4,19 +4,15 @@ import { useCreateCustomer, useUpdateCustomer } from '../api/save-customer.jsx';
 const RULES = {
   name: [
     { required: true, whitespace: true, message: 'Vui lòng nhập tên khách hàng.' },
-    { min: 3, max: 30, message: 'Tên khách hàng cần từ 3 đến 30 ký tự.' },
+    { max: 100, message: 'Tên khách hàng tối đa 100 ký tự.' },
   ],
   email: [
     { required: true, message: 'Vui lòng nhập email.' },
     { type: 'email', message: 'Email không hợp lệ.' },
+    { max: 100, message: 'Email tối đa 100 ký tự.' },
   ],
   phone: [
-    { required: true, message: 'Vui lòng nhập số điện thoại.' },
-    { pattern: /^\d{9,11}$/, message: 'Số điện thoại cần từ 9 đến 11 chữ số.' },
-  ],
-  address: [
-    { required: true, whitespace: true, message: 'Vui lòng nhập địa chỉ.' },
-    { min: 8, max: 150, message: 'Địa chỉ cần từ 8 đến 150 ký tự.' },
+    { pattern: /^\+?\d{9,15}$/, message: 'Số điện thoại cần từ 9 đến 15 chữ số.' },
   ],
   password: [
     { required: true, message: 'Vui lòng nhập mật khẩu.' },
@@ -51,8 +47,7 @@ const CustomerFormModal = ({ customer, onCancel }) => {
         ...values,
         name: values.name.trim(),
         email: values.email.trim().toLowerCase(),
-        phone: values.phone.trim(),
-        address: values.address.trim(),
+        phone: values.phone?.trim() || null,
         ...(isEditing ? { id: customer.id } : {}),
       },
     });
@@ -71,7 +66,7 @@ const CustomerFormModal = ({ customer, onCancel }) => {
         form={form}
         className="pt-4"
         layout="vertical"
-        initialValues={customer || { name: '', email: '', phone: '', address: '', password: '' }}
+        initialValues={customer || { name: '', email: '', phone: '', password: '' }}
         onFinish={handleSubmit}
         disabled={mutation.isPending}
       >
@@ -83,9 +78,6 @@ const CustomerFormModal = ({ customer, onCancel }) => {
         </Form.Item>
         <Form.Item label="Số điện thoại" name="phone" rules={RULES.phone}>
           <Input placeholder="Nhập số điện thoại..." inputMode="tel" />
-        </Form.Item>
-        <Form.Item label="Địa chỉ" name="address" rules={RULES.address}>
-          <Input placeholder="Nhập địa chỉ..." />
         </Form.Item>
         {!isEditing && (
           <Form.Item label="Mật khẩu" name="password" rules={RULES.password}>

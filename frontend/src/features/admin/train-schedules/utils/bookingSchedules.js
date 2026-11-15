@@ -1,72 +1,28 @@
-import { MOCK_BOOKINGS } from '../../../bookings/mocks/bookings.js';
-import { MOCK_STAFF } from '../../../bookings/mocks/staff.js';
-import { mapBookingResponse } from '../../../bookings/mappers/bookingMapper.js';
+import { mockBookings } from '../../../../mocks/data.js';
+import { bookingBundle } from '../../../../mocks/bookings.js';
+import { mockTimestamp } from '../../../../mocks/utils.js';
+import { currentUserRow } from '../../../profile/mocks/customerRepository.js';
+import { mapBookingBundle } from '../../../bookings/mappers/bookingMapper.js';
 import { searchWithoutDiacritics } from '../../../../utils/searchWithoutDiacritics.js';
-import { createSampleBookingSchedules } from '../mocks/bookingSchedules.js';
 
 export const SCHEDULE_BOOKING_STATUS = {
   CONFIRMED: { label: 'CONFIRMED', color: 'purple' },
   COMPLETED: { label: 'COMPLETED', color: 'green' },
   CANCELLED: { label: 'CANCELLED', color: 'red' },
 };
-
-const BOOKING_CHANGES_KEY = 'meomeo:booking-changes';
-
-function readSessionRecord(key) {
-  try {
-    const value = JSON.parse(globalThis.sessionStorage?.getItem(key) ?? '{}');
-    return value && typeof value === 'object' && !Array.isArray(value) ? value : {};
-  } catch {
-    return {};
-  }
-}
-
 export function getBookingSchedules() {
-  const changes = readSessionRecord(BOOKING_CHANGES_KEY);
-  const reschedules = readSessionRecord('meomeo:booking-reschedules');
-
-  return [...MOCK_BOOKINGS, ...createSampleBookingSchedules()].map((original) => {
-    const booking = { ...original, ...changes[original.id] };
-    const appointment = reschedules[original.id];
-    const employee = appointment?.employeeId
-      ? {
-          ...booking.employee,
-          id: appointment.employeeId,
-          name: MOCK_STAFF.find((member) => Number(member.id) === Number(appointment.employeeId))?.name ?? booking.employee?.name,
-        }
-      : booking.employee;
-
-    return mapBookingResponse({
-      ...booking,
-      employee,
-      appointment: { ...booking.appointment, ...appointment },
-    });
-  });
+  if (currentUserRow()?.vaitro !== 'ADMIN') throw new Error('Bạn cần đăng nhập tài khoản quản trị.');
+  return mockBookings.map((row) => mapBookingBundle(bookingBundle(row)));
 }
-
 export function updateBookingScheduleStatus({ id, status }) {
-  if (!['COMPLETED', 'CANCELLED'].includes(status)) {
-    throw new Error('Trạng thái đặt lịch không hợp lệ.');
-  }
+  if (currentUserRow()?.vaitro !== 'ADMIN') throw new Error('Bạn cần đăng nhập tài khoản quản trị.');
+  if (!['COMPLETED', 'CANCELLED'].includes(status)) throw new Error('Trạng thái đặt lịch không hợp lệ.');
+  const row = mockBookings.find((booking) => booking.madatlich === Number(id));
+  if (!row) throw new Error('Không tìm thấy lịch hẹn.');
+  if (row.trangthaidatlich !== 'CONFIRMED') throw new Error('Chỉ được đổi trạng thái lịch hẹn đã CONFIRMED.');
+  Object.assign(row, { trangthaidatlich: status, ngaycapnhat: mockTimestamp() });
 
-  const booking = getBookingSchedules().find((item) => item.id === Number(id));
-  if (!booking) throw new Error('Không tìm thấy lịch hẹn.');
-  if (booking.bookingStatus === 'COMPLETED') {
-    throw new Error('Lịch hẹn đã hoàn thành, không thể đổi trạng thái.');
-  }
-  if (booking.bookingStatus !== 'CONFIRMED') {
-    throw new Error('Chỉ được đổi trạng thái lịch hẹn đã CONFIRMED.');
-  }
-
-  const changes = readSessionRecord(BOOKING_CHANGES_KEY);
-  changes[booking.id] = { ...changes[booking.id], bookingStatus: status };
-  try {
-    globalThis.sessionStorage.setItem(BOOKING_CHANGES_KEY, JSON.stringify(changes));
-  } catch {
-    throw new Error('Không thể lưu trạng thái đặt lịch. Vui lòng thử lại.');
-  }
-
-  return { ...booking, bookingStatus: status };
+  return mapBookingBundle(bookingBundle(row));
 }
 
 export function countBookingsByDate(bookings) {

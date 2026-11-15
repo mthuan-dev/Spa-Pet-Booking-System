@@ -94,15 +94,15 @@ export const createAdminRoute = (queryClient) => ({
       },
     },
     {
-      path: 'trains/:trainId/route-segments',
+      path: 'customers/:customerId/pets',
       lazy: async () => {
-        const CreateTrain = await import('../../pages/admin/trains/route-segments.jsx');
-        return { Component: CreateTrain.default };
+        const CustomerPets = await import('../../pages/admin/customers/pets.jsx');
+        return { Component: CustomerPets.default };
       },
       loader: async ({ params }) => {
         if (currentUser()?.role !== 'ADMIN') return null;
-        const { RouteSegmentsLoader } = await import('../../pages/admin/trains/route-segments.jsx');
-        return RouteSegmentsLoader(queryClient)({ params });
+        const { CustomerPetsLoader } = await import('../../pages/admin/customers/pets.jsx');
+        return CustomerPetsLoader(queryClient)({ params });
       },
     },
     {
@@ -124,13 +124,6 @@ export const createAdminRoute = (queryClient) => ({
       lazy: async () => {
         const TicketReport = await import('../../pages/admin/reports/index.jsx');
         return { Component: TicketReport.default };
-      },
-    },
-    {
-      path: 'passengers',
-      lazy: async () => {
-        const ManagePassengerPage = await import('../../pages/admin/train-schedules/manage-passengers.jsx');
-        return { Component: ManagePassengerPage.default };
       },
     },
     {

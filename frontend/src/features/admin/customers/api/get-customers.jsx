@@ -1,6 +1,7 @@
 import { queryOptions, useQuery } from '@tanstack/react-query';
 import { USER_ROLES } from '~/app/config/constants.js';
 import { api } from '~/lib/api.js';
+import { mapAdminUserPage } from '~/features/admin/users/mappers/userMapper.js';
 
 export const getCustomers = (page, size, keyword) => {
   return api.get(`/ad/users`, {
@@ -10,7 +11,7 @@ export const getCustomers = (page, size, keyword) => {
       size,
       keyword,
     },
-  });
+  }).then(mapAdminUserPage);
 };
 
 export const getCustomersQueryOptions = ({ page, size, keyword }) => {

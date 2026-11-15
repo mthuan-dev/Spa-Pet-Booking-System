@@ -1,9 +1,9 @@
 import { DeleteOutlined, EditOutlined, ToolOutlined } from '@ant-design/icons';
 import { Button, Flex, Input, Space, Table, Tag } from 'antd';
 import { useMemo, useState } from 'react';
+import dayjs from 'dayjs';
 import { useNavigate } from 'react-router-dom';
 import { ROW_PER_PAGE } from '~/app/config/constants.js';
-import { useGetAllTrain } from '~/features/admin/trains/api/get-all-train.jsx';
 import { useCustomers } from '../api/get-customers.jsx';
 
 const DogIcon = () => (
@@ -32,8 +32,6 @@ export const CustomerTable = ({ onEdit, onToggleStatus, isUpdating = false }) =>
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [keyword, setKeyword] = useState('');
-  const { data: trains } = useGetAllTrain();
-  const trainId = trains?.[0]?.id;
   const { data: customers, isLoading } = useCustomers({
     page,
     keyword,
@@ -48,21 +46,15 @@ export const CustomerTable = ({ onEdit, onToggleStatus, isUpdating = false }) =>
         key: 'id',
       },
       {
-        title: 'Name',
+        title: 'Họ tên',
         dataIndex: 'name',
         key: 'name',
       },
       {
-        title: 'Gender',
-        dataIndex: 'gender',
-        key: 'gender',
-        render: (text) => (text ? text : 'N/A'),
-      },
-      {
-        title: 'Phone',
+        title: 'Số điện thoại',
         dataIndex: 'phone',
         key: 'phone',
-        render: (text) => (text ? text : 'N/A'),
+        render: (text) => text || '—',
       },
       {
         title: 'Email',
@@ -70,23 +62,23 @@ export const CustomerTable = ({ onEdit, onToggleStatus, isUpdating = false }) =>
         key: 'email',
       },
       {
-        title: 'Address',
-        dataIndex: 'address',
-        key: 'address',
-        render: (text) => (text ? text : 'N/A'),
+        title: 'Ngày tạo',
+        dataIndex: 'createdAt',
+        key: 'createdAt',
+        render: (value) => value && dayjs(value).isValid() ? dayjs(value).format('DD/MM/YYYY HH:mm') : '—',
       },
       {
-        title: 'Status',
+        title: 'Trạng thái',
         key: 'is_deleted',
         dataIndex: 'is_deleted',
         render: (_, { is_deleted }) => (
           <>
-            <Tag color={is_deleted ? 'red' : 'blue'}>{is_deleted ? 'DISABLED' : 'ACTIVE'}</Tag>
+            <Tag color={is_deleted ? 'red' : 'blue'}>{is_deleted ? 'Vô hiệu hóa' : 'Hoạt động'}</Tag>
           </>
         ),
       },
       {
-        title: 'Action',
+        title: 'Hành động',
         key: 'action',
         render: (customer) => (
           <Space>
@@ -111,14 +103,13 @@ export const CustomerTable = ({ onEdit, onToggleStatus, isUpdating = false }) =>
               icon={<DogIcon />}
               title="Quản lý thú cưng"
               aria-label="Quản lý thú cưng"
-              disabled={!trainId}
-              onClick={() => navigate(`/admin/trains/${trainId}/route-segments`)}
+              onClick={() => navigate(`/admin/customers/${customer.id}/pets`)}
             />
           </Space>
         ),
       },
     ],
-    [navigate, trainId, onEdit, onToggleStatus, isUpdating],
+    [navigate, onEdit, onToggleStatus, isUpdating],
   );
 
   return (

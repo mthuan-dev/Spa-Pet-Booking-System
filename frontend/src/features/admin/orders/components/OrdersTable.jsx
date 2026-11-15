@@ -4,151 +4,28 @@ import { convertToVnCurrency } from '~/utils/convert.js';
 import { useOrders } from '../api/get-orders.js';
 
 const expandColumns = [
-  { title: 'Mã vé', dataIndex: 'code', key: 'code' },
-  {
-    title: 'Hành khách',
-    key: 'info',
-    render: ({ fullName, object, identity }) => (
-      <div>
-        <p>Họ tên: {fullName}</p>
-        <p>
-          Đối tượng: {object?.parent?.name} - {object.name}
-        </p>
-        <p>Định danh: {identity}</p>
-      </div>
-    ),
-  },
-  {
-    title: 'Tuyến đường',
-    key: 'schedule',
-    render: ({ arrivalStation, departureStation, departureTime, arrivalTime }) => (
-      <div>
-        <p>
-          Tuyến: {departureStation} - {arrivalStation}
-        </p>
-        <p>
-          Thời gian: {departureTime} - {arrivalTime}
-        </p>
-      </div>
-    ),
-  },
-  {
-    title: 'Chỗ ngồi',
-    key: 'seat',
-    render: ({ seatType, carriageType, schedule }) => (
-      <div>
-        <p>Tàu: {schedule?.train?.name}</p>
-        <p>Toa {carriageType}</p>
-        <p>Ghế: {seatType}</p>
-      </div>
-    ),
-  },
-  {
-    title: 'Giá',
-    key: 'arrivalStation',
-    render: ({ originalPrice, price }) => (
-      <div>
-        <p>
-          Giá gốc: <del>{convertToVnCurrency(originalPrice)}</del>
-        </p>
-        <p>
-          Giá: <strong className="text-red-500">{convertToVnCurrency(price)}</strong>
-        </p>
-      </div>
-    ),
-  },
+  { title: 'Mã dịch vụ', dataIndex: 'serviceId', key: 'serviceId' },
+  { title: 'Dịch vụ', key: 'service', render: (item) => <div><p>{item.name}</p><p>{item.durationMinutes} phút</p></div> },
+  { title: 'Thú cưng', key: 'pet', render: ({ pet }) => <div><p>{pet.name}</p><p>{pet.species} · {pet.weight} kg</p></div> },
+  { title: 'Lịch hẹn', key: 'appointment', render: ({ appointment, employee }) => <div><p>{dayjs(appointment.date).format('DD/MM/YYYY')} · {appointment.startTime}–{appointment.endTime}</p><p>Nhân viên: {employee.name}</p></div> },
+  { title: 'Giá', dataIndex: 'price', key: 'price', render: (value) => <strong className="text-red-500">{convertToVnCurrency(value)}</strong> },
 ];
-
 const columns = [
-  {
-    title: '#',
-    dataIndex: 'id',
-    key: 'id',
-  },
-  {
-    title: 'Khách hàng',
-    key: 'info',
-    render: ({ fullName, email, phoneNumber, identity }) => (
-      <div>
-        <p>Họ tên: {fullName}</p>
-        <p>Email: {email}</p>
-        <p>SDT: {phoneNumber}</p>
-        <p>Định danh: {identity}</p>
-      </div>
-    ),
-  },
-  {
-    title: 'Thanh toán',
-    dataIndex: 'paymentMethod',
-    key: 'paymentMethod',
-    render: (value) => {
-      let color = 'green';
-      switch (value) {
-        case 'VNPAY':
-          color = 'purple';
-          break;
-        case 'PAYPAL':
-          color = 'cyan';
-          break;
-      }
-      return <Tag color={color}>{value}</Tag>;
-    },
-  },
-  {
-    title: 'Tổng giá',
-    dataIndex: 'totalPrice',
-    key: 'paymentMethod',
-    render: (value) => <strong className="text-red-500">{convertToVnCurrency(value)}</strong>,
-  },
-  {
-    title: 'Trạng thái',
-    dataIndex: 'status',
-    key: 'status',
-    render: (value) => {
-      let color = 'green';
-      switch (value) {
-        case 'COMPLETED':
-          color = 'green';
-          break;
-        case 'PENDING':
-          color = 'blue';
-          break;
-      }
-      return <Tag color={color}>{value}</Tag>;
-    },
-  },
-  {
-    title: 'Date',
-    key: 'createdAt',
-    render: ({ createdAt }) => <p>{dayjs(createdAt).format('HH:mm:ss DD/MM/YYYY')}</p>,
-  },
+  { title: 'Mã đặt lịch', dataIndex: 'code', key: 'code' },
+  { title: 'Khách hàng', key: 'contact', render: ({ contact }) => <div><p>Họ tên: {contact.name}</p><p>Email: {contact.email}</p><p>SĐT: {contact.phone}</p></div> },
+  { title: 'Thanh toán', key: 'payment', render: ({ payment }) => <Tag color={payment.method === 'VNPAY' ? 'purple' : 'green'}>{payment.method === 'CASH' ? 'Tiền mặt' : payment.method}</Tag> },
+  { title: 'Tổng giá', dataIndex: 'totalPrice', key: 'totalPrice', render: (value) => <strong className="text-red-500">{convertToVnCurrency(value)}</strong> },
+  { title: 'Trạng thái', dataIndex: 'bookingStatus', key: 'bookingStatus', render: (value) => <Tag color={{ PENDING: 'blue', CONFIRMED: 'purple', COMPLETED: 'green', CANCELLED: 'red' }[value]}>{value}</Tag> },
+  { title: 'Ngày tạo', dataIndex: 'createdAt', key: 'createdAt', render: (value) => dayjs(value).format('HH:mm:ss DD/MM/YYYY') },
 ];
-const OrdersTable = ({ filters }) => {
-  const { data } = useOrders({
-    startDate: filters?.dateRange?.startDate,
-    endDate: filters?.dateRange?.endDate,
-    keyword: filters?.keyword || '',
-    paymentMethod: filters?.paymentMethod,
-    status: filters?.status,
-    page: 1,
-    size: 10,
+export default function OrdersTable({ filters }) {
+  const { data, isLoading } = useOrders({
+    startDate: filters?.dateRange?.startDate, endDate: filters?.dateRange?.endDate, keyword: filters?.keyword || '',
+    paymentMethod: filters?.paymentMethod, status: filters?.status, page: 1, size: 10,
   });
-  return (
-    <Table
-      rowKey="id"
-      columns={columns}
-      expandable={{
-        expandedRowRender,
-      }}
-      dataSource={data?.items}
-      size='medium'
-    />
-  );
-};
-
-const expandedRowRender = ({ tickets }) => {
-  console.log(tickets);
-  return <Table rowKey="id" columns={expandColumns} dataSource={tickets} pagination={false} size="small" />;
-};
-
-export default OrdersTable;
+  return <Table rowKey="id" columns={columns} dataSource={data?.items} loading={isLoading} size="medium" expandable={{
+    expandedRowRender: (booking) => <Table rowKey="bookingDetailId" columns={expandColumns} dataSource={booking.services.map((service) => ({
+      ...service, pet: booking.pet, appointment: booking.appointment, employee: booking.employee,
+    }))} pagination={false} size="small" />,
+  }} />;
+}

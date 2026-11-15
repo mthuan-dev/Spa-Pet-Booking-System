@@ -1,88 +1,53 @@
-import {
-  copy,
-  currentUser,
-  database,
-  persist,
-  wait,
-} from '../../profile/mocks/customerRepository.js'
-import { selectService } from '../../../app/config/dataSource.js'
-import { PET_TYPES as TYPES } from '../../profile/mappers/customerMapper.js'
-const guestPets = []
-const owner = () => currentUser()?.id ?? null
-const records = () => (owner() ? database().pets : guestPets)
+import { mockPets } from '../../../mocks/data.js';
+import { copy, currentUser, requireUser, wait } from '../../profile/mocks/customerRepository.js';
+import { selectService } from '../../../app/config/dataSource.js';
+import { PET_TYPES, mapPetRow } from '../../profile/mappers/customerMapper.js';
+import { nextMockId, mockTimestamp } from '../../../mocks/utils.js';
+import { storePetImage } from '../../../mocks/imageStore.js';
+
 function find(id) {
-  const p = records().find(
-    (p) => p.id === Number(id) && p.ownerId === owner() && p.status === 1,
-  )
-  if (!p) throw new Error('Không tìm thấy thú cưng trong tài khoản của bạn.')
-  return p
+  const user = requireUser();
+  const row = mockPets.find((pet) => pet.mathucung === Number(id) && pet.manguoidung === user.id && pet.trangthai === 1);
+  if (!row) throw new Error('Không tìm thấy thú cưng trong tài khoản của bạn.');
+  return row;
 }
-export function validatePet(v) {
-  if (!v.name?.trim() || v.name.trim().length > 100)
-    return 'Tên thú cưng cần từ 1 đến 100 ký tự.'
-  if (!TYPES[v.type] && !Object.values(TYPES).includes(v.species))
-    return 'Bạn chọn loại thú cưng nhé.'
-  if (
-    !Number.isFinite(Number(v.weightKg)) ||
-    Number(v.weightKg) <= 0 ||
-    Number(v.weightKg) > 999.99 ||
-    !/^\d+(\.\d{1,2})?$/.test(String(v.weightKg))
-  )
-    return 'Cân nặng cần lớn hơn 0, tối đa 999,99 kg và có tối đa 2 số thập phân.'
-  if (v.breed?.length > 100) return 'Giống thú cưng tối đa 100 ký tự.'
-  return ''
+export function validatePet(value) {
+  if (!value.name?.trim() || value.name.trim().length > 100) return 'Tên thú cưng cần từ 1 đến 100 ký tự.';
+  if (!PET_TYPES[value.type] && !Object.values(PET_TYPES).includes(value.species)) return 'Bạn chọn loại thú cưng nhé.';
+  if (!Number.isFinite(Number(value.weightKg)) || Number(value.weightKg) <= 0 || Number(value.weightKg) > 999.99 || !/^\d+(\.\d{1,2})?$/.test(String(value.weightKg)))
+    return 'Cân nặng cần lớn hơn 0, tối đa 999,99 kg và có tối đa 2 số thập phân.';
+  if (value.breed?.length > 100) return 'Giống thú cưng tối đa 100 ký tự.';
+  return '';
 }
-function fields(v) {
-  const error = validatePet(v)
-  if (error) throw new Error(error)
-  const type = v.type || Object.keys(TYPES).find((k) => TYPES[k] === v.species)
+function fields(value) {
+  const error = validatePet(value);
+  if (error) throw new Error(error);
   return {
-    name: v.name.trim(),
-    type,
-    species: TYPES[type],
-    breed: v.breed?.trim() || null,
-    weightKg: Number(v.weightKg),
-    imageUrl: v.imageUrl || '',
-    avatarTone: 'honey',
-  }
+    tenthucung: value.name.trim(), loaithucung: value.type || Object.keys(PET_TYPES).find((type) => PET_TYPES[type] === value.species),
+    giong: value.breed?.trim() || null, cannang: Number(value.weightKg), hinhanh: storePetImage(value.imageUrl),
+  };
 }
 export const petService = selectService({
   async getMyPets() {
-    await wait()
-    return copy(
-      records().filter((p) => p.ownerId === owner() && p.status === 1),
-    )
+    await wait();
+    const user = currentUser();
+    return user ? copy(mockPets.filter((pet) => pet.manguoidung === user.id && pet.trangthai === 1).map(mapPetRow)) : [];
   },
-  async getPetById(id) {
-    await wait()
-    return copy(find(id))
+  async getPetById(id) { await wait(); return copy(mapPetRow(find(id))); },
+  async createPet(value) {
+    await wait();
+    const owner = requireUser();
+    if (owner.role !== 'CUSTOMER') throw new Error('Chỉ tài khoản khách hàng có thể thêm thú cưng.');
+    const data = fields(value), now = mockTimestamp();
+    const row = { mathucung: nextMockId(mockPets, 'mathucung'), manguoidung: owner.id, ...data, trangthai: 1, ngaytao: now, ngaycapnhat: now };
+    mockPets.push(row);
+    return copy(mapPetRow(row));
   },
-  async createPet(v) {
-    await wait()
-    const data = fields(v),
-      all = records(),
-      p = {
-        ...data,
-        id: Math.max(100, ...all.map((p) => p.id)) + 1,
-        ownerId: owner(),
-        status: 1,
-        createdAt: new Date().toISOString(),
-      }
-    all.push(p)
-    if (owner()) persist()
-    return copy(p)
+  async updatePet(id, value) {
+    await wait();
+    const row = find(id), data = fields(value);
+    Object.assign(row, data, { ngaycapnhat: mockTimestamp() });
+    return copy(mapPetRow(row));
   },
-  async updatePet(id, v) {
-    await wait()
-    const data = fields(v),
-      p = find(id)
-    Object.assign(p, data, { updatedAt: new Date().toISOString() })
-    if (owner()) persist()
-    return copy(p)
-  },
-  async deletePet(id) {
-    await wait()
-    find(id).status = 0
-    if (owner()) persist()
-  },
-})
+  async deletePet(id) { await wait(); Object.assign(find(id), { trangthai: 0, ngaycapnhat: mockTimestamp() }); },
+});

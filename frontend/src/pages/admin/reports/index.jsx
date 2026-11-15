@@ -1,8 +1,8 @@
 import { Card, Col, DatePicker, Flex, Row, Select, Space } from 'antd';
 import PageHeader from '~/components/ui/page-header.jsx';
-import { useTicketsReport } from '~/features/admin/reports/api/get-ticket-report.js';
+import { useBookingsReport } from '~/features/admin/reports/api/get-bookings-report.js';
 import { useEffect, useMemo, useState } from 'react';
-import { useTrainsReport } from '~/features/admin/reports/api/get-train-report.js';
+import { useServicesReport } from '~/features/admin/reports/api/get-services-report.js';
 import { convertToVnCurrency } from '~/utils/convert.js';
 import dayjs from 'dayjs';
 import BarChart from '~/components/ui/charts/BarChart.jsx';
@@ -30,17 +30,17 @@ const ReportPage = () => {
     startDate: dayjs().startOf('week').format('YYYY-MM-DD'),
     endDate: dayjs().endOf('week').format('YYYY-MM-DD'),
   });
-  const { data: reportData = [] } = useTicketsReport({ startDate: dateRange.startDate, endDate: dateRange.endDate });
+  const { data: reportData = [] } = useBookingsReport({ startDate: dateRange.startDate, endDate: dateRange.endDate });
 
-  const { data: trainReportData = [] } = useTrainsReport({ startDate: dateRange.startDate, endDate: dateRange.endDate });
+  const { data: serviceReportData = [] } = useServicesReport({ startDate: dateRange.startDate, endDate: dateRange.endDate });
 
-  const { ticketReport, revenueReport } = useMemo(() => {
+  const { bookingReport, revenueReport } = useMemo(() => {
     return {
-      ticketReport: {
+      bookingReport: {
         data: [
           {
-            name: 'Số lượng vé',
-            data: reportData?.map((item) => item.totalTickets),
+            name: 'Lượt đặt lịch',
+            data: reportData?.map((item) => item.totalBookings),
           },
         ],
         categories: reportData?.map((item) => item.date),
@@ -49,7 +49,7 @@ const ReportPage = () => {
         data: [
           {
             name: 'Doanh thu',
-            data: reportData?.map((item) => item.totalPrice),
+            data: reportData?.map((item) => item.revenue),
           },
         ],
         categories: reportData?.map((item) => item.date),
@@ -57,21 +57,21 @@ const ReportPage = () => {
     };
   }, [reportData]);
 
-  const trainReport = useMemo(() => {
+  const serviceReport = useMemo(() => {
     return {
       data: [
         {
-          name: 'Số lượng vé',
-          data: trainReportData?.map((item) => item.totalTickets),
+          name: 'Lượt đặt lịch',
+          data: serviceReportData?.map((item) => item.totalBookings),
         },
         {
           name: 'Doanh thu',
-          data: trainReportData?.map((item) => item.totalPrice),
+          data: serviceReportData?.map((item) => item.revenue),
         },
       ],
-      categories: trainReportData?.map((item) => item.train),
+      categories: serviceReportData?.map((item) => item.serviceName),
     };
-  }, [trainReportData]);
+  }, [serviceReportData]);
 
   useEffect(() => {
     switch (filter) {
@@ -127,16 +127,16 @@ const ReportPage = () => {
         <Col span={12}>
           <Card>
             <BarChart
-              title="Thống kê đặt vé"
-              data={ticketReport?.data || []}
-              xaxis={{ categories: ticketReport?.categories || [] }}
+              title="Thống kê đặt lịch spa"
+              data={bookingReport?.data || []}
+              xaxis={{ categories: bookingReport?.categories || [] }}
             />
           </Card>
         </Col>
         <Col span={12}>
           <Card>
             <BarChart
-              title="Thống kê doanh thu"
+              title="Thống kê doanh thu spa"
               data={revenueReport?.data || []}
               xaxis={{ categories: revenueReport?.categories || [] }}
               yaxis={[
@@ -153,9 +153,9 @@ const ReportPage = () => {
         <Col span={24}>
           <Card>
             <BarChart
-              title="Thống kê số vé và doanh thu theo tàu"
-              data={trainReport?.data || []}
-              xaxis={{ categories: trainReport?.categories || [] }}
+              title="Thống kê lượt đặt và doanh thu theo dịch vụ"
+              data={serviceReport?.data || []}
+              xaxis={{ categories: serviceReport?.categories || [] }}
               yaxis={[
                 {
                   labels: {

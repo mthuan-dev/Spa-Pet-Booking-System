@@ -10,6 +10,7 @@ const PriceForm = ({ price, catalog, petType, initialValues, onSuccess, onCancel
     onSuccess(savedPrice);
   });
   const handleSubmit = async (values) => {
+    if (mutation.isPending) return;
     try { await mutation.mutateAsync({ id: price?.magiadichvu, data: values }); }
     catch (error) { message.error(errorMessage(error)); }
   };
@@ -17,14 +18,14 @@ const PriceForm = ({ price, catalog, petType, initialValues, onSuccess, onCancel
     <Form name="price-form" form={form} layout="vertical" disabled={mutation.isPending}
       initialValues={{ loaithucung: petType, ...initialValues, ...price }} onFinish={handleSubmit}>
       <Form.Item label="Dịch vụ" name="madichvu" rules={[{ required: true, message: 'Vui lòng chọn dịch vụ.' }]}>
-        <Select showSearch optionFilterProp="label" placeholder="Chọn dịch vụ lẻ hoặc combo..."
+        <Select disabled={Boolean(price) || mutation.isPending} showSearch optionFilterProp="label" placeholder="Chọn dịch vụ lẻ hoặc combo..."
           options={catalog.dichvu.map((service) => ({
             value: service.madichvu,
             label: `${service.ten}${service.loaidichvu === 'COMBO' ? ' (Combo)' : ''}`,
           }))} />
       </Form.Item>
       <Form.Item label="Loại thú cưng" name="loaithucung" rules={[{ required: true, message: 'Vui lòng chọn loại thú cưng.' }]}>
-        <Select options={PET_TYPES} />
+        <Select disabled={Boolean(price) || mutation.isPending} options={PET_TYPES} />
       </Form.Item>
       <Row gutter={16}>
         <Col xs={24} sm={12}>
@@ -35,13 +36,18 @@ const PriceForm = ({ price, catalog, petType, initialValues, onSuccess, onCancel
           </Form.Item>
         </Col>
         <Col xs={24} sm={12}>
-          <Form.Item label="Cân nặng đến (kg)" name="cannangden" dependencies={['cannangtu']}
+          <Form.Item label="Cân nặng đến (kg)" name="cannangden" dependencies={['cannangtu', 'madichvu', 'loaithucung']}
             rules={[{ required: true, message: 'Vui lòng nhập cân nặng đến.' },
               { type: 'number', min: 0, max: 999.99, message: 'Cân nặng tối đa 999,99 kg.' },
               ({ getFieldValue }) => ({ validator(_, value) {
                 const start = getFieldValue('cannangtu');
-                return value == null || start == null || value > start
-                  ? Promise.resolve() : Promise.reject(new Error('Cân nặng đến phải lớn hơn cân nặng từ.'));
+                if (value == null || start == null) return Promise.resolve();
+                if (value <= start) return Promise.reject(new Error('Cân nặng đến phải lớn hơn cân nặng từ.'));
+                const overlaps = catalog.giadichvu.some((item) => item.magiadichvu !== price?.magiadichvu
+                  && item.madichvu === getFieldValue('madichvu') && item.loaithucung === getFieldValue('loaithucung')
+                  && start < item.cannangden && value > item.cannangtu);
+                return overlaps
+                  ? Promise.reject(new Error('Khoảng cân nặng bị trùng với mức giá khác.')) : Promise.resolve();
               } })]}>
             <InputNumber min={0} max={999.99} precision={2} style={{ width: '100%' }} />
           </Form.Item>
@@ -54,7 +60,7 @@ const PriceForm = ({ price, catalog, petType, initialValues, onSuccess, onCancel
       </Form.Item>
       <Form.Item className="mb-0 pt-2">
         <Flex justify="end" gap={12}>
-          <Button onClick={onCancel}>Hủy</Button>
+          <Button onClick={onCancel} disabled={mutation.isPending}>Hủy</Button>
           <Button type="primary" htmlType="submit" loading={mutation.isPending}>
             {price ? 'Lưu thay đổi' : 'Tạo mới'}
           </Button>

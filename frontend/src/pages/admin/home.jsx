@@ -2,17 +2,17 @@
 
 import { Card, Col, Flex, Row } from 'antd';
 import PageHeader from '~/components/ui/page-header.jsx';
-import { useTicketsReport } from '~/features/admin/reports/api/get-ticket-report.js';
+import { useBookingsReport } from '~/features/admin/reports/api/get-bookings-report.js';
 import { useMemo } from 'react';
-import { useTrainsReport } from '~/features/admin/reports/api/get-train-report.js';
+import { useServicesReport } from '~/features/admin/reports/api/get-services-report.js';
 import { convertToVnCurrency } from '~/utils/convert.js';
 import dayjs from 'dayjs';
 import BarChart from '~/components/ui/charts/BarChart.jsx';
-import { useUserOrdersReport } from '~/features/admin/reports/api/get-user-order-report.js';
+import { useCustomersReport } from '~/features/admin/reports/api/get-customers-report.js';
 import PieChart from '~/components/ui/charts/PieChart.jsx';
 
 const ReportPage = () => {
-  const { data: reportData } = useTicketsReport({
+  const { data: reportData } = useBookingsReport({
     startDate: dayjs().startOf('week').format('YYYY-MM-DD'),
     endDate: dayjs().endOf('week').format('YYYY-MM-DD'),
     queryConfig: {
@@ -20,7 +20,7 @@ const ReportPage = () => {
     },
   });
 
-  const { data: trainReportData } = useTrainsReport({
+  const { data: serviceReportData } = useServicesReport({
     startDate: dayjs().startOf('week').format('YYYY-MM-DD'),
     endDate: dayjs().endOf('week').format('YYYY-MM-DD'),
     queryConfig: {
@@ -28,7 +28,7 @@ const ReportPage = () => {
     },
   });
 
-  const { data: userOrdersReportData } = useUserOrdersReport({
+  const { data: userOrdersReportData } = useCustomersReport({
     startDate: dayjs().startOf('week').format('YYYY-MM-DD'),
     endDate: dayjs().endOf('week').format('YYYY-MM-DD'),
     queryConfig: {
@@ -36,34 +36,34 @@ const ReportPage = () => {
     },
   });
 
-  // Dùng useMemo để chuyển dữ liệu doanh thu và dữ liệu theo tàu thành định dạng phù hợp cho biểu đồ
+  // Dùng useMemo để chuyển dữ liệu doanh thu và dữ liệu theo dịch vụ thành định dạng phù hợp cho biểu đồ
   const revenueReport = useMemo(() => {
     return {
       data: [
         {
           name: 'Doanh thu',
-          data: reportData?.map((item) => item.totalPrice),
+          data: reportData?.map((item) => item.revenue),
         },
       ],
       categories: reportData?.map((item) => item.date),
     };
   }, [reportData]);
 
-  const trainReport = useMemo(() => {
+  const serviceReport = useMemo(() => {
     return {
       data: [
         {
-          name: 'Số lượng vé',
-          data: trainReportData?.map((item) => item.totalTickets),
+          name: 'Lượt đặt lịch',
+          data: serviceReportData?.map((item) => item.totalBookings),
         },
         {
           name: 'Doanh thu',
-          data: trainReportData?.map((item) => item.totalPrice),
+          data: serviceReportData?.map((item) => item.revenue),
         },
       ],
-      categories: trainReportData?.map((item) => item.train),
+      categories: serviceReportData?.map((item) => item.serviceName),
     };
-  }, [trainReportData]);
+  }, [serviceReportData]);
 
   return (
     <>
@@ -74,10 +74,10 @@ const ReportPage = () => {
         <Col span={12}>
           <Card>
             <PieChart
-              title="Thống kê loại khách hàng"
+              title="Thống kê khách hàng spa"
               data={
-                userOrdersReportData?.guestUser
-                  ? [userOrdersReportData?.guestUser, userOrdersReportData?.internalUser]
+                ((userOrdersReportData?.guestCustomers || 0) + (userOrdersReportData?.memberCustomers || 0) > 0)
+                  ? [userOrdersReportData?.guestCustomers, userOrdersReportData?.memberCustomers]
                   : []
               }
               colors={['#00E396', '#008FFB']}
@@ -88,7 +88,7 @@ const ReportPage = () => {
         <Col span={12}>
           <Card>
             <BarChart
-              title="Thống kê doanh thu"
+              title="Thống kê doanh thu spa"
               data={revenueReport?.data || []}
               xaxis={{ categories: revenueReport?.categories || [] }}
               yaxis={[
@@ -105,9 +105,9 @@ const ReportPage = () => {
         <Col span={24}>
           <Card>
             <BarChart
-              title="Thống kê số vé và doanh thu theo tàu"
-              data={trainReport?.data || []}
-              xaxis={{ categories: trainReport?.categories || [] }}
+              title="Thống kê lượt đặt và doanh thu theo dịch vụ"
+              data={serviceReport?.data || []}
+              xaxis={{ categories: serviceReport?.categories || [] }}
               yaxis={[
                 {
                   labels: {

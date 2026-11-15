@@ -1,11 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '~/lib/api.js';
+import { resolveMockImage } from '~/mocks/imageStore.js';
 
 const CATALOG_QUERY_KEY = ['admin-service-catalog'];
 
 export const useServiceCatalog = () => useQuery({
   queryKey: CATALOG_QUERY_KEY,
-  queryFn: () => api.get('/ad/services'),
+  queryFn: async () => {
+    const catalog = await api.get('/ad/services');
+    return { ...catalog, dichvu: catalog.dichvu.map((row) => ({ ...row, hinhanhUrl: resolveMockImage(row.hinhanh) })) };
+  },
 });
 
 export const useSaveCatalogItem = (resource, onSuccess) => {
@@ -21,6 +25,17 @@ export const useSaveCatalogItem = (resource, onSuccess) => {
       }
       return id ? api.put(`/ad/${resource}/${id}`, payload) : api.post(`/ad/${resource}`, payload);
     },
+    onSuccess: async (result) => {
+      await queryClient.invalidateQueries({ queryKey: CATALOG_QUERY_KEY });
+      onSuccess?.(result);
+    },
+  });
+};
+
+export const useDeleteCatalogItem = (resource, onSuccess) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id) => api.delete(`/ad/${resource}/${id}`),
     onSuccess: async (result) => {
       await queryClient.invalidateQueries({ queryKey: CATALOG_QUERY_KEY });
       onSuccess?.(result);

@@ -22,7 +22,7 @@ export default function BookingSuccess({ booking, draft }) {
 
       <div className="booking-success__code">
         <span>Mã lịch hẹn</span>
-        <strong>{booking.bookingCode}</strong>
+        <strong>{booking.code}</strong>
       </div>
 
       <div className="booking-success__appointment">

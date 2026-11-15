@@ -18,7 +18,9 @@ export default function ServiceSelectionStep({
   error,
 }) {
   const [activeCategory, setActiveCategory] = useState('SINGLE')
-  const visibleServices = services.filter((service) => service.category === activeCategory)
+  const petType = pet?.type || (pet?.species === 'Mèo' ? 'CAT' : pet?.species === 'Chó' ? 'DOG' : 'OTHER')
+  const visibleServices = services.filter((service) => service.category === activeCategory && (!Array.isArray(service.prices)
+    || service.prices.some((price) => price.loaithucung === petType && pet?.weightKg > price.cannangtu && pet?.weightKg <= price.cannangden)))
 
   return (
     <section className="booking-step-content" aria-labelledby="service-step-title">
@@ -72,6 +74,7 @@ export default function ServiceSelectionStep({
         })}
       </div>
 
+      {!visibleServices.length && <p className="booking-step-context">Chưa có dịch vụ phù hợp với loại và cân nặng của bé.</p>}
       {error && <p className="booking-inline-error" role="alert">{error}</p>}
       {selectedServiceIds.some((id) => services.find((service) => service.id === id)?.category === 'COMBO') && (
         <p className="booking-service-note">Combo đã bao gồm các bước chăm sóc chính, nên không cộng thêm dịch vụ riêng.</p>

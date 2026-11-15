@@ -160,7 +160,7 @@ export default function BookingPage() {
   }
 
   function selectPet(petId) {
-    updateDraft({ petId })
+    updateDraft({ petId, selectedServiceIds: [], startTime: null, endTime: null, employeeId: null })
   }
 
   function selectDate(date) {
@@ -171,7 +171,7 @@ export default function BookingPage() {
   async function savePet(input) {
     const newPet = await petService.createPet(input)
     setPets((current) => [...current, newPet])
-    setDraft((current) => ({ ...current, petId: newPet.id }))
+    setDraft((current) => ({ ...current, petId: newPet.id, selectedServiceIds: [], startTime: null, endTime: null, employeeId: null }))
     setStepError('')
     setIsPetModalOpen(false)
   }
@@ -205,8 +205,8 @@ export default function BookingPage() {
     try {
       const result = await bookingService.createBooking(createPayload({ draft }))
       setBookingResult({ booking: result, draft: submissionDraft })
-    } catch {
-      setStepError('Chưa gửi được lịch hẹn. Bạn thử lại sau ít phút nhé.')
+    } catch (error) {
+      setStepError(error.message || 'Chưa gửi được lịch hẹn. Bạn thử lại sau ít phút nhé.')
     } finally {
       setIsSubmitting(false)
     }

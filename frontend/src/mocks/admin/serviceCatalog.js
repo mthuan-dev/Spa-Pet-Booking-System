@@ -1,102 +1,8 @@
-import { MOCK_SERVICES } from '../../features/catalog/mocks/services.js';
-import { serviceImageUrl } from './serviceImages.js';
-
-// Admin preview data uses the columns of dichvu, chitietcombo and giadichvu.
-export const SERVICE_CATALOG_STORAGE_KEY = 'petspa-admin-service-catalog-v1';
+import { mockServices, mockComboDetails, mockServicePrices } from '../data.js';
+import { mockTimestamp } from '../utils.js';
 const PET_TYPES = ['DOG', 'CAT', 'OTHER'];
-const PRICE_SEED_VERSION = 2;
-
-// A service appears in an animal-type tab only when it has prices for that type.
-const CAT_PRICE_BANDS = {
-  1: [[0, 3, 150000], [3, 5, 180000], [5, 10, 220000]],
-  2: [[0, 3, 200000], [3, 5, 250000], [5, 10, 310000]],
-  3: [[0, 3, 90000], [3, 5, 120000], [5, 10, 160000]],
-};
-const OTHER_PRICE_BANDS = {
-  1: [[0, 1, 80000], [1, 3, 100000], [3, 5, 130000]],
-};
-
-function createSamplePrices(legacy = false) {
-  return MOCK_SERVICES.flatMap((service, serviceIndex) => {
-    const dogBands = service.priceBands.map((band, index, bands) => [
-      index === 0 ? 0 : bands[index - 1].maxWeightKg,
-      band.maxWeightKg ?? 999.99,
-      band.priceVnd,
-    ]);
-    const bandsByType = legacy
-      ? { DOG: dogBands, CAT: dogBands, OTHER: dogBands }
-      : { DOG: dogBands, CAT: CAT_PRICE_BANDS[service.id], OTHER: OTHER_PRICE_BANDS[service.id] };
-    return PET_TYPES.flatMap((loaithucung, typeIndex) => (bandsByType[loaithucung] ?? [])
-      .map(([cannangtu, cannangden, gia], bandIndex) => ({
-        // Keep the original sample IDs stable when upgrading saved demo data.
-        magiadichvu: (serviceIndex * PET_TYPES.length + typeIndex) * dogBands.length + bandIndex + 1,
-        madichvu: service.id,
-        loaithucung,
-        cannangtu,
-        cannangden,
-        gia,
-      })));
-  });
-}
-
-function upgradeSamplePrices(catalog) {
-  if (catalog.priceSeedVersion >= PRICE_SEED_VERSION) return false;
-  const groupKey = (price) => `${price.madichvu}:${price.loaithucung}`;
-  const fields = ['magiadichvu', 'madichvu', 'loaithucung', 'cannangtu', 'cannangden', 'gia'];
-  const legacyGroups = new Map();
-  for (const price of createSamplePrices(true)) {
-    const key = groupKey(price);
-    if (!legacyGroups.has(key)) legacyGroups.set(key, []);
-    legacyGroups.get(key).push(price);
-  }
-  const untouchedGroups = new Set();
-  for (const [key, originalPrices] of legacyGroups) {
-    const savedPrices = catalog.giadichvu.filter((price) => groupKey(price) === key);
-    if (savedPrices.length === originalPrices.length && originalPrices.every((original) =>
-      savedPrices.some((saved) => fields.every((field) => saved[field] === original[field]))))
-      untouchedGroups.add(key);
-  }
-  // Preserve whole groups containing edits/additions, including their weight ranges.
-  catalog.giadichvu = [
-    ...catalog.giadichvu.filter((price) => !untouchedGroups.has(groupKey(price))),
-    ...createSamplePrices().filter((price) => untouchedGroups.has(groupKey(price))),
-  ];
-  catalog.priceSeedVersion = PRICE_SEED_VERSION;
-  return true;
-}
-
-function createCatalog() {
-  const now = new Date().toISOString();
-  const dichvu = MOCK_SERVICES.map((service) => ({
-    madichvu: service.id,
-    ten: service.name,
-    loaidichvu: service.category,
-    thoiluongphut: service.durationMinutes,
-    hinhanh: service.imageUrl,
-    mota: service.description,
-    trangthai: 1,
-    ngaytao: now,
-    ngaycapnhat: now,
-  }));
-  return {
-    dichvu,
-    chitietcombo: [1, 2, 3].map((madichvucon) => ({ macombo: 4, madichvucon })),
-    giadichvu: createSamplePrices(),
-    priceSeedVersion: PRICE_SEED_VERSION,
-  };
-}
-
 export function loadServiceCatalog() {
-  const stored = localStorage.getItem(SERVICE_CATALOG_STORAGE_KEY);
-  if (stored) {
-    const catalog = JSON.parse(stored);
-    if (upgradeSamplePrices(catalog))
-      localStorage.setItem(SERVICE_CATALOG_STORAGE_KEY, JSON.stringify(catalog));
-    return catalog;
-  }
-  const catalog = createCatalog();
-  localStorage.setItem(SERVICE_CATALOG_STORAGE_KEY, JSON.stringify(catalog));
-  return catalog;
+  return { dichvu: mockServices, chitietcombo: mockComboDetails, giadichvu: mockServicePrices };
 }
 
 export function handleServiceCatalog({ path, method, body, fail }) {
@@ -104,14 +10,7 @@ export function handleServiceCatalog({ path, method, body, fail }) {
   const nextId = (items, key) => Math.max(0, ...items.map((item) => item[key])) + 1;
   const findService = (id) =>
     catalog.dichvu.find((service) => service.madichvu === Number(id)) || fail('Không tìm thấy dịch vụ.', 404);
-  const save = (result) => {
-    localStorage.setItem(SERVICE_CATALOG_STORAGE_KEY, JSON.stringify(catalog));
-    return result;
-  };
-  if (path === '/ad/services' && method === 'get') return {
-    ...catalog,
-    dichvu: catalog.dichvu.map((service) => ({ ...service, hinhanhUrl: serviceImageUrl(service.hinhanh) })),
-  };
+  if (path === '/ad/services' && method === 'get') return catalog;
 
   const serviceMatch = path.match(/^\/ad\/services(?:\/(\d+))?$/);
   if (serviceMatch && ['post', 'put'].includes(method)) {
@@ -132,6 +31,7 @@ export function handleServiceCatalog({ path, method, body, fail }) {
     const madichvu = previous?.madichvu ?? nextId(catalog.dichvu, 'madichvu');
     let children = [];
     if (values.loaidichvu === 'COMBO') {
+      if (body.chitietcombo !== undefined && !Array.isArray(body.chitietcombo)) fail('Danh sách dịch vụ thành phần không hợp lệ.');
       children = body.chitietcombo === undefined
         ? catalog.chitietcombo.filter((item) => item.macombo === madichvu).map((item) => item.madichvucon)
         : body.chitietcombo.map((item) => Number(item.madichvucon));
@@ -140,7 +40,7 @@ export function handleServiceCatalog({ path, method, body, fail }) {
       if (children.some((id) => findService(id).loaidichvu !== 'SINGLE'))
         fail('Dịch vụ thành phần phải là dịch vụ lẻ.');
     }
-    const now = new Date().toISOString();
+    const now = mockTimestamp();
     const service = {
       madichvu,
       ten,
@@ -154,12 +54,18 @@ export function handleServiceCatalog({ path, method, body, fail }) {
     };
     if (previous) Object.assign(previous, service);
     else catalog.dichvu.push(service);
-    catalog.chitietcombo = catalog.chitietcombo.filter((item) => item.macombo !== madichvu);
+    mockComboDetails.splice(0, mockComboDetails.length, ...mockComboDetails.filter((item) => item.macombo !== madichvu));
     catalog.chitietcombo.push(...children.map((madichvucon) => ({ macombo: madichvu, madichvucon })));
-    return save(service);
+    return service;
   }
 
   const priceMatch = path.match(/^\/ad\/service-prices(?:\/(\d+))?$/);
+  if (priceMatch?.[1] && method === 'delete') {
+    const index = catalog.giadichvu.findIndex((price) => price.magiadichvu === Number(priceMatch[1]));
+    if (index < 0) fail('Không tìm thấy giá dịch vụ.', 404);
+    const [price] = catalog.giadichvu.splice(index, 1);
+    return price;
+  }
   if (priceMatch && ['post', 'put'].includes(method)) {
     if ((method === 'post') === Boolean(priceMatch[1])) fail('Đường dẫn giá dịch vụ không hợp lệ.');
     const previous = priceMatch[1]
@@ -183,8 +89,8 @@ export function handleServiceCatalog({ path, method, body, fail }) {
       price.magiadichvu !== previous?.magiadichvu
       && price.madichvu === service.madichvu
       && price.loaithucung === values.loaithucung
-      && price.cannangtu === cannangtu && price.cannangden === cannangden))
-      fail('Dịch vụ đã có giá cho loại thú cưng và khoảng cân nặng này.', 409);
+      && cannangtu < price.cannangden && cannangden > price.cannangtu))
+      fail('Khoảng cân nặng bị trùng với mức giá khác của dịch vụ và loại thú cưng này.', 409);
     const price = {
       magiadichvu: previous?.magiadichvu ?? nextId(catalog.giadichvu, 'magiadichvu'),
       madichvu: service.madichvu,
@@ -195,7 +101,7 @@ export function handleServiceCatalog({ path, method, body, fail }) {
     };
     if (previous) Object.assign(previous, price);
     else catalog.giadichvu.push(price);
-    return save(price);
+    return price;
   }
   return fail('Thao tác dịch vụ không được hỗ trợ.', 405);
 }

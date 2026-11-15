@@ -37,32 +37,15 @@ const RULES = {
   },
   createEmployee: {
     name: [
-      { required: true, message: 'Please enter the employee name!' },
-      { min: 3, message: 'Name must be at least 3 characters!' },
-      {
-        max: 30,
-        message: 'Name must be at most 30 characters!',
-      },
+      { required: true, whitespace: true, message: 'Vui lòng nhập tên nhân viên.' },
+      { max: 30, message: 'Tên nhân viên tối đa 30 ký tự.' },
     ],
     email: [
-      { required: true, message: 'Please enter your email!' },
-      { type: 'email', message: 'Please enter a valid email!' },
+      { required: true, message: 'Vui lòng nhập email.' },
+      { type: 'email', message: 'Email không hợp lệ.' }
     ],
     phone: [
-      { required: true, message: 'Please enter the phone number!' },
-      { min: 9, message: 'Phone number must be at least 9 characters!' },
-      {
-        max: 11,
-        message: 'Phone number must be at most 11 characters!',
-      },
-    ],
-    address: [
-      { required: true, message: 'Please enter the employee address!' },
-      { min: 8, message: 'Address must be at least 8 characters!' },
-      {
-        max: 150,
-        message: 'Address must be at most 150 characters!',
-      },
+      { pattern: /^\+?\d{9,15}$/, message: 'Số điện thoại cần từ 9 đến 15 chữ số.' },
     ],
     password: [
       { required: true, message: 'Please enter a password!' },

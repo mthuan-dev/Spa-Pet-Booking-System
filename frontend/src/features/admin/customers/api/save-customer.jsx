@@ -1,17 +1,13 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { USER_ROLES } from '~/app/config/constants.js';
 import { api } from '~/lib/api.js';
+import { mapAdminUser, userWriteRow } from '~/features/admin/users/mappers/userMapper.js';
 
 export const createCustomer = ({ data }) =>
-  api.post('/ad/users', { ...data, userRole: USER_ROLES.CUSTOMER });
+  api.post('/ad/users', userWriteRow(data, USER_ROLES.CUSTOMER)).then(mapAdminUser);
 
 export const updateCustomer = ({ data }) =>
-  api.put(`/ad/users/${data.id}`, {
-    name: data.name,
-    phone: data.phone,
-    address: data.address,
-    is_deleted: data.is_deleted,
-  });
+  api.put(`/ad/users/${data.id}`, userWriteRow(data)).then(mapAdminUser);
 
 const useCustomerMutation = (mutationFn, mutationConfig = {}) => {
   const queryClient = useQueryClient();
@@ -22,6 +18,7 @@ const useCustomerMutation = (mutationFn, mutationConfig = {}) => {
     mutationFn,
     onSuccess: async (...args) => {
       await queryClient.invalidateQueries({ queryKey: ['customers'] });
+      await queryClient.invalidateQueries({ queryKey: ['customer-pets'] });
       onSuccess?.(...args);
     },
   });

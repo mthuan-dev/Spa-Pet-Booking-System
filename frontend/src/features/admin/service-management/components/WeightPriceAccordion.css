@@ -9,12 +9,6 @@
 .wp-service-heading-text { min-width: 0; }
 .wp-service-heading h3 { margin: 0 0 3px; color: #172b41; font-size: 14px; line-height: 1.5; font-weight: 600; }
 .wp-duration { display: inline-flex; align-items: center; gap: 5px; color: #8994a3; font-size: 11px; }
-.wp-price-pencil { color: #006dae; opacity: 0; transition: opacity .18s; }
-.wp-quick-editor { width: 285px; padding: 6px; font-family: 'Be Vietnam Pro', sans-serif; }
-.wp-quick-editor > strong { display: block; margin-bottom: 5px; color: #172b41; font-size: 14px; }
-.wp-quick-context { display: block; margin-bottom: 18px; color: #8491a4; font-size: 11px; line-height: 1.6; }
-.wp-quick-editor label { display: block; margin-bottom: 7px; color: #4c5c70; font-size: 12px; }
-.wp-quick-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
 .wp-service-accordion.ant-collapse { border: 0; background: transparent; }
 .wp-service-accordion.ant-collapse > .ant-collapse-item { overflow: hidden; margin-bottom: 12px; border: 1px solid #e4eaf0; border-radius: 9px; background: #fff; }
 .wp-service-accordion.ant-collapse > .ant-collapse-item > .ant-collapse-header { align-items: center; padding: 17px 20px; }
@@ -34,15 +28,13 @@
 .wp-accordion-summary > span { color: #929dab; font-size: 12px; }
 .wp-accordion-summary > strong { min-width: 140px; color: #006dae; font-size: 14px; font-weight: 600; text-align: right; }
 .wp-band-list-heading { display: flex; justify-content: space-between; gap: 16px; padding: 12px 4px; border-bottom: 1px solid #e7edf4; color: #8592a3; font-size: 11px; font-weight: 500; }
-.wp-band-list-heading > span:last-child { padding-right: 26px; }
+.wp-band-list-heading > span:last-child { padding-right: 76px; }
 .wp-band-row { display: flex; justify-content: space-between; align-items: center; gap: 16px; min-height: 60px; border-bottom: 1px solid #edf1f5; }
+.wp-band-price-actions { display: flex; align-items: center; gap: 12px; }
+.wp-band-actions { display: flex; align-items: center; gap: 4px; }
 .wp-band-weight { display: inline-flex; align-items: center; gap: 11px; color: #42546a; font-size: 14px; }
 .wp-band-dot { width: 7px; height: 7px; border: 2px solid #85afce; border-radius: 50%; }
-.wp-price-edit { display: flex; align-items: center; justify-content: flex-end; gap: 12px; min-width: 160px; padding: 9px 8px; border: 1px solid transparent; border-radius: 6px; background: transparent; cursor: pointer; transition: border-color .18s, background .18s; }
-.wp-price-edit > strong { color: #172b41; font-size: 15px; font-weight: 600; }
-.wp-price-edit > .wp-price-pencil { font-size: 12px; opacity: .45; }
-.wp-price-edit:hover, .wp-price-edit:focus-visible { border-color: #c3ddef; background: #eef7ff; outline: none; }
-.wp-price-edit:hover > strong, .wp-price-edit:hover > .wp-price-pencil { color: #006dae; opacity: 1; }
+.wp-band-price { min-width: 160px; padding: 9px 8px; color: #172b41; font-size: 15px; font-weight: 600; text-align: right; }
 .wp-add-band.ant-btn { margin-top: 12px; color: #006dae; font-size: 12px; }
 @media (max-width: 700px) {
   .wp-price-body { padding: 10px; }
@@ -53,4 +45,7 @@
   .wp-accordion-summary > span { display: none; }
   .wp-accordion-summary > strong { min-width: 0; font-size: 12px; }
   .wp-service-accordion .ant-collapse-content-box { padding: 8px 14px; }
+  .wp-band-row { flex-wrap: wrap; gap: 4px 12px; padding: 8px 0; }
+  .wp-band-price-actions { margin-left: auto; gap: 4px; }
+  .wp-band-price { min-width: 120px; }
 }

@@ -23,16 +23,8 @@ const PAYMENT_METHOD_FILTER_OPTIONS = [
     label: 'VNPAY',
   },
   {
-    value: 'PAYPAL',
-    label: 'PAYPAL',
-  },
-  {
-    value: 'ZALOPAY',
-    label: 'ZALOPAY',
-  },
-  {
-    value: 'MOMO',
-    label: 'MOMO',
+    value: 'CASH',
+    label: 'Tiền mặt',
   },
 ];
 
@@ -49,6 +41,8 @@ const STATUS_FILTER_OPTIONS = [
     value: 'PENDING',
     label: 'PENDING',
   },
+  { value: 'CONFIRMED', label: 'CONFIRMED' },
+  { value: 'CANCELLED', label: 'CANCELLED' },
 ];
 
 export { DATE_FILTER_OPTIONS, PAYMENT_METHOD_FILTER_OPTIONS, STATUS_FILTER_OPTIONS };

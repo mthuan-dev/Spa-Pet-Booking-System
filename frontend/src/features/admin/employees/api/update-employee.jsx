@@ -1,9 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "~/lib/api.js";
-import { getEmployeesQueryOptions } from "./get-employees.jsx";
+import { mapAdminUser, userWriteRow } from '~/features/admin/users/mappers/userMapper.js';
 
 export const updateEmployee = ({ data }) => {
-  return api.put(`/ad/users/${data?.id}`, data);
+  return api.put(`/ad/users/${data?.id}`, userWriteRow(data)).then(mapAdminUser);
 };
 
 export const useUpdateEmployee = ({ mutationConfig }) => {
@@ -11,10 +11,8 @@ export const useUpdateEmployee = ({ mutationConfig }) => {
   const { onSuccess, ...restConfig } = mutationConfig || {};
 
   return useMutation({
-    onSuccess: (...args) => {
-      queryClient.invalidateQueries({
-        queryKey: getEmployeesQueryOptions.queryKey,
-      });
+    onSuccess: async (...args) => {
+      await queryClient.invalidateQueries({ queryKey: ['employees'] });
       onSuccess?.(...args);
     },
     ...restConfig,

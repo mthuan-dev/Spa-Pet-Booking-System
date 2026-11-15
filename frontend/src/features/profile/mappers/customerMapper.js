@@ -1,5 +1,6 @@
+import { resolveMockImage } from '../../../mocks/imageStore.js';
 export const PET_TYPES = { DOG: 'Chó', CAT: 'Mèo', OTHER: 'Khác' }
-// SQL correspondence only; the eventual REST DTO must be agreed with the backend.
+// Convert mock records with database field names into the fields used by the UI.
 export function mapUserRow(row) {
   return {
     id: Number(row.manguoidung),
@@ -22,7 +23,7 @@ export function mapPetRow(row) {
     species: PET_TYPES[row.loaithucung],
     breed: row.giong,
     weightKg: Number(row.cannang),
-    imageUrl: row.hinhanh || '',
+    imageUrl: resolveMockImage(row.hinhanh),
     status: Number(row.trangthai),
     createdAt: row.ngaytao,
     updatedAt: row.ngaycapnhat,

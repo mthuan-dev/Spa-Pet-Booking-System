@@ -1,8 +1,8 @@
-import { ClockCircleOutlined, EditOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
-import { App, Button, Collapse, Empty, Input, InputNumber, Modal, Popover, Tabs } from 'antd';
+import { ClockCircleOutlined, DeleteOutlined, EditOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
+import { App, Button, Collapse, Empty, Input, Modal, Tabs, Tooltip } from 'antd';
 import { useState } from 'react';
 import PageHeader from '~/components/ui/page-header.jsx';
-import { useSaveCatalogItem } from '../api/catalog.js';
+import { useDeleteCatalogItem } from '../api/catalog.js';
 import PriceForm from './PriceForm.jsx';
 import { CatalogState, errorMessage, formatPrice, formatWeight, matchesKeyword, PET_TYPES } from './catalogShared.jsx';
 import './WeightPriceAccordion.css';
@@ -11,52 +11,6 @@ const bandLabel = (price) => `${formatWeight(price.cannangtu)}–${formatWeight(
 const servicePrices = (catalog, serviceId, petType) => catalog.giadichvu
   .filter((price) => price.madichvu === serviceId && price.loaithucung === petType)
   .sort((a, b) => a.cannangtu - b.cannangtu || a.cannangden - b.cannangden);
-
-function QuickPrice({ price, service }) {
-  const { message } = App.useApp();
-  const [open, setOpen] = useState(false);
-  const [amount, setAmount] = useState(price.gia);
-  const mutation = useSaveCatalogItem('service-prices', () => {
-    setOpen(false);
-    message.success('Đã cập nhật giá dịch vụ');
-  });
-  const save = async () => {
-    if (mutation.isPending || amount == null || amount < 0 || amount > 9999999999.99) return;
-    try { await mutation.mutateAsync({ id: price.magiadichvu, data: { gia: amount } }); }
-    catch (error) { message.error(errorMessage(error)); }
-  };
-  return (
-    <Popover trigger="click" placement="bottom" open={open}
-      onOpenChange={(next) => {
-        if (!mutation.isPending) {
-          setAmount(price.gia);
-          setOpen(next);
-        }
-      }}
-      content={(
-        <div className="wp-quick-editor">
-          <strong>Chỉnh sửa giá</strong>
-          <span className="wp-quick-context">{service.ten} · {bandLabel(price)}</span>
-          <label htmlFor={`quick-price-${price.magiadichvu}`}>Giá tiền (VNĐ)</label>
-          <InputNumber id={`quick-price-${price.magiadichvu}`} aria-label="Giá mới" value={amount}
-            min={0} max={9999999999.99} precision={2} step={1000} onChange={setAmount}
-            onPressEnter={save} disabled={mutation.isPending} style={{ width: '100%' }} />
-          <div className="wp-quick-actions">
-            <Button size="small" disabled={mutation.isPending} onClick={() => setOpen(false)}>Hủy</Button>
-            <Button size="small" type="primary" onClick={save} loading={mutation.isPending} disabled={amount == null}>
-              Lưu giá
-            </Button>
-          </div>
-        </div>
-      )}>
-      <button type="button" className="wp-price-edit"
-        aria-label={`Sửa giá ${service.ten}, ${bandLabel(price)}`} data-price-id={price.magiadichvu}>
-        <strong>{formatPrice(price.gia)}</strong>
-        <EditOutlined className="wp-price-pencil" />
-      </button>
-    </Popover>
-  );
-}
 
 function ServiceHeading({ service }) {
   return (
@@ -69,14 +23,26 @@ function ServiceHeading({ service }) {
   );
 }
 
-function BandRows({ service, prices, onAddPrice }) {
+function BandRows({ service, prices, onAddPrice, onEditPrice, onDeletePrice }) {
   return (
     <div className="wp-band-list">
       <div className="wp-band-list-heading"><span>Cân nặng thú cưng</span><span>Giá dịch vụ</span></div>
       {prices.map((price) => (
         <div className="wp-band-row" key={price.magiadichvu}>
           <span className="wp-band-weight"><span className="wp-band-dot" />{bandLabel(price)}</span>
-          <QuickPrice price={price} service={service} />
+          <div className="wp-band-price-actions">
+            <strong className="wp-band-price">{formatPrice(price.gia)}</strong>
+            <div className="wp-band-actions">
+              <Tooltip title="Sửa cân nặng và giá">
+                <Button type="text" size="small" icon={<EditOutlined />}
+                  aria-label={`Sửa cân nặng và giá ${service.ten}, ${bandLabel(price)}`} onClick={() => onEditPrice(price)} />
+              </Tooltip>
+              <Tooltip title="Xóa mức cân nặng">
+                <Button type="text" size="small" danger icon={<DeleteOutlined />}
+                  aria-label={`Xóa mức cân nặng ${service.ten}, ${bandLabel(price)}`} onClick={() => onDeletePrice({ price, service })} />
+              </Tooltip>
+            </div>
+          </div>
         </div>
       ))}
       {!prices.length && <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Chưa có mức giá" />}
@@ -87,7 +53,7 @@ function BandRows({ service, prices, onAddPrice }) {
   );
 }
 
-function ExpandableServices({ services, catalog, petType, onAddPrice }) {
+function ExpandableServices({ services, catalog, petType, onAddPrice, onEditPrice, onDeletePrice }) {
   return (
     <Collapse className="wp-service-accordion" bordered={false} collapsible="icon"
       expandIcon={({ isActive }) => (
@@ -103,13 +69,14 @@ function ExpandableServices({ services, catalog, petType, onAddPrice }) {
           extra: <div className="wp-accordion-summary"><span>{prices.length} mức cân nặng</span>
             <strong>{prices.length ? `Từ ${formatPrice(Math.min(...prices.map((price) => price.gia)))}` : 'Chưa có giá'}</strong>
           </div>,
-          children: <BandRows service={service} prices={prices} onAddPrice={onAddPrice} />,
+          children: <BandRows service={service} prices={prices} onAddPrice={onAddPrice}
+            onEditPrice={onEditPrice} onDeletePrice={onDeletePrice} />,
         };
       })} />
   );
 }
 
-function PriceWorkspace({ catalog, petType, onAddPrice }) {
+function PriceWorkspace({ catalog, petType, onAddPrice, onEditPrice, onDeletePrice }) {
   const [keyword, setKeyword] = useState('');
   const prices = catalog.giadichvu.filter((price) => price.loaithucung === petType);
   const pricedServiceIds = new Set(prices.map((price) => price.madichvu));
@@ -125,14 +92,26 @@ function PriceWorkspace({ catalog, petType, onAddPrice }) {
         <span className="wp-catalog-summary">{services.length} dịch vụ <span>·</span> {priceCount} mức giá</span>
       </div>
       {services.length
-        ? <ExpandableServices services={services} catalog={catalog} petType={petType} onAddPrice={onAddPrice} />
+        ? <ExpandableServices services={services} catalog={catalog} petType={petType} onAddPrice={onAddPrice}
+            onEditPrice={onEditPrice} onDeletePrice={onDeletePrice} />
         : <Empty description={keyword.trim() ? 'Không tìm thấy dịch vụ' : 'Chưa có bảng giá cho loại thú cưng này'} />}
     </div>
   );
 }
 
 export default function WeightPriceAccordion({ query, petType, onTypeChange }) {
+  const { message } = App.useApp();
   const [editor, setEditor] = useState(null);
+  const [deleting, setDeleting] = useState(null);
+  const deletion = useDeleteCatalogItem('service-prices', () => {
+    setDeleting(null);
+    message.success('Đã xóa mức cân nặng');
+  });
+  const deletePrice = async () => {
+    if (!deleting || deletion.isPending) return;
+    try { await deletion.mutateAsync(deleting.price.magiadichvu); }
+    catch (error) { message.error(errorMessage(error)); }
+  };
   return (
     <div className="wp-price-list">
       <div className="wp-page-heading">
@@ -144,17 +123,27 @@ export default function WeightPriceAccordion({ query, petType, onTypeChange }) {
         <Tabs className="weight-price-tabs" type="line" tabBarGutter={0} activeKey={petType} onChange={onTypeChange}
           items={PET_TYPES.map((item) => ({ key: item.value, label: item.label,
             children: <PriceWorkspace key={item.value} catalog={query.data}
-              petType={item.value} onAddPrice={(service) => setEditor({ madichvu: service.madichvu })} />,
+              petType={item.value} onAddPrice={(service) => setEditor({ madichvu: service.madichvu })}
+              onEditPrice={setEditor} onDeletePrice={setDeleting} />,
           }))} />
       )}
       {editor && query.data && (
-        <Modal open title="Thêm giá theo cân nặng" footer={null} centered closable={false} mask={{ closable: false }}>
+        <Modal open title={editor.magiadichvu ? 'Chỉnh sửa mức cân nặng' : 'Thêm giá theo cân nặng'}
+          footer={null} centered closable={false} mask={{ closable: false }}>
           <div style={{ paddingTop: 16 }}>
             <PriceForm catalog={query.data} petType={petType} initialValues={editor}
+              price={editor.magiadichvu ? editor : undefined}
               onCancel={() => setEditor(null)} onSuccess={() => setEditor(null)} />
           </div>
         </Modal>
       )}
+      <Modal open={Boolean(deleting)} title="Xóa mức cân nặng" centered
+        okText="Xóa" cancelText="Hủy" okButtonProps={{ danger: true }} confirmLoading={deletion.isPending}
+        cancelButtonProps={{ disabled: deletion.isPending }} closable={!deletion.isPending}
+        keyboard={!deletion.isPending} mask={{ closable: !deletion.isPending }}
+        onOk={deletePrice} onCancel={() => { if (!deletion.isPending) setDeleting(null); }}>
+        {deleting && <p>Xóa mức {bandLabel(deleting.price)} của dịch vụ <strong>{deleting.service.ten}</strong>?</p>}
+      </Modal>
     </div>
   );
 }

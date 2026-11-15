@@ -1,3 +1,5 @@
+import { resolveMockImage } from '../../../mocks/imageStore.js';
+
 function firstDefined(...values) {
   return values.find((value) => value !== undefined && value !== null)
 }
@@ -21,7 +23,7 @@ function mapService(service = {}) {
   return {
     id: serviceId,
     serviceId,
-    bookingDetailId: numericId(firstDefined(service.bookingDetailId, service.detailId)),
+    bookingDetailId: numericId(firstDefined(service.bookingDetailId, service.detailId, service.id)),
     name: firstDefined(service.name, service.serviceName, service.tendichvu, ''),
     price: numericValue(firstDefined(service.price, service.gia)),
     durationMinutes: numericValue(firstDefined(service.durationMinutes, service.duration, service.thoiluongphut)),
@@ -67,8 +69,8 @@ export function mapBookingResponse(response = {}) {
     },
     appointment: {
       date: firstDefined(appointmentSource.date, appointmentSource.appointmentDate, response.appointmentDate, response.ngayhen, ''),
-      startTime: firstDefined(appointmentSource.startTime, response.startTime, response.giobatdau, ''),
-      endTime: firstDefined(appointmentSource.endTime, response.endTime, response.gioketthuc, ''),
+      startTime: String(firstDefined(appointmentSource.startTime, response.startTime, response.giobatdau, '')).slice(0, 5),
+      endTime: String(firstDefined(appointmentSource.endTime, response.endTime, response.gioketthuc, '')).slice(0, 5),
     },
     services: Array.isArray(rawServices) ? rawServices.map(mapService) : [],
     note: firstDefined(response.note, response.ghichu, ''),
@@ -83,11 +85,11 @@ export function mapBookingResponse(response = {}) {
       paidAt: firstDefined(item.paidAt, item.thoigianthanhtoan, null),
     })),
     payment: {
-      id: numericId(firstDefined(paymentSource.id, paymentSource.paymentId, response.paymentId)),
+      id: numericId(firstDefined(paymentSource.id, paymentSource.paymentId, paymentSource.mathanhtoan, response.paymentId)),
       method: firstDefined(paymentSource.method, paymentSource.paymentMethod, paymentSource.phuongthuc, response.paymentMethod, null),
       amount: numericValue(firstDefined(paymentSource.amount, paymentSource.paymentAmount, response.paymentAmount, response.totalPrice, response.tongtien)),
       transactionStatus: firstDefined(paymentSource.transactionStatus, paymentSource.trangthai, response.transactionStatus, null),
-      paidAt: firstDefined(paymentSource.paidAt, paymentSource.ngaythanhtoan, response.paidAt, ''),
+      paidAt: firstDefined(paymentSource.paidAt, paymentSource.thoigianthanhtoan, response.paidAt, ''),
     },
     cancellationReason: firstDefined(response.cancellationReason, response.lydohuy, null),
     review: reviewSource ? {
@@ -100,4 +102,23 @@ export function mapBookingResponse(response = {}) {
     createdAt: firstDefined(response.createdAt, response.ngaytao, ''),
     updatedAt: firstDefined(response.updatedAt, response.ngaycapnhat, ''),
   }
+}
+
+// The API bundle contains SQL rows and explicit relations; only this mapper builds UI aliases.
+export function mapBookingBundle(bundle) {
+  const row = bundle.datlich;
+  const pet = bundle.thucung;
+  const payments = bundle.thanhtoan || [];
+  return mapBookingResponse({
+    ...row,
+    pet: {
+      id: row.mathucung, name: row.tenthucung, type: row.loaithucung, weightKg: row.cannangthucung,
+      breed: pet?.giong || '', imageUrl: resolveMockImage(pet?.hinhanh),
+    },
+    employee: { id: bundle.nhanvien.manguoidung, name: bundle.nhanvien.hoten },
+    services: bundle.chitietdatlich,
+    payments,
+    payment: payments.findLast((payment) => payment.trangthai === 'SUCCESS') || payments.at(-1),
+    review: bundle.danhgia,
+  });
 }

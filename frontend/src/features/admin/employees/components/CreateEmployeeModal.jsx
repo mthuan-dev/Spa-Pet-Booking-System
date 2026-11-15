@@ -25,7 +25,7 @@ const CreateEmployeeModal = ({ open, handleCancel }) => {
   };
   return (
     <Modal title="Thêm nhân viên mới" open={open} onCancel={handleCancel} footer={null} centered>
-      <Form form={form} className="pt-4" onFinish={onFinish} layout="vertical">
+      <Form name="employee-create-form" form={form} className="pt-4" onFinish={onFinish} layout="vertical">
         <Flex vertical>
           <Form.Item label="Tên nhân viên" name="name" rules={RULES.createEmployee.name} validateTrigger="onBlur">
             <Input placeholder="Nhập tên nhân viên..." />
@@ -35,9 +35,6 @@ const CreateEmployeeModal = ({ open, handleCancel }) => {
           </Form.Item>
           <Form.Item label="Số điện thoại" name="phone" rules={RULES.createEmployee.phone} validateTrigger="onBlur">
             <Input placeholder="Nhập số điện thoại..." />
-          </Form.Item>
-          <Form.Item label="Địa chỉ" name="address" rules={RULES.createEmployee.address} validateTrigger="onBlur">
-            <Input placeholder="Nhập địa chỉ..." />
           </Form.Item>
           <Form.Item label="Mật khẩu" name="password" rules={RULES.createEmployee.password} validateTrigger="onBlur">
             <Input.Password placeholder="Nhập mật khẩu..." />

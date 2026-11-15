@@ -44,7 +44,7 @@ const userRoutes = createRoutesFromElements(
     </Route>
     <Route element={<CustomerLayout />}>
       {pageRoutes.filter(([path]) => customerPaths.has(path)).map(([path, Page]) => (
-        <Route key={path} path={path} element={[ROUTES.PROFILE, ROUTES.PETS].includes(path) ? <RequireCustomer><Page /></RequireCustomer> : <Page />} />
+        <Route key={path} path={path} element={<RequireCustomer><Page /></RequireCustomer>} />
       ))}
     </Route>
     {pageRoutes.filter(([path]) => !publicPaths.has(path) && !customerPaths.has(path)).map(([path, Page]) => (
