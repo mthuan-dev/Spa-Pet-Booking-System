@@ -23,11 +23,7 @@ export function AboutLocation() {
     <div className="about-location">
       <div className="about-location__copy">
         <h2>Hẹn ở MEOMEO nhé!</h2>
-        <p>Một điểm hẹn nhỏ ở Chợ Quán, dành cho sen và những người bạn bốn chân.</p>
-        <address>{ABOUT.address}</address>
-        <a className="about-button" href={ABOUT.mapsUrl} target="_blank" rel="noopener noreferrer">
-          Chỉ đường <span aria-hidden="true">↗</span>
-        </a>
+        <a className="about-button about-visit__directions" href={ABOUT.mapsUrl} target="_blank" rel="noopener noreferrer">Chỉ đường</a>
       </div>
       <iframe
         src={ABOUT.mapEmbed}

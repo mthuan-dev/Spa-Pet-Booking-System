@@ -35,8 +35,8 @@ export const mockPets = [
 const photos = [
   new URL('../assets/images/services/dog-shower-animal-photography.webp', import.meta.url).href,
   new URL('../assets/images/services/white-shih-tzu-trimmed.jpg', import.meta.url).href,
-  new URL('../assets/images/services/brushing-out-the-pyrenees-2.jpg', import.meta.url).href,
-  new URL('../assets/images/services/sage-mix.jpg', import.meta.url).href,
+  new URL('../assets/images/services/spa-1.jpg', import.meta.url).href,
+  new URL('../assets/images/services/spa-6.jpg', import.meta.url).href,
 ];
 const services = [
   ['Tắm thơm & sấy lông', 'SINGLE', 60, 'Làm sạch nhẹ nhàng, sấy khô và chải lại bộ lông.'],

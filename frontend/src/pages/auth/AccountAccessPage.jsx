@@ -141,6 +141,7 @@ export default function AccountAccessPage({ register = false }) {
                   Ghi nhớ đăng nhập trên thiết bị này
                 </label>
               )}
+              {!register && <Link className="access-forgot-link" to="/forgot-password">Quên mật khẩu?</Link>}
               {location.state?.registered && (
                 <p className="account-notice" role="status">
                   Đã tạo tài khoản. Bạn đăng nhập để tiếp tục nhé.

@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import AboutTabs from '../../features/about/components/AboutTabs.jsx'
-import { PHOTOS, VALUES, EXPERIENCE } from '../../features/about/data/aboutData.js'
+import { PHOTOS, VALUES, EXPERIENCE, CARE_MOMENTS } from '../../features/about/data/aboutData.js'
 import { AboutPhoto, AboutLocation } from '../../features/about/components/AboutElements.jsx'
 import { ROUTES } from '../../app/routes/routePaths.js'
 import '../../features/about/styles/about.css'
@@ -19,14 +19,16 @@ export default function AboutPage() {
     return () => { observer.disconnect(); document.title = previousTitle }
   }, [])
   return <div className="about-page" ref={pageRef} id="about">
-    <section className="about-hero about-frame" aria-labelledby="about-heading">
-      <div className="about-hero__intro">
-        <AboutPhoto photo={PHOTOS.brush} eager caption={false} className="about-hero__small" />
-        <p>MEOMEO là điểm hẹn Spa & Grooming cho chó mèo, nơi sự chăm chút bắt đầu từ những điều nhỏ nhất.</p>
-        <Link className="about-button" to={ROUTES.BOOKING}>Đặt lịch cho Boss <span aria-hidden="true">↗</span></Link>
-      </div>
-      <AboutPhoto photo={PHOTOS.sage} eager className="about-hero__portrait" />
-      <div className="about-hero__aside"><AboutPhoto photo={PHOTOS.bath} eager /><p>Một bộ lông sạch thơm.<br />Một ngày được nâng niu.</p></div>
+    <section className="about-moments about-frame" aria-labelledby="about-moments-title">
+      <header className="about-moments__heading">
+        <h2 id="about-moments-title">Nơi những người bạn nhỏ được yêu thương</h2>
+      </header>
+      <div className="about-moments__grid">{CARE_MOMENTS.map(item => (
+        <article className="about-moments__item" key={item.title}>
+          <div className="about-moments__image"><img src={item.src} alt={item.alt} width="1200" height="900" loading="lazy" decoding="async" /></div>
+          <h3>{item.title}</h3><p>{item.description}</p>
+        </article>
+      ))}</div>
     </section>
     <section className="about-story about-frame" id="about-story" aria-labelledby="about-story-title">
       <div className="about-story__heading" data-about-reveal><h2 id="about-story-title">Từ một điều rất nhỏ</h2><p>Vì mỗi bé cưng đều xứng đáng được yêu thương.</p></div>

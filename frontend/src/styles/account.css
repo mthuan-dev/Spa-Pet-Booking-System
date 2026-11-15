@@ -944,3 +944,12 @@
   .access-page--register .account-field { margin-bottom: 12px; }
   .logout-photo { height: min(558px, 72svh); }
 }
+
+.access-forgot-link { display: inline-block; margin: 12px 0 20px; color: #625016; font-weight: 600; text-decoration: none; transition: color 180ms ease; }
+.access-forgot-link:hover { color: #a5700a; text-decoration: underline; text-underline-offset: 4px; }
+.access-page--recovery .access-form { align-self: center; }
+.access-page--recovery .account-primary { transition: background-color 180ms ease, transform 180ms ease; }
+.access-page--recovery .account-primary:hover { transform: translateY(-2px); }
+.access-page--recovery .account-primary:active { transform: translateY(0); }
+@media (prefers-reduced-motion: reduce) { .access-page--recovery .account-primary { transition: none; transform: none; } }
+

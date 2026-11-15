@@ -1,5 +1,5 @@
 import golden from '../../../assets/images/editorial/golden.jpg'
-import portrait from '../../../assets/images/editorial/portrait.jpg'
+import portrait from '../../../assets/images/services/spa-4.jpg'
 // Editorial imagery for the catalogue only; booking retains its approved assets.
 export function servicePhoto(service) {
   return service.id === 2
