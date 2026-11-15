@@ -4,6 +4,8 @@ import com.petspa.petbooking.entity.enums.LoaiThuCung;
 import com.petspa.petbooking.entity.enums.TrangThaiDatLich;
 import com.petspa.petbooking.entity.enums.TrangThaiThanhToan;
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -49,15 +51,17 @@ public class DatLich {
     @Column(name = "gioketthuc", nullable = false)
     private LocalTime gioKetThuc;
     @Column(name = "tongtien", nullable = false, precision = 12, scale = 2)
-    private BigDecimal tongTien;
+    private BigDecimal tongTien = BigDecimal.ZERO;
     @Enumerated(EnumType.STRING) @Column(name = "trangthaidatlich", nullable = false, length = 10)
-    private TrangThaiDatLich trangThaiDatLich;
+    private TrangThaiDatLich trangThaiDatLich = TrangThaiDatLich.PENDING;
     @Enumerated(EnumType.STRING) @Column(name = "trangthaithanhtoan", nullable = false, length = 6)
-    private TrangThaiThanhToan trangThaiThanhToan;
+    private TrangThaiThanhToan trangThaiThanhToan = TrangThaiThanhToan.UNPAID;
     @Column(name = "lydohuy", length = 255)
     private String lyDoHuy;
-    @Column(name = "ngaytao", nullable = false)
+    @CreationTimestamp
+    @Column(name = "ngaytao", nullable = false, updatable = false)
     private LocalDateTime ngayTao;
+    @UpdateTimestamp
     @Column(name = "ngaycapnhat", nullable = false)
     private LocalDateTime ngayCapNhat;
 

@@ -1,7 +1,9 @@
 package com.petspa.petbooking.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.type.SqlTypes;
 import java.time.LocalDateTime;
 
@@ -19,9 +21,11 @@ public class DanhGia {
     @Column(name = "binhluan", columnDefinition = "TEXT")
     private String binhLuan;
     @JdbcTypeCode(SqlTypes.TINYINT) @Column(name = "is_hidden", nullable = false)
-    private Integer isHidden;
-    @Column(name = "ngaytao", nullable = false)
+    private Integer isHidden = 0;
+    @CreationTimestamp
+    @Column(name = "ngaytao", nullable = false, updatable = false)
     private LocalDateTime ngayTao;
+    @UpdateTimestamp
     @Column(name = "ngaycapnhat", nullable = false)
     private LocalDateTime ngayCapNhat;
 

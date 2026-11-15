@@ -2,7 +2,9 @@ package com.petspa.petbooking.entity;
 
 import com.petspa.petbooking.entity.enums.LoaiDichVu;
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.type.SqlTypes;
 import java.time.LocalDateTime;
 
@@ -15,7 +17,7 @@ public class DichVu {
     @Column(name = "ten", nullable = false, length = 150)
     private String ten;
     @Enumerated(EnumType.STRING) @Column(name = "loaidichvu", nullable = false, length = 6)
-    private LoaiDichVu loaiDichVu;
+    private LoaiDichVu loaiDichVu = LoaiDichVu.SINGLE;
     @Column(name = "thoiluongphut", nullable = false)
     private Integer thoiLuongPhut;
     @Column(name = "hinhanh", length = 255)
@@ -23,9 +25,11 @@ public class DichVu {
     @Column(name = "mota", columnDefinition = "TEXT")
     private String moTa;
     @JdbcTypeCode(SqlTypes.TINYINT) @Column(name = "trangthai", nullable = false)
-    private Integer trangThai;
-    @Column(name = "ngaytao", nullable = false)
+    private Integer trangThai = 1;
+    @CreationTimestamp
+    @Column(name = "ngaytao", nullable = false, updatable = false)
     private LocalDateTime ngayTao;
+    @UpdateTimestamp
     @Column(name = "ngaycapnhat", nullable = false)
     private LocalDateTime ngayCapNhat;
 

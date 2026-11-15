@@ -27,16 +27,16 @@ public class NguoiDung {
     @Column(name = "googleid", length = 255, unique = true)
     private String googleId;
     @Enumerated(EnumType.STRING) @Column(name = "nhacungcap", nullable = false, length = 6)
-    private NhaCungCap nhaCungCap;
+    private NhaCungCap nhaCungCap = NhaCungCap.LOCAL;
     @Enumerated(EnumType.STRING) @Column(name = "vaitro", nullable = false, length = 8)
-    private VaiTro vaiTro;
+    private VaiTro vaiTro = VaiTro.CUSTOMER;
     @JdbcTypeCode(SqlTypes.TINYINT) @Column(name = "trangthai", nullable = false)
-    private Integer trangThai;
+    private Integer trangThai = 1;
     @CreationTimestamp
-    @Column(name = "ngaytao", nullable = false)
+    @Column(name = "ngaytao", nullable = false, updatable = false)
     private LocalDateTime ngayTao;
     @UpdateTimestamp
-    @Column(name = "ngaycapnhat")
+    @Column(name = "ngaycapnhat", nullable = false)
     private LocalDateTime ngayCapNhat;
 
     public NguoiDung() {}

@@ -3,6 +3,8 @@ package com.petspa.petbooking.entity;
 import com.petspa.petbooking.entity.enums.PhuongThucThanhToan;
 import com.petspa.petbooking.entity.enums.TrangThaiGiaoDich;
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -24,7 +26,7 @@ public class ThanhToan {
     @Column(name = "vnp_transaction_no", length = 100, unique = true)
     private String vnpTransactionNo;
     @Enumerated(EnumType.STRING) @Column(name = "trangthai", nullable = false, length = 9)
-    private TrangThaiGiaoDich trangThai;
+    private TrangThaiGiaoDich trangThai = TrangThaiGiaoDich.PENDING;
     @Column(name = "vnp_response_code", length = 10)
     private String vnpResponseCode;
     @Column(name = "vnp_transaction_status", length = 10)
@@ -39,8 +41,10 @@ public class ThanhToan {
     private String message;
     @Column(name = "thoigianthanhtoan")
     private LocalDateTime thoiGianThanhToan;
-    @Column(name = "ngaytao", nullable = false)
+    @CreationTimestamp
+    @Column(name = "ngaytao", nullable = false, updatable = false)
     private LocalDateTime ngayTao;
+    @UpdateTimestamp
     @Column(name = "ngaycapnhat", nullable = false)
     private LocalDateTime ngayCapNhat;
 

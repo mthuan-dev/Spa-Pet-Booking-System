@@ -2,7 +2,9 @@ package com.petspa.petbooking.entity;
 
 import com.petspa.petbooking.entity.enums.LoaiThuCung;
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.type.SqlTypes;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -27,9 +29,11 @@ public class ThuCung {
     @Column(name = "hinhanh", length = 255)
     private String hinhAnh;
     @JdbcTypeCode(SqlTypes.TINYINT) @Column(name = "trangthai", nullable = false)
-    private Integer trangThai;
-    @Column(name = "ngaytao", nullable = false)
+    private Integer trangThai = 1;
+    @CreationTimestamp
+    @Column(name = "ngaytao", nullable = false, updatable = false)
     private LocalDateTime ngayTao;
+    @UpdateTimestamp
     @Column(name = "ngaycapnhat", nullable = false)
     private LocalDateTime ngayCapNhat;
 
