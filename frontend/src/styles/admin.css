@@ -3,6 +3,89 @@
 @tailwind utilities;
 
 /* custom css */
+.admin-account-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: min(220px, 45vw);
+  height: 34px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 6px;
+  background: #f0f2f9;
+  color: #111827;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 20px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.admin-account-trigger:hover {
+  background: #e2e7f0;
+}
+
+.admin-account-trigger:focus-visible {
+  outline: 2px solid #006dae;
+  outline-offset: 2px;
+}
+
+.admin-account-trigger__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-account-trigger__arrow {
+  flex-shrink: 0;
+  color: #7b8189;
+  font-size: 10px;
+}
+
+.admin-account-dropdown {
+  width: 176px;
+  max-width: calc(100vw - 24px);
+  overflow: hidden;
+  border-radius: 6px;
+  background: #fff;
+  box-shadow: 0 6px 20px rgba(17, 24, 39, 0.12);
+}
+
+.admin-account-dropdown__heading {
+  padding: 8px 12px;
+  background: #23499b;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 20px;
+  text-align: center;
+}
+
+.railway-admin .admin-account-dropdown .ant-dropdown-menu {
+  padding: 4px;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.railway-admin .admin-account-dropdown .ant-dropdown-menu .ant-dropdown-menu-item {
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 4px;
+  color: #414852;
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.railway-admin .admin-account-dropdown .ant-dropdown-menu .ant-dropdown-menu-item .ant-dropdown-menu-item-icon {
+  margin-inline-end: 0;
+  font-size: 14px;
+}
+
+.railway-admin .admin-account-dropdown .ant-dropdown-menu .ant-dropdown-menu-item:hover {
+  background: #f0f2f9;
+}
+
 /* style for seat */
 .style-item-sortable {
   display: -webkit-box;

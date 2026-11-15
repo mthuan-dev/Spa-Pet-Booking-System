@@ -1,25 +1,16 @@
-import { LogoutOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
-import { Avatar, Dropdown } from 'antd';
+import { DownOutlined, LogoutOutlined } from '@ant-design/icons';
+import { Dropdown } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../app/providers/AuthProvider.jsx';
 
 const UserDropdown = () => {
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
+  const displayName = user?.fullName?.trim() || user?.email || 'Quản trị viên';
   const items = [
     {
-      key: '1',
-      label: 'Account info',
-      icon: <UserOutlined />,
-    },
-    {
-      key: '2',
-      label: 'Settings',
-      icon: <SettingOutlined />,
-    },
-    {
-      key: '3',
-      label: 'Logout',
+      key: 'logout',
+      label: 'Đăng xuất',
       icon: <LogoutOutlined />,
       onClick: async () => {
         await logout();
@@ -33,10 +24,24 @@ const UserDropdown = () => {
         items,
       }}
       trigger={['click']}
-      placement="bottomLeft"
-      arrow
+      placement="bottomRight"
+      popupRender={(menu) => (
+        <div className="admin-account-dropdown">
+          <div className="admin-account-dropdown__heading">Tuỳ chọn</div>
+          {menu}
+        </div>
+      )}
     >
-      <Avatar size="medium" src={'https://avatars.githubusercontent.com/u/45101901?v=4'} className="cursor-pointer" />
+      <button
+        type="button"
+        className="admin-account-trigger"
+        title={displayName}
+        aria-label={`Tài khoản ${displayName}`}
+        aria-haspopup="menu"
+      >
+        <span className="admin-account-trigger__name">{displayName}</span>
+        <DownOutlined className="admin-account-trigger__arrow" />
+      </button>
     </Dropdown>
   );
 };
