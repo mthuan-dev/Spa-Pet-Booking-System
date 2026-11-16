@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 26, 2026 at 11:22 AM
+-- Generation Time: Nov 16, 2026 at 09:27 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -45,7 +45,7 @@ CREATE TABLE `chitietdatlich` (
   `tendichvu` varchar(150) NOT NULL,
   `gia` decimal(12,2) NOT NULL,
   `thoiluongphut` int(11) NOT NULL
-) ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -61,7 +61,7 @@ CREATE TABLE `danhgia` (
   `is_hidden` tinyint(4) NOT NULL DEFAULT 0,
   `ngaytao` datetime NOT NULL DEFAULT current_timestamp(),
   `ngaycapnhat` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -91,7 +91,7 @@ CREATE TABLE `datlich` (
   `lydohuy` varchar(255) DEFAULT NULL,
   `ngaytao` datetime NOT NULL DEFAULT current_timestamp(),
   `ngaycapnhat` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -109,7 +109,14 @@ CREATE TABLE `dichvu` (
   `trangthai` tinyint(4) NOT NULL DEFAULT 1,
   `ngaytao` datetime NOT NULL DEFAULT current_timestamp(),
   `ngaycapnhat` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `dichvu`
+--
+
+INSERT INTO `dichvu` (`madichvu`, `ten`, `loaidichvu`, `thoiluongphut`, `hinhanh`, `mota`, `trangthai`, `ngaytao`, `ngaycapnhat`) VALUES
+(1, 'Tắm và vệ sinh cơ bản (Demo)', 'SINGLE', 60, NULL, 'Dịch vụ demo đặt lịch', 1, '2026-11-16 15:17:16', '2026-11-16 15:17:16');
 
 -- --------------------------------------------------------
 
@@ -124,7 +131,15 @@ CREATE TABLE `giadichvu` (
   `cannangtu` decimal(5,2) NOT NULL,
   `cannangden` decimal(5,2) NOT NULL,
   `gia` decimal(12,2) NOT NULL
-) ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `giadichvu`
+--
+
+INSERT INTO `giadichvu` (`magiadichvu`, `madichvu`, `loaithucung`, `cannangtu`, `cannangden`, `gia`) VALUES
+(1, 1, 'DOG', 0.00, 5.00, 150000.00),
+(2, 1, 'DOG', 5.00, 10.00, 300000.00);
 
 -- --------------------------------------------------------
 
@@ -145,6 +160,14 @@ CREATE TABLE `nguoidung` (
   `ngaytao` datetime NOT NULL DEFAULT current_timestamp(),
   `ngaycapnhat` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `nguoidung`
+--
+
+INSERT INTO `nguoidung` (`manguoidung`, `email`, `matkhau`, `hoten`, `sodienthoai`, `googleid`, `nhacungcap`, `vaitro`, `trangthai`, `ngaytao`, `ngaycapnhat`) VALUES
+(1, 'customer.demo@meomeo.local', NULL, 'Nguyễn Minh Thuận', '0909888666', NULL, 'LOCAL', 'CUSTOMER', 1, '2026-11-16 15:14:41', '2026-11-16 15:19:50'),
+(2, 'staff.demo@meomeo.local', NULL, 'Vũ Nhân Viên', '0900000124', NULL, 'LOCAL', 'ADMIN', 1, '2026-11-16 15:15:33', '2026-11-16 15:19:58');
 
 -- --------------------------------------------------------
 
@@ -169,7 +192,7 @@ CREATE TABLE `thanhtoan` (
   `thoigianthanhtoan` datetime DEFAULT NULL,
   `ngaytao` datetime NOT NULL DEFAULT current_timestamp(),
   `ngaycapnhat` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -188,7 +211,14 @@ CREATE TABLE `thucung` (
   `trangthai` tinyint(4) NOT NULL DEFAULT 1,
   `ngaytao` datetime NOT NULL DEFAULT current_timestamp(),
   `ngaycapnhat` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `thucung`
+--
+
+INSERT INTO `thucung` (`mathucung`, `manguoidung`, `tenthucung`, `loaithucung`, `giong`, `cannang`, `hinhanh`, `trangthai`, `ngaytao`, `ngaycapnhat`) VALUES
+(1, 1, 'Chó màu cam', 'DOG', 'Poodle', 4.80, NULL, 1, '2026-11-16 15:16:46', '2026-11-16 15:18:49');
 
 --
 -- Indexes for dumped tables
@@ -297,19 +327,19 @@ ALTER TABLE `datlich`
 -- AUTO_INCREMENT for table `dichvu`
 --
 ALTER TABLE `dichvu`
-  MODIFY `madichvu` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `madichvu` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `giadichvu`
 --
 ALTER TABLE `giadichvu`
-  MODIFY `magiadichvu` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `magiadichvu` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `nguoidung`
 --
 ALTER TABLE `nguoidung`
-  MODIFY `manguoidung` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `manguoidung` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `thanhtoan`
@@ -321,7 +351,7 @@ ALTER TABLE `thanhtoan`
 -- AUTO_INCREMENT for table `thucung`
 --
 ALTER TABLE `thucung`
-  MODIFY `mathucung` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `mathucung` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- Constraints for dumped tables
