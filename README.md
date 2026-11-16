@@ -136,7 +136,7 @@ Giao diện người dùng và quản trị dùng chung React 19.3.1. Chức nă
 - Giao diện admin (placeholder): <http://localhost:5173/admin>
 - Backend: <http://localhost:8080>
 
-Axios đọc URL backend từ `VITE_API_BASE_URL`. Sao chép `frontend/.env.example` thành `.env.local` để cấu hình URL local.
+Axios đọc URL backend từ `VITE_BACKEND_ENDPOINT`. Sao chép `frontend/.env.example` thành `.env.local` để cấu hình URL local.
 
 ## Cấu hình tích hợp trong tương lai
 

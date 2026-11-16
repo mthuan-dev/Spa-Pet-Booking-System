@@ -14,7 +14,7 @@ export default function ForgotPasswordPage() {
   async function submit(e) {
     e.preventDefault(); setBusy(true); setMessage('')
     try {
-      const base = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api').replace(/\/$/, '')
+      const base = (import.meta.env.VITE_BACKEND_ENDPOINT || 'http://localhost:8080/api').replace(/\/$/, '')
       const response = await fetch(`${base}/auth/forgot-password`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: form.email.trim().toLowerCase(), phone: form.phone.trim() }) })
       if (!response.ok) throw new Error('Chưa thể gửi yêu cầu. Bạn kiểm tra thông tin và thử lại sau nhé.')
       setSent(true)

@@ -37,7 +37,6 @@ public class PasswordRecoveryController {
     public record Request(@NotBlank @Email String email, @NotBlank @Pattern(regexp = "0[0-9]{9}") String phone) {}
 
     @PostMapping("/forgot-password")
-    @CrossOrigin(origins = {"http://localhost:5173", "http://127.0.0.1:5173"})
     @Transactional
     public synchronized Map<String, String> recover(@Valid @RequestBody Request request) {
         String email = request.email().trim().toLowerCase(java.util.Locale.ROOT);

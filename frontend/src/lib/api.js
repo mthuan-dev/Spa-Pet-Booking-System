@@ -16,13 +16,17 @@ function authRequestInterceptor(config) {
     config.headers['Authorization'] = `Bearer ${localStorage.getItem('token')}`;
   }
 
+  /* Cho phép gửi các thông tin xác thực
+  (Cookie, AuthorizationHeader, TLS..)
+    Kiểm tra CORS -> Phải trả về chính xác domain FE.
+  */
   config.withCredentials = true;
   return config;
 }
 
 export const api = Axios.create({
   baseURL: BACKEND_ENDPOINT,
-  ...(USE_MOCK_API ? { adapter: mockAdapter } : {}),
+  ...(USE_MOCK_API ? { adapter: mockAdapter } : {}), //
 });
 
 api.interceptors.request.use(authRequestInterceptor);
@@ -32,7 +36,7 @@ api.interceptors.response.use(
     return response.data;
   },
   async (error) => {
-    if (USE_MOCK_API) {
+    if (USE_MOCK_API) { //
       return Promise.reject(error);
     }
 
