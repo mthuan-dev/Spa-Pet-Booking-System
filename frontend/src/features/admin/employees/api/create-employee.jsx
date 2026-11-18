@@ -4,7 +4,7 @@ import { USER_ROLES } from "~/app/config/constants.js";
 import { mapAdminUser, userWriteRow } from '~/features/admin/users/mappers/userMapper.js';
 
 export const createEmployee = ({ data }) => {
-  return api.post(`/ad/users`, userWriteRow(data, USER_ROLES.ADMIN)).then(mapAdminUser);
+  return api.post(`/users`, userWriteRow(data, USER_ROLES.ADMIN)).then(mapAdminUser);
 };
 
 export const useCreateEmployee = ({ mutationConfig }) => {

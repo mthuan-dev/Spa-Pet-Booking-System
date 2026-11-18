@@ -5,7 +5,7 @@ import { mapAdminUser } from '~/features/admin/users/mappers/userMapper.js';
 export const customerPetsQuery = (customerId) => ({
   queryKey: ['customer-pets', String(customerId)],
   queryFn: async () => {
-    const result = await api.get(`/ad/users/${customerId}/pets`);
+    const result = await api.get(`/users/${customerId}/pets`);
     return { ...result, customer: mapAdminUser(result.customer) };
   },
 });
@@ -18,10 +18,10 @@ export function useSaveCustomerPet(customerId, mutationConfig = {}) {
   return useMutation({
     ...restConfig,
     mutationFn: ({ pet, remove = false }) => {
-      const basePath = `/ad/users/${customerId}/pets`;
-      if (remove) return api.delete(`${basePath}/${pet.mathucung}`);
-      return pet.mathucung
-        ? api.put(`${basePath}/${pet.mathucung}`, pet)
+      const basePath = `/users/${customerId}/pets`;
+      if (remove) return api.delete(`${basePath}/${pet.maThuCung}`);
+      return pet.maThuCung
+        ? api.put(`${basePath}/${pet.maThuCung}`, pet)
         : api.post(basePath, pet);
     },
     onSuccess: async (...args) => {

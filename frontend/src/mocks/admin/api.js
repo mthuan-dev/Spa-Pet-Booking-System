@@ -45,8 +45,12 @@ function handle(config) {
   if (/^\/ad\/(services|service-prices)(\/\d+)?$/.test(path)) return handleServiceCatalog({ path, method, body, fail });
   const petMatch = path.match(/^\/ad\/users\/(\d+)\/pets(?:\/(\d+))?$/);
   if (petMatch) return handleCustomerPets({ customerId: petMatch[1], petId: petMatch[2], method, body, fail });
+  const petMatchCanonical = path.match(/^\/users\/(\d+)\/pets(?:\/(\d+))?$/);
+  if (petMatchCanonical) return handleCustomerPets({ customerId: petMatchCanonical[1], petId: petMatchCanonical[2], method, body, fail });
   const userMatch = path.match(/^\/ad\/users\/(\d+)$/);
   if (path === '/ad/users' || userMatch) return handleAdminUsers({ userId: userMatch?.[1], method, body, params, fail, search, paginate });
+  const userMatchCanonical = path.match(/^\/users\/(\d+)$/);
+  if (path === '/users' || userMatchCanonical) return handleAdminUsers({ userId: userMatchCanonical?.[1], method, body, params, fail, search, paginate });
   const filteredBookings = () => mockBookings.filter((row) => inRange(row.ngayhen, params.startDate, params.endDate));
   if (path === '/ad/bookings' && method === 'get') {
     const rows = mockBookings.filter((row) => inRange(row.ngaytao, params.startDate, params.endDate)

@@ -6,8 +6,8 @@ export function mapAdminUser(row) {
 }
 export const mapAdminUserPage = (page) => ({ ...page, content: page.content.map(mapAdminUser) });
 export const userWriteRow = (data, role) => ({
-  hoten: data.name, email: data.email, sodienthoai: data.phone,
-  ...(role ? { vaitro: role } : {}),
-  ...(data.password === undefined ? {} : { matkhau: data.password }),
-  ...(data.is_deleted === undefined ? {} : { trangthai: data.is_deleted ? 0 : 1 }),
+  hoTen: data.name, email: data.email, soDienThoai: data.phone,
+  ...(role ? { vaiTro: role } : {}),
+  ...(data.password === undefined ? {} : { matKhau: data.password }),
+  ...(data.is_deleted === undefined ? {} : { trangThai: data.is_deleted ? 0 : 1 }),
 });

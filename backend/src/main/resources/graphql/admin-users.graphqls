@@ -1,0 +1,32 @@
+enum VaiTro {
+  CUSTOMER
+  ADMIN
+}
+
+type Query {
+  adminUsers(
+    role: VaiTro!,
+    page: Int = 1,
+    size: Int = 8,
+    keyword: String
+  ): NguoiDungPage!
+}
+
+type NguoiDungPage {
+  content: [NguoiDungResponse!]!
+  number: Int!
+  size: Int!
+  totalElements: Int!
+  totalPages: Int!
+}
+
+type NguoiDungResponse {
+  maNguoiDung: Int!
+  hoTen: String!
+  email: String!
+  soDienThoai: String
+  vaiTro: VaiTro!
+  trangThai: Int!
+  ngayTao: String
+  ngayCapNhat: String
+}

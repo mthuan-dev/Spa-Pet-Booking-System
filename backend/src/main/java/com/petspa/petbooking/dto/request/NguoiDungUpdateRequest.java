@@ -4,7 +4,9 @@ import com.petspa.petbooking.entity.enums.NhaCungCap;
 import com.petspa.petbooking.entity.enums.VaiTro;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 
@@ -15,9 +17,15 @@ import java.time.LocalDateTime;
 @FieldDefaults(level= AccessLevel.PRIVATE)
 public class NguoiDungUpdateRequest {
 
+    @Email
+    @Size(max = 100)
     String email;
+    @Size(min = 6, max = 16)
     String matKhau;
+    @Size(max = 100)
     String hoTen;
+    @Size(max = 15)
+    @Pattern(regexp = "^\\+?\\d{9,15}$", message = "Số điện thoại không hợp lệ.")
     String soDienThoai;
     String googleId;
     NhaCungCap nhaCungCap;

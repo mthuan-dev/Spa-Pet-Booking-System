@@ -3,7 +3,7 @@ import { api } from "~/lib/api.js";
 import { mapAdminUser, userWriteRow } from '~/features/admin/users/mappers/userMapper.js';
 
 export const updateEmployee = ({ data }) => {
-  return api.put(`/ad/users/${data?.id}`, userWriteRow(data)).then(mapAdminUser);
+  return api.put(`/users/${data?.id}`, userWriteRow(data)).then(mapAdminUser);
 };
 
 export const useUpdateEmployee = ({ mutationConfig }) => {

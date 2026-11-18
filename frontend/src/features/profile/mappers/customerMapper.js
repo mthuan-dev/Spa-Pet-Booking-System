@@ -3,15 +3,15 @@ export const PET_TYPES = { DOG: 'Chó', CAT: 'Mèo', OTHER: 'Khác' }
 // Convert mock records with database field names into the fields used by the UI.
 export function mapUserRow(row) {
   return {
-    id: Number(row.manguoidung),
+    id: Number(row.maNguoiDung ?? row.manguoidung),
     email: row.email,
-    fullName: row.hoten,
-    phone: row.sodienthoai,
-    provider: row.nhacungcap,
-    role: row.vaitro,
-    status: Number(row.trangthai),
-    createdAt: row.ngaytao,
-    updatedAt: row.ngaycapnhat,
+    fullName: row.hoten ?? row.hoTen,
+    phone: row.sodienthoai ?? row.soDienThoai,
+    provider: row.nhacungcap ?? row.nhaCungCap,
+    role: row.vaitro ?? row.vaiTro,
+    status: Number(row.trangthai ?? row.trangThai),
+    createdAt: row.ngaytao ?? row.ngayTao,
+    updatedAt: row.ngaycapnhat ?? row.ngayCapNhat,
   }
 }
 export function mapPetRow(row) {

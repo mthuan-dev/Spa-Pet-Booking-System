@@ -2,16 +2,28 @@ import { queryOptions, useQuery } from '@tanstack/react-query';
 import { USER_ROLES } from '~/app/config/constants.js';
 import { api } from '~/lib/api.js';
 import { mapAdminUserPage } from '~/features/admin/users/mappers/userMapper.js';
+import { graphqlRequest } from '~/shared/api/graphql.js';
 
 export const getCustomers = (page, size, keyword) => {
-  return api.get(`/ad/users`, {
-    params: {
-      role: USER_ROLES.CUSTOMER,
-      page,
-      size,
-      keyword,
-    },
-  }).then(mapAdminUserPage);
+  if (import.meta.env.VITE_USE_MOCK_API !== 'false') {
+    return api.get(`/users`, {
+      params: { 
+        role: USER_ROLES.CUSTOMER, 
+        page, 
+        size, 
+        keyword 
+      },
+    }).then(mapAdminUserPage);
+  }
+  return graphqlRequest(`
+    query AdminUsers($role: VaiTro!, $page: Int, $size: Int, $keyword: String) {
+      adminUsers(role: $role, page: $page, size: $size, keyword: $keyword) {
+        content { maNguoiDung hoTen email soDienThoai vaiTro trangThai ngayTao ngayCapNhat }
+        number size totalElements totalPages
+      }
+    }
+  `, { role: USER_ROLES.CUSTOMER, page, size, keyword: keyword || null })
+    .then((data) => mapAdminUserPage(data.adminUsers));
 };
 
 export const getCustomersQueryOptions = ({ page, size, keyword }) => {

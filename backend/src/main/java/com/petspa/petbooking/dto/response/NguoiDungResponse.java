@@ -14,7 +14,6 @@ import java.time.LocalDateTime;
 public class NguoiDungResponse {
     Integer maNguoiDung;
     String email;
-    String matKhau;
     String hoTen;
     String soDienThoai;
     String googleId;

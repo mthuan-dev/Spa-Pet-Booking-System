@@ -29,18 +29,18 @@ export default function CustomerPetsPage() {
   });
   const customer = data?.customer;
   const columns = [
-    { title: 'Tên thú cưng', dataIndex: 'tenthucung', width: 150 },
-    { title: 'Loại', dataIndex: 'loaithucung', width: 90, render: (value) => PET_TYPES[value] ?? value },
+    { title: 'Tên thú cưng', dataIndex: 'tenThuCung', width: 150 },
+    { title: 'Loại', dataIndex: 'loaiThuCung', width: 90, render: (value) => PET_TYPES[value] ?? value },
     { title: 'Giống', dataIndex: 'giong', width: 140, render: (value) => value || '—' },
-    { title: 'Cân nặng (kg)', dataIndex: 'cannang', width: 120, align: 'center' },
+    { title: 'Cân nặng (kg)', dataIndex: 'canNang', width: 120, align: 'center' },
     {
-      title: 'Ảnh', dataIndex: 'hinhanh', width: 70, align: 'center',
+      title: 'Ảnh', dataIndex: 'hinhAnh', width: 70, align: 'center',
       render: (value, pet) => value
-        ? <Image src={resolveMockImage(value)} alt={pet.tenthucung} width={48} height={48} style={{ objectFit: 'cover' }} />
+        ? <Image src={resolveMockImage(value)} alt={pet.tenThuCung} width={48} height={48} style={{ objectFit: 'cover' }} />
         : '—',
     },
     {
-      title: 'Trạng thái', dataIndex: 'trangthai', width: 120, align: 'center',
+      title: 'Trạng thái', dataIndex: 'trangThai', width: 120, align: 'center',
       render: (value) => <Tag color={value === 1 ? 'success' : 'red'}>{value === 1 ? 'Hoạt động' : 'Vô hiệu hóa'}</Tag>,
     },
     {
@@ -58,7 +58,7 @@ export default function CustomerPetsPage() {
           <Popconfirm
             title="Bạn có chắc chắn muốn vô hiệu hóa thú cưng?"
             onConfirm={() => mutation.mutate({ pet, remove: true })}
-            disabled={mutation.isPending || pet.trangthai === 0}
+            disabled={mutation.isPending || pet.trangThai === 0}
             okText="Có"
             cancelText="Không"
             placement="topRight"
@@ -67,7 +67,7 @@ export default function CustomerPetsPage() {
               icon={<DeleteOutlined />}
               size="small"
               danger
-              disabled={mutation.isPending || pet.trangthai === 0}
+              disabled={mutation.isPending || pet.trangThai === 0}
               title="Vô hiệu hóa thú cưng"
               aria-label="Vô hiệu hóa thú cưng"
             />
@@ -107,7 +107,7 @@ export default function CustomerPetsPage() {
         dataSource={data?.pets || []}
         columns={columns}
         size="small"
-        rowKey="mathucung"
+        rowKey="maThuCung"
         pagination={false}
         loading={isLoading || mutation.isPending}
         scroll={{ x: 800 }}
