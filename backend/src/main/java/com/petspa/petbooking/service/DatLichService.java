@@ -1,0 +1,89 @@
+package com.petspa.petbooking.service;
+
+import com.petspa.petbooking.dto.response.BookingResponse;
+import com.petspa.petbooking.entity.ChiTietDatLich;
+import com.petspa.petbooking.entity.DatLich;
+import com.petspa.petbooking.entity.ThanhToan;
+import com.petspa.petbooking.repository.ChiTietDatLichRepository;
+import com.petspa.petbooking.repository.DatLichRepository;
+import com.petspa.petbooking.repository.ThanhToanRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+@Service
+public class DatLichService {
+    private final DatLichRepository datLichRepository;
+    private final ChiTietDatLichRepository chiTietDatLichRepository;
+    private final ThanhToanRepository thanhToanRepository;
+
+    public DatLichService(DatLichRepository datLichRepository,
+                          ChiTietDatLichRepository chiTietDatLichRepository,
+                          ThanhToanRepository thanhToanRepository) {
+        this.datLichRepository = datLichRepository;
+        this.chiTietDatLichRepository = chiTietDatLichRepository;
+        this.thanhToanRepository = thanhToanRepository;
+    }
+
+    // Đầu vào userId đang lấy từ Postman; khi có đăng nhập sẽ lấy từ JWT.
+    @Transactional(readOnly = true)
+    public List<BookingResponse> getBookingsByUserId(Integer userId) {
+        return datLichRepository.findAllByNguoiDung_MaNguoiDungOrderByNgayHenDesc(userId)
+                .stream()
+                .map(this::toBookingResponse)
+                .toList();
+    }
+
+    // Chuyển entity database thành DTO mà API được phép trả về.
+    private BookingResponse toBookingResponse(DatLich booking) {
+        var pet = booking.getThuCung();
+        var employee = booking.getNhanVien();
+        var owner = booking.getNguoiDung();
+
+        List<BookingResponse.ServiceItem> services = chiTietDatLichRepository
+                .findAllByDatLich_MaDatLich(booking.getMaDatLich())
+                .stream()
+                .map(this::toServiceItem)
+                .toList();
+
+        List<BookingResponse.Payment> payments = thanhToanRepository
+                .findAllByDatLich_MaDatLich(booking.getMaDatLich())
+                .stream()
+                .map(this::toPayment)
+                .toList();
+
+        return new BookingResponse(
+                booking.getMaDatLich(),
+                booking.getCodeDatLich(),
+                owner.getMaNguoiDung(),
+                new BookingResponse.Contact(booking.getTenLienHe(), booking.getSdtLienHe(), booking.getEmailLienHe()),
+                new BookingResponse.Pet(pet.getMaThuCung(), booking.getTenThuCung(),
+                        booking.getLoaiThuCung().name(), booking.getLoaiThuCung().name(),
+                        pet.getGiong(), booking.getCanNangThuCung(), pet.getHinhAnh()),
+                new BookingResponse.Employee(employee.getMaNguoiDung(), employee.getHoTen(), null),
+                new BookingResponse.Appointment(booking.getNgayHen(), booking.getGioBatDau(), booking.getGioKetThuc()),
+                services,
+                booking.getGhiChu(),
+                booking.getTongTien(),
+                booking.getTrangThaiDatLich().name(),
+                booking.getTrangThaiThanhToan().name(),
+                payments,
+                booking.getLyDoHuy(),
+                booking.getNgayTao(),
+                booking.getNgayCapNhat()
+        );
+    }
+
+    private BookingResponse.ServiceItem toServiceItem(ChiTietDatLich detail) {
+        return new BookingResponse.ServiceItem(
+                detail.getId(), detail.getDichVu().getMaDichVu(), detail.getTenDichVu(),
+                detail.getGia(), detail.getThoiLuongPhut());
+    }
+
+    private BookingResponse.Payment toPayment(ThanhToan payment) {
+        return new BookingResponse.Payment(
+                payment.getMaThanhToan(), payment.getPhuongThuc().name(), payment.getSoTien(),
+                payment.getTrangThai().name(), payment.getThoiGianThanhToan());
+    }
+}

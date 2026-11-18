@@ -3,6 +3,9 @@ package com.petspa.petbooking.repository;
 import com.petspa.petbooking.entity.DatLich;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
+
 public interface DatLichRepository extends JpaRepository<DatLich, Integer> {
     // TODO: Add queries when booking features are implemented.
+    List<DatLich> findAllByNguoiDung_MaNguoiDungOrderByNgayHenDesc(Integer userId);
 }
