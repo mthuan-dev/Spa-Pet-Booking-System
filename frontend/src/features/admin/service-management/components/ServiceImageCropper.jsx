@@ -20,7 +20,7 @@ const CROP_LABELS = {
   swDragHandle: 'Đổi kích thước góc dưới trái', wDragHandle: 'Đổi kích thước cạnh trái',
 };
 
-const ServiceImageCropper = ({ src, filename, onClose, onApply, onBusyChange, disabled }) => {
+const ServiceImageCropper = ({ src, filename, onClose, onApply, onBusyChange, disabled, entityLabel = 'dịch vụ' }) => {
   const imageRef = useRef(null);
   const [ratio, setRatio] = useState('free');
   const [crop, setCrop] = useState({ unit: '%', x: 10, y: 10, width: 80, height: 80 });
@@ -56,7 +56,7 @@ const ServiceImageCropper = ({ src, filename, onClose, onApply, onBusyChange, di
   };
 
   return (
-    <Modal open centered width={820} className="service-image-editor" title="Cắt ảnh dịch vụ"
+    <Modal open centered width={820} className="service-image-editor" title={`Cắt ảnh ${entityLabel}`}
       maskClosable={!busy} keyboard={!busy} closable={!busy} onCancel={() => { if (!busy) onClose(); }}
       footer={<div className="service-image-editor-footer">
         <Button disabled={busy} onClick={onClose}>Hủy cắt</Button>
@@ -75,11 +75,10 @@ const ServiceImageCropper = ({ src, filename, onClose, onApply, onBusyChange, di
         <ReactCrop crop={crop} onChange={(_, percentCrop) => setCrop(percentCrop)}
           aspect={ASPECTS[ratio]} keepSelection ruleOfThirds minWidth={16} minHeight={16}
           ariaLabels={CROP_LABELS} disabled={busy || failed}>
-          <img ref={imageRef} src={src} crossOrigin="anonymous" alt="Ảnh dịch vụ để cắt" draggable={false}
+          <img ref={imageRef} src={src} crossOrigin="anonymous" alt={`Ảnh ${entityLabel} để cắt`} draggable={false}
             hidden={failed} onLoad={() => { setLoaded(true); resetCrop(); }} onError={() => { setFailed(true); setLoaded(false); }} />
         </ReactCrop>
       </div>
-      <p className="service-image-editor-note">Ảnh đã cắt sẽ thay thế ảnh hiện tại trong biểu mẫu. Bấm lưu dịch vụ để hoàn tất.</p>
     </Modal>
   );
 };

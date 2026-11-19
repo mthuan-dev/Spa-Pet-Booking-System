@@ -2,7 +2,7 @@ import { queryOptions, useQuery } from '@tanstack/react-query';
 import { api } from '~/lib/api.js';
 
 export const getSeatTypes = (keyword, page, size) => {
-  return api.get(`/ad/seat-types`, {
+  return api.get('/seat-types', {
     params: {
       keyword,
       page,

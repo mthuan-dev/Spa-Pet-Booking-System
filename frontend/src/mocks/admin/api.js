@@ -5,8 +5,7 @@ import { bookingBundle } from '../bookings.js';
 import { credentials, currentUserRow, setSession } from '../../features/profile/mocks/customerRepository.js';
 import { handleServiceCatalog } from './serviceCatalog.js';
 import { uploadServiceImage } from './serviceImages.js';
-import { handleCustomerPets } from './pets.js';
-import { handleAdminUsers, publicUserRow } from './users.js';
+const publicUserRow = ({ matkhau, ...row }) => row;
 
 const normalize = (value) => String(value ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').toLowerCase();
 const search = (items, keyword) => items.filter((item) => normalize(JSON.stringify(item)).includes(normalize(keyword)));
@@ -38,34 +37,26 @@ function handle(config) {
   if (sessionUser?.vaitro !== 'ADMIN') fail('Vui lòng đăng nhập tài khoản quản trị.', 401);
   if (path === '/auth/me') return publicUserRow(sessionUser);
   if (path === '/auth/refresh') return { token: 'petspa-mock-session', refreshToken: 'petspa-mock-session' };
-  if (path === '/ad/service-images') {
+  if (path === '/service-images') {
     if (method !== 'post') fail('Thao tác ảnh dịch vụ không được hỗ trợ.', 405);
     return uploadServiceImage(body, fail);
   }
-  if (/^\/ad\/(services|service-prices)(\/\d+)?$/.test(path)) return handleServiceCatalog({ path, method, body, fail });
-  const petMatch = path.match(/^\/ad\/users\/(\d+)\/pets(?:\/(\d+))?$/);
-  if (petMatch) return handleCustomerPets({ customerId: petMatch[1], petId: petMatch[2], method, body, fail });
-  const petMatchCanonical = path.match(/^\/users\/(\d+)\/pets(?:\/(\d+))?$/);
-  if (petMatchCanonical) return handleCustomerPets({ customerId: petMatchCanonical[1], petId: petMatchCanonical[2], method, body, fail });
-  const userMatch = path.match(/^\/ad\/users\/(\d+)$/);
-  if (path === '/ad/users' || userMatch) return handleAdminUsers({ userId: userMatch?.[1], method, body, params, fail, search, paginate });
-  const userMatchCanonical = path.match(/^\/users\/(\d+)$/);
-  if (path === '/users' || userMatchCanonical) return handleAdminUsers({ userId: userMatchCanonical?.[1], method, body, params, fail, search, paginate });
+  if (/^\/(services|service-prices)(\/\d+)?$/.test(path)) return handleServiceCatalog({ path, method, body, fail });
   const filteredBookings = () => mockBookings.filter((row) => inRange(row.ngayhen, params.startDate, params.endDate));
-  if (path === '/ad/bookings' && method === 'get') {
+  if (path === '/bookings' && method === 'get') {
     const rows = mockBookings.filter((row) => inRange(row.ngaytao, params.startDate, params.endDate)
       && (!params.status || row.trangthaidatlich === params.status)
       && (!params.paymentMethod || mockPayments.some((payment) => payment.madatlich === row.madatlich && payment.phuongthuc === params.paymentMethod)));
     return paginate(search(rows.map((row) => bookingBundle(row)), params.keyword), params);
   }
-  const bookingMatch = path.match(/^\/ad\/bookings\/(\d+)$/);
+  const bookingMatch = path.match(/^\/bookings\/(\d+)$/);
   if (bookingMatch && method === 'get') {
     const row = mockBookings.find((booking) => booking.madatlich === Number(bookingMatch[1]));
     return row ? bookingBundle(row) : fail('Không tìm thấy lịch hẹn.', 404);
   }
-  if (path === '/ad/payments' && method === 'get') return mockPayments.filter((row) => !params.madatlich || row.madatlich === Number(params.madatlich));
-  if (path === '/ad/reviews' && method === 'get') return mockReviews.filter((row) => !params.madatlich || row.madatlich === Number(params.madatlich));
-  if (path === '/ad/reports/bookings') {
+  if (path === '/payments' && method === 'get') return mockPayments.filter((row) => !params.madatlich || row.madatlich === Number(params.madatlich));
+  if (path === '/reviews' && method === 'get') return mockReviews.filter((row) => !params.madatlich || row.madatlich === Number(params.madatlich));
+  if (path === '/reports/bookings') {
     const start = dayjs(params.startDate || dayjs().startOf('week'));
     const end = dayjs(params.endDate || dayjs().endOf('week'));
     if (!start.isValid() || !end.isValid()) fail('Khoảng ngày báo cáo không hợp lệ.');
@@ -78,7 +69,7 @@ function handle(config) {
       };
     });
   }
-  if (path === '/ad/reports/services') {
+  if (path === '/reports/services') {
     const bookings = filteredBookings().filter((row) => row.trangthaidatlich !== 'CANCELLED');
     return mockServices.map((service) => {
       const details = mockBookingDetails.filter((detail) => detail.madichvu === service.madichvu && bookings.some((booking) => booking.madatlich === detail.madatlich));
@@ -90,7 +81,7 @@ function handle(config) {
         }, 0).toFixed(2)) };
     });
   }
-  if (path === '/ad/reports/customers') return {
+  if (path === '/reports/customers') return {
     guestCustomers: 0, memberCustomers: new Set(filteredBookings().map((row) => row.manguoidung)).size,
   };
   fail('Đường dẫn không thuộc API spa: ' + method.toUpperCase() + ' ' + path, 404);

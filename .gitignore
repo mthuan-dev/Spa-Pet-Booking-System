@@ -4,6 +4,7 @@ backend/target/
 *.jar
 !backend/.mvn/wrapper/maven-wrapper.jar
 logs/
+backend/uploads/
 
 # IDEs
 .idea/

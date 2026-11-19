@@ -6,7 +6,6 @@ import PageHeader from '~/components/ui/page-header.jsx';
 import { customerPetsQuery, useCustomerPets, useSaveCustomerPet } from '~/features/admin/pets/api/customer-pets.js';
 import PetFormModal from '~/features/admin/pets/components/PetFormModal.jsx';
 import { PET_TYPES } from '~/features/profile/mappers/customerMapper.js';
-import { resolveMockImage } from '~/mocks/imageStore.js';
 
 export const CustomerPetsLoader = (queryClient) => async ({ params }) =>
   queryClient.ensureQueryData(customerPetsQuery(params.customerId));
@@ -36,7 +35,7 @@ export default function CustomerPetsPage() {
     {
       title: 'Ảnh', dataIndex: 'hinhAnh', width: 70, align: 'center',
       render: (value, pet) => value
-        ? <Image src={resolveMockImage(value)} alt={pet.tenThuCung} width={48} height={48} style={{ objectFit: 'cover' }} />
+        ? <Image src={value} alt={pet.tenThuCung} width={48} height={48} style={{ objectFit: 'cover' }} />
         : '—',
     },
     {
@@ -116,7 +115,7 @@ export default function CustomerPetsPage() {
         <PetFormModal
           pet={selectedPet}
           onCancel={() => setFormOpen(false)}
-          onSave={(pet) => mutation.mutate({ pet })}
+          onSave={(pet, imageFile) => mutation.mutate({ pet, imageFile })}
           isPending={mutation.isPending}
         />
       )}
