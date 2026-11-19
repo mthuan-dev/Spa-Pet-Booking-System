@@ -1,15 +1,18 @@
-import { mockUsers } from '../../../mocks/data.js';
 import { mapUserRow } from '../mappers/customerMapper.js';
 
-const SESSION = 'meomeo:session:v1';
-export const credentials = new Map([
-  ['minhthuan@meomeo.vn', 'Meomeo123!'], ['admin@example.com', 'Admin123!'],
-]);
-export function setSession(id, remember = false) {
+export function setSession(token, remember = false) {
   sessionStorage.removeItem(SESSION);
   localStorage.removeItem(SESSION);
-  if (id) (remember ? localStorage : sessionStorage).setItem(SESSION, String(id));
+  if (token) {
+    (remember ? localStorage : sessionStorage)
+        .setItem(SESSION, token);
+  }
 }
+
+
+
+
+
 export function currentUserRow() {
   let id;
   try { id = Number(sessionStorage.getItem(SESSION) || localStorage.getItem(SESSION)); }

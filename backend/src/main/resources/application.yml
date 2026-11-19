@@ -39,6 +39,9 @@ spring:
           auth: true
           starttls:
             enable: true
+
+jwt:
+  signerKey: "d26e1310e24cd6c2deb823d1bf798003ec7422cd7eefbdc0644b4d58ba48d7dd"
 # Configure spring.security.oauth2.client.registration.google.client-id and
 # client-secret from GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET when Google login is implemented.
 # Do not define an incomplete OAuth registration: Spring validates the client id at startup.
