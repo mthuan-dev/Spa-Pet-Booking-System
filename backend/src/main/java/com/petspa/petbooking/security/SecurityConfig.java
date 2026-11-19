@@ -28,7 +28,7 @@ import javax.crypto.spec.SecretKeySpec;
 public class SecurityConfig {
 
     private String[] PUBLIC_ENDPOINT = {
-            "/api/users","/api/auth/login","/api/auth/introspect"
+            "/api/users","/api/auth/login","/api/auth/introspect","/api/auth/register"
     };
     @Value("${jwt.signerKey}")
     private String signerKey;
@@ -44,9 +44,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.GET, "/api/booking-data/services", "/api/booking-data/pet-images/**").permitAll()
                         .requestMatchers("/api/booking-data/**", "/api/bookings/**").authenticated()
-                        .requestMatchers("/api/**", "/graphql").permitAll()
+                        .requestMatchers( "/graphql").permitAll()
+                        .requestMatchers(HttpMethod.POST,PUBLIC_ENDPOINT).permitAll()
                         .anyRequest().authenticated())
-                .oauth2ResourceServer(oauth2 ->
+                         .oauth2ResourceServer(oauth2 ->
                         oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoder()))
                         )
                 // K dùng HTTPsession lưu đnhập. Mỗi request tự xác thực (JWT)

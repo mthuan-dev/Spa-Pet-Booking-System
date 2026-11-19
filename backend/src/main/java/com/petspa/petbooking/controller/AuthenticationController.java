@@ -3,8 +3,10 @@ package com.petspa.petbooking.controller;
 import com.nimbusds.jose.JOSEException;
 import com.petspa.petbooking.dto.request.AuthenticationRequest;
 import com.petspa.petbooking.dto.request.IntrospectRequest;
+import com.petspa.petbooking.dto.request.RegisterRequest;
 import com.petspa.petbooking.dto.response.AuthenticationResponse;
 import com.petspa.petbooking.dto.response.IntrospectResponse;
+import com.petspa.petbooking.dto.response.NguoiDungResponse;
 import com.petspa.petbooking.service.AuthenticationService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -30,5 +32,10 @@ public class AuthenticationController {
     @PostMapping("/introspect")
     IntrospectResponse authenticate(@RequestBody IntrospectRequest request) throws ParseException, JOSEException {
         return authenticationService.introspect(request);
+    }
+    @PostMapping("/register")
+    NguoiDungResponse Register(@RequestBody RegisterRequest request){
+        System.out.println("DA VAO REGISTER");
+        return authenticationService.Register(request);
     }
 }
