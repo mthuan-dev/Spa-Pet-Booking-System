@@ -42,6 +42,8 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.GET, "/api/booking-data/services", "/api/booking-data/pet-images/**").permitAll()
+                        .requestMatchers("/api/booking-data/**", "/api/bookings/**").authenticated()
                         .requestMatchers("/api/**", "/graphql").permitAll()
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 ->

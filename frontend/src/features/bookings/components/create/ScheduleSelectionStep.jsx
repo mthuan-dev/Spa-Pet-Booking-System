@@ -166,7 +166,6 @@ export default function ScheduleSelectionStep({
           <div className="booking-slot-empty">
             <p>Hôm nay các bé ghé đông quá rồi.</p>
             <span>Bạn thử chọn một ngày khác nhé.</span>
-            <button className="text-link" type="button" onClick={() => updateWeekOffset(Math.min(7, displayedWeekOffset + 7))}>Xem tuần tiếp theo {rescheduling ? <img className="booking-schedule-arrow-icon" src={arrowRight} alt="" /> : <span aria-hidden="true">→</span>}</button>
           </div>
         )}
         {slotState === 'ready' && slots.length > 0 && (

@@ -1,53 +1,39 @@
-import { mockPets } from '../../../mocks/data.js';
-import { copy, currentUser, requireUser, wait } from '../../profile/mocks/customerRepository.js';
-import { selectService } from '../../../app/config/dataSource.js';
-import { PET_TYPES, mapPetRow } from '../../profile/mappers/customerMapper.js';
-import { nextMockId, mockTimestamp } from '../../../mocks/utils.js';
-import { storePetImage } from '../../../mocks/imageStore.js';
-
-function find(id) {
-  const user = requireUser();
-  const row = mockPets.find((pet) => pet.mathucung === Number(id) && pet.manguoidung === user.id && pet.trangthai === 1);
-  if (!row) throw new Error('Không tìm thấy thú cưng trong tài khoản của bạn.');
-  return row;
+﻿import { bookingApi } from '../../../shared/api/bookingApi.js'
+import { PET_TYPES } from '../../profile/mappers/customerMapper.js'
+function model(row) {
+  return { id: row.maThuCung, ownerId: row.maNguoiDung, name: row.tenThuCung,
+    type: row.loaiThuCung, species: PET_TYPES[row.loaiThuCung], breed: row.giong,
+    weightKg: Number(row.canNang), imageUrl: row.hinhAnh?.startsWith('/api/') ? new URL(row.hinhAnh, import.meta.env.VITE_BACKEND_ENDPOINT || 'http://localhost:8080').href : row.hinhAnh || '', status: row.trangThai, avatarTone: 'honey' }
 }
 export function validatePet(value) {
-  if (!value.name?.trim() || value.name.trim().length > 100) return 'Tên thú cưng cần từ 1 đến 100 ký tự.';
-  if (!PET_TYPES[value.type] && !Object.values(PET_TYPES).includes(value.species)) return 'Bạn chọn loại thú cưng nhé.';
-  if (!Number.isFinite(Number(value.weightKg)) || Number(value.weightKg) <= 0 || Number(value.weightKg) > 999.99 || !/^\d+(\.\d{1,2})?$/.test(String(value.weightKg)))
-    return 'Cân nặng cần lớn hơn 0, tối đa 999,99 kg và có tối đa 2 số thập phân.';
-  if (value.breed?.length > 100) return 'Giống thú cưng tối đa 100 ký tự.';
-  return '';
+  if (!value.name?.trim() || value.name.trim().length > 100) return 'Tên thú cưng cần từ 1 đến 100 ký tự.'
+  if (!PET_TYPES[value.type] && !Object.values(PET_TYPES).includes(value.species)) return 'Vui lòng chọn loại thú cưng.'
+  if (!Number.isFinite(Number(value.weightKg)) || Number(value.weightKg) <= 0 || Number(value.weightKg) > 999.99 || !/^\d+(\.\d{1,2})?$/.test(String(value.weightKg))) return 'Cân nặng không hợp lệ.'
+  if (value.breed?.length > 100) return 'Giống thú cưng tối đa 100 ký tự.'
+  return ''
 }
-function fields(value) {
-  const error = validatePet(value);
-  if (error) throw new Error(error);
-  return {
-    tenthucung: value.name.trim(), loaithucung: value.type || Object.keys(PET_TYPES).find((type) => PET_TYPES[type] === value.species),
-    giong: value.breed?.trim() || null, cannang: Number(value.weightKg), hinhanh: storePetImage(value.imageUrl),
-  };
-}
-export const petService = selectService({
-  async getMyPets() {
-    await wait();
-    const user = currentUser();
-    return user ? copy(mockPets.filter((pet) => pet.manguoidung === user.id && pet.trangthai === 1).map(mapPetRow)) : [];
-  },
-  async getPetById(id) { await wait(); return copy(mapPetRow(find(id))); },
+export const petService = {
+  async getMyPets() { return (await bookingApi('/pets')).pets.filter(p => p.trangThai === 1).map(model) },
+  async getPetById(id) { return (await this.getMyPets()).find(p => p.id === Number(id)) || null },
   async createPet(value) {
-    await wait();
-    const owner = requireUser();
-    if (owner.role !== 'CUSTOMER') throw new Error('Chỉ tài khoản khách hàng có thể thêm thú cưng.');
-    const data = fields(value), now = mockTimestamp();
-    const row = { mathucung: nextMockId(mockPets, 'mathucung'), manguoidung: owner.id, ...data, trangthai: 1, ngaytao: now, ngaycapnhat: now };
-    mockPets.push(row);
-    return copy(mapPetRow(row));
+    const error = validatePet(value)
+    if (error) throw new Error(error)
+    let image = value.imageUrl || null
+    if (image?.startsWith('data:')) image = (await bookingApi('/pet-images', { method: 'POST', body: JSON.stringify({ image }) })).url
+    return model(await bookingApi('/pets', { method: 'POST', body: JSON.stringify({
+      tenThuCung: value.name.trim(), loaiThuCung: value.type || Object.keys(PET_TYPES).find(t => PET_TYPES[t] === value.species),
+      giong: value.breed?.trim() || null, canNang: Number(value.weightKg), hinhAnh: image, trangThai: 1,
+    }) }))
   },
   async updatePet(id, value) {
-    await wait();
-    const row = find(id), data = fields(value);
-    Object.assign(row, data, { ngaycapnhat: mockTimestamp() });
-    return copy(mapPetRow(row));
+    const error = validatePet(value)
+    if (error) throw new Error(error)
+    let image = value.imageUrl || null
+    if (image?.startsWith('data:')) image = (await bookingApi('/pet-images', { method: 'POST', body: JSON.stringify({ image }) })).url
+    return model(await bookingApi('/pets/' + id, { method: 'PUT', body: JSON.stringify({
+      tenThuCung: value.name.trim(), loaiThuCung: value.type || Object.keys(PET_TYPES).find(t => PET_TYPES[t] === value.species),
+      giong: value.breed?.trim() || null, canNang: Number(value.weightKg), hinhAnh: image, trangThai: 1,
+    }) }))
   },
-  async deletePet(id) { await wait(); Object.assign(find(id), { trangthai: 0, ngaycapnhat: mockTimestamp() }); },
-});
+  async deletePet(id) { await bookingApi('/pets/' + id, { method: 'DELETE' }) },
+}

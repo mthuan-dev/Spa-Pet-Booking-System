@@ -1,13 +1,9 @@
-import { mockServices, mockServicePrices } from '../../../mocks/data.js';
+﻿import { bookingApi } from '../../../shared/api/bookingApi.js'
 import { mapServiceRow } from '../mappers/serviceMapper.js'
-import { copyMockData, mockRequest } from '../../../shared/api/mockRequest.js'
-
 export const serviceService = {
   async getAvailableServices() {
-    return mockRequest(copyMockData(mockServices.filter((row) => row.trangthai === 1 && mockServicePrices.some((price) => price.madichvu === row.madichvu)).map((row) => mapServiceRow(row, mockServicePrices))))
+    const rows = await bookingApi('/services')
+    return rows.filter(row => row.prices.length).map(row => mapServiceRow(row, row.prices))
   },
-  async getServiceById(id) {
-    const row = mockServices.find((service) => service.madichvu === Number(id) && service.trangthai === 1)
-    return mockRequest(row ? copyMockData(mapServiceRow(row, mockServicePrices)) : null)
-  },
+  async getServiceById(id) { return (await this.getAvailableServices()).find(row => row.id === Number(id)) || null },
 }

@@ -1,5 +1,5 @@
-import { currentUser } from '../mocks/customerRepository.js';
-import { copyMockData, mockRequest } from '../../../shared/api/mockRequest.js';
+﻿import { bookingApi } from '../../../shared/api/bookingApi.js'
+import { mapUserRow } from '../mappers/customerMapper.js'
 export const customerService = {
-  async getCurrentCustomer() { return mockRequest(copyMockData(currentUser()), 120); },
-};
+  async getCurrentCustomer() { return mapUserRow(await bookingApi('/customer')) },
+}
