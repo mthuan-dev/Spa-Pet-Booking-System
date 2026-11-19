@@ -1,4 +1,9 @@
 import { mapUserRow } from '../mappers/customerMapper.js';
+import { mockUsers } from '../../../mocks/data.js';
+
+const SESSION = 'petspa_mock_session';
+// Only used by the legacy mock admin user editor; real login uses the backend.
+export const credentials = new Map();
 
 export function setSession(token, remember = false) {
   sessionStorage.removeItem(SESSION);

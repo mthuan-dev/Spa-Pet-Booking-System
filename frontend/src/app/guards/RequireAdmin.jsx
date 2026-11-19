@@ -7,7 +7,7 @@ const AdminRoutes = ({ children }) => {
   const location = useLocation();
   if (loading) return <LoadingScreen />;
   if (!user) return <Navigate to="/login" replace state={{ from: location.pathname + location.search + location.hash }} />;
-  return user.role === 'ADMIN' ? children : <Navigate to="/profile" replace />;
+  return user.vaiTro === 'ADMIN' ? children : <Navigate to="/profile" replace />;
 };
 
 export default AdminRoutes;
