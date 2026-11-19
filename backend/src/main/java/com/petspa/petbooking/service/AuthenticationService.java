@@ -7,9 +7,13 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.petspa.petbooking.dto.request.AuthenticationRequest;
 import com.petspa.petbooking.dto.request.IntrospectRequest;
+import com.petspa.petbooking.dto.request.RegisterRequest;
 import com.petspa.petbooking.dto.response.AuthenticationResponse;
 import com.petspa.petbooking.dto.response.IntrospectResponse;
+import com.petspa.petbooking.dto.response.NguoiDungResponse;
 import com.petspa.petbooking.entity.NguoiDung;
+import com.petspa.petbooking.entity.enums.NhaCungCap;
+import com.petspa.petbooking.entity.enums.VaiTro;
 import com.petspa.petbooking.mapper.NguoidungMapper;
 import com.petspa.petbooking.repository.NguoiDungRepository;
 import lombok.AccessLevel;
@@ -24,6 +28,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.text.ParseException;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.StringJoiner;
@@ -57,11 +62,29 @@ public class AuthenticationService {
         }
 
     }
+    public NguoiDungResponse Register(RegisterRequest request){
+       if(nguoiDungRepository.findByEmail(request.getEmail()).isPresent())
+       {
+           throw new IllegalArgumentException("Email đã tồn tại");
+       }
+       NguoiDung user = new NguoiDung();
+       user.setHoTen(request.getFullname());
+       user.setEmail(request.getEmail());
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
+        user.setMatKhau(
+                passwordEncoder.encode(request.getPassword())
+        );
+        user.setSoDienThoai(request.getPhone());
+        user.setVaiTro(VaiTro.CUSTOMER);
+        user.setNhaCungCap(NhaCungCap.LOCAL);
+        user.setTrangThai(1);
+        user.setNgayTao(LocalDateTime.now());
+        return nguoidungMapper.toUserResponse(nguoiDungRepository.save(user));
+    }
     private String generateToken(NguoiDung user){
         JWSHeader header= new JWSHeader(JWSAlgorithm.HS512);
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
                 .subject(user.getEmail())
-                .claim("userId", user.getMaNguoiDung())
                 .issuer("Spa-Pet")
                 .issueTime(new Date())
                 .claim("scope",buildScope(user))

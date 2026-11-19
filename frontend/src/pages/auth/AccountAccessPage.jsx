@@ -65,7 +65,13 @@ export default function AccountAccessPage({ register = false }) {
 
     try {
       if (register) {
-        await authService.register(form)
+        const user = {
+          fullname:form.fullName,
+          email:form.email,
+          password:form.password,
+          phone:form.phone
+        }
+        await authService.register(user)
 
         navigate('/login', {
           replace: true,

@@ -36,6 +36,28 @@ export const authService = {
 
     return data.user
   },
+  async register(input){
+    const response = await fetch(`${API_URL}/auth/register`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        fullname: input.fullname,
+        phone: input.phone,
+        email: input.email.trim(),
+        password: input.password
+      })
+    })
+
+    if (!response.ok) {
+      throw new Error('thông tin không chính xác')
+    }
+
+    const data = await response.json()
+
+    return data
+  },
 
   async getCurrentUser() {
     const token = getSession()
