@@ -116,7 +116,9 @@
 }
 
 .booking-stepper__number {
+  transform: translate(-0.25px, -0.5px);
   display: inline-grid;
+  box-sizing: border-box;
   width: 30px;
   height: 30px;
   flex: none;
@@ -126,6 +128,7 @@
   color: #746f66;
   font-size: 13px;
   font-weight: 700;
+  line-height: 1;
 }
 
 .booking-stepper__number img,
@@ -139,6 +142,7 @@
 }
 
 .booking-stepper__label {
+  line-height: 1;
   overflow: hidden;
   color: #6d685e;
   font-size: 14px;
@@ -163,16 +167,22 @@
 }
 
 .booking-stepper__step.is-complete .booking-stepper__number {
-  transform: translateY(0);
   border: 1.5px solid #a98c4a;
   background: #fff4ce;
   color: #51421f;
 }
 
 .booking-stepper__step.is-complete .booking-stepper__number svg {
+  transform: translate(0.25px, 0.5px);
   display: block;
   width: 72%;
   height: 72%;
+}
+
+.booking-stepper__digit {
+  transform: translate(0.25px, 0.5px);
+  display: block;
+  line-height: 1;
 }
 
 .booking-stepper__step.is-complete .booking-stepper__label {
