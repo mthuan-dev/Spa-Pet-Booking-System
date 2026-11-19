@@ -23,9 +23,6 @@ const MenuCustom = ({ isMobile, onClose, theme = 'light', ...props }) => {
 
   const selectedKeys = useMemo(() => {
     let path = location.pathname.replace(/\/$/, '');
-    if (/^\/admin\/trains\/[^/]+\/route-segments$/.test(path)) {
-      path = '/admin/customers';
-    }
     let item = findItemByPath(adminMenu, path);
     while (!item && path.includes('/')) {
       path = path.slice(0, path.lastIndexOf('/'));

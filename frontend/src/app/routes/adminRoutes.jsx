@@ -32,66 +32,38 @@ export const createAdminRoute = (queryClient) => ({
       },
     },
     {
-      path: 'carriage-layouts',
+      path: 'combos',
       lazy: async () => {
-        const CarriagesManagement = await import('../../pages/admin/carriages/index.jsx');
-        return { Component: CarriagesManagement.default };
+        const CombosPage = await import('../../pages/admin/combos/index.jsx');
+        return { Component: CombosPage.default };
       },
     },
     {
-      path: 'carriage-layouts/create',
+      path: 'combos/create',
       lazy: async () => {
-        const CreateCarriage = await import('../../pages/admin/carriages/create.jsx');
-        return { Component: CreateCarriage.default };
+        const ComboEditorPage = await import('../../pages/admin/combos/create.jsx');
+        return { Component: ComboEditorPage.default };
       },
     },
     {
-      path: 'carriage-layouts/:id',
+      path: 'combos/:id/edit',
       lazy: async () => {
-        const CarriageDetails = await import('../../pages/admin/carriages/[id]/index.jsx');
-        return { Component: CarriageDetails.default };
+        const ComboEditorPage = await import('../../pages/admin/combos/edit.jsx');
+        return { Component: ComboEditorPage.default };
       },
     },
     {
-      path: 'carriage-layouts/:id/edit',
+      path: 'services',
       lazy: async () => {
-        const EditCarriagePage = await import('../../pages/admin/carriages/[id]/edit.jsx');
-        return { Component: EditCarriagePage.default };
+        const ServicesPage = await import('../../pages/admin/services/index.jsx');
+        return { Component: ServicesPage.default };
       },
     },
     {
-      path: 'seats',
+      path: 'weight-prices',
       lazy: async () => {
-        const SeatsManagement = await import('../../pages/admin/seat-types/index.jsx');
-        return { Component: SeatsManagement.default };
-      },
-    },
-    {
-      path: 'trains',
-      lazy: async () => {
-        const TrainsManagement = await import('../../pages/admin/trains/index.jsx');
-        return { Component: TrainsManagement.default };
-      },
-    },
-    {
-      path: 'trains/create',
-      lazy: async () => {
-        const CreateTrain = await import('../../pages/admin/trains/create.jsx');
-        return { Component: CreateTrain.default };
-      },
-    },
-    {
-      path: 'trains/:id',
-      lazy: async () => {
-        const TrainDetails = await import('../../pages/admin/trains/[id]/index.jsx');
-        return { Component: TrainDetails.default };
-      },
-    },
-    {
-      path: 'trains/:id/edit',
-      lazy: async () => {
-        const EditTrainPage = await import('../../pages/admin/trains/[id]/edit.jsx');
-        return { Component: EditTrainPage.default };
+        const WeightPricesPage = await import('../../pages/admin/weight-prices/index.jsx');
+        return { Component: WeightPricesPage.default };
       },
     },
     {
@@ -107,10 +79,10 @@ export const createAdminRoute = (queryClient) => ({
       },
     },
     {
-      path: 'train-schedules',
+      path: 'booking-schedules',
       lazy: async () => {
-        const TrainScheDulesPage = await import('../../pages/admin/train-schedules/index.jsx');
-        return { Component: TrainScheDulesPage.default };
+        const BookingSchedulesPage = await import('../../pages/admin/booking-schedules/index.jsx');
+        return { Component: BookingSchedulesPage.default };
       },
     },
     {

@@ -62,13 +62,13 @@
   text-align: center;
 }
 
-.railway-admin .admin-account-dropdown .ant-dropdown-menu {
+.petspa-admin .admin-account-dropdown .ant-dropdown-menu {
   padding: 4px;
   border-radius: 0;
   box-shadow: none;
 }
 
-.railway-admin .admin-account-dropdown .ant-dropdown-menu .ant-dropdown-menu-item {
+.petspa-admin .admin-account-dropdown .ant-dropdown-menu .ant-dropdown-menu-item {
   gap: 8px;
   padding: 8px 10px;
   border-radius: 4px;
@@ -77,12 +77,12 @@
   line-height: 20px;
 }
 
-.railway-admin .admin-account-dropdown .ant-dropdown-menu .ant-dropdown-menu-item .ant-dropdown-menu-item-icon {
+.petspa-admin .admin-account-dropdown .ant-dropdown-menu .ant-dropdown-menu-item .ant-dropdown-menu-item-icon {
   margin-inline-end: 0;
   font-size: 14px;
 }
 
-.railway-admin .admin-account-dropdown .ant-dropdown-menu .ant-dropdown-menu-item:hover {
+.petspa-admin .admin-account-dropdown .ant-dropdown-menu .ant-dropdown-menu-item:hover {
   background: #f0f2f9;
 }
 
@@ -191,15 +191,6 @@
   padding: 4px;
 }
 
-@keyframes trainRunning {
-  0% {
-    left: -540px;
-  }
-  100% {
-    left: 100%;
-  }
-}
-
 .ant-form-item-explain-error {
   font-size: 13px;
 }
@@ -257,7 +248,7 @@
   font-size: medium;
 }
 
-.railway-admin .ant-layout-content .ant-table-wrapper {
+.petspa-admin .ant-layout-content .ant-table-wrapper {
   padding: 8px;
   background: #fff;
   border-radius: 6px;

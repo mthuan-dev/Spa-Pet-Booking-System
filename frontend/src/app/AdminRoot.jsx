@@ -10,10 +10,10 @@ export default function AdminRoot() {
   useLayoutEffect(() => {
     const previousTitle = document.title
     document.title = 'Quản lý pet spa'
-    document.body.classList.add('railway-admin')
+    document.body.classList.add('petspa-admin')
     return () => {
       document.title = previousTitle
-      document.body.classList.remove('railway-admin')
+      document.body.classList.remove('petspa-admin')
     }
   }, [])
 
@@ -21,7 +21,7 @@ export default function AdminRoot() {
     <>
       <link rel="stylesheet" href={fontStylesheet} />
       <style>{adminStyles}</style>
-      <style>{'body.railway-admin { font: inherit; color: inherit; background: transparent; text-rendering: auto; -webkit-font-smoothing: auto; } html:has(body.railway-admin) { scroll-behavior: auto; scroll-padding-top: 0; }'}</style>
+      <style>{'body.petspa-admin { font: inherit; color: inherit; background: transparent; text-rendering: auto; -webkit-font-smoothing: auto; } html:has(body.petspa-admin) { scroll-behavior: auto; scroll-padding-top: 0; }'}</style>
       <AppProvider>
         <AdminRoutes><AdminLayout /></AdminRoutes>
       </AppProvider>

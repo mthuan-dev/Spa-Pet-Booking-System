@@ -1,12 +1,12 @@
 import { Alert, Button, Calendar, Flex, Tag } from 'antd';
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import TrainScheduleModal from '~/features/admin/train-schedules/components/TrainScheduleModal.jsx';
+import BookingScheduleModal from '~/features/admin/booking-schedules/components/BookingScheduleModal.jsx';
 import dayjs from 'dayjs';
 import PageHeader from '~/components/ui/page-header.jsx';
-import { countBookingsByDate, getBookingSchedules } from '~/features/admin/train-schedules/utils/bookingSchedules.js';
+import { countBookingsByDate, getBookingSchedules } from '~/features/admin/booking-schedules/utils/bookingSchedules.js';
 
-const TrainScheDulesPage = () => {
+const BookingSchedulesPage = () => {
   const [open, setOpen] = useState(false);
   const [date, setDate] = useState(dayjs());
 
@@ -54,7 +54,7 @@ const TrainScheDulesPage = () => {
         }}
         className="mt-3 [&_.ant-picker-calendar-mode-switch]:hidden"
       />
-      <TrainScheduleModal
+      <BookingScheduleModal
         key={date.format('YYYY-MM-DD')}
         date={date}
         open={open}
@@ -68,4 +68,4 @@ const TrainScheDulesPage = () => {
   );
 };
 
-export default TrainScheDulesPage;
+export default BookingSchedulesPage;

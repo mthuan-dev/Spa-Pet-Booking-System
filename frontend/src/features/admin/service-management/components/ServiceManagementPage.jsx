@@ -1,4 +1,4 @@
-import { DeleteOutlined, EditOutlined, PlusOutlined, QuestionCircleOutlined, ToolOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, PlusOutlined, ToolOutlined } from '@ant-design/icons';
 import { App, Button, Flex, Input, Modal, Space, Table, Tag } from 'antd';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -50,7 +50,6 @@ const ServiceManagementPage = ({ category }) => {
         {isCombo
           ? <Link to={`${service.madichvu}/edit`}><Button icon={<EditOutlined />} title="Chỉnh sửa" /></Link>
           : <Button icon={<EditOutlined />} title="Chỉnh sửa" onClick={() => setEditing(service)} />}
-        {isCombo && <Link to={`${service.madichvu}`}><Button icon={<QuestionCircleOutlined />} title="Chi tiết" /></Link>}
         <Button disabled={statusMutation.isPending} onClick={() => setStatusService(service)}
           icon={service.trangthai === 1 ? <DeleteOutlined /> : <ToolOutlined />}
           title={service.trangthai === 1 ? 'Vô hiệu hóa' : 'Khôi phục'} />

@@ -22,7 +22,7 @@ const adminMenu = Object.freeze([
       {
         key: '2-2',
         label: 'Lịch hẹn',
-        path: '/admin/train-schedules',
+        path: '/admin/booking-schedules',
       },
       {
         key: '3-2',
@@ -51,17 +51,17 @@ const adminMenu = Object.freeze([
       {
         key: '7-1',
         label: 'Dịch vụ lẻ',
-        path: '/admin/seats',
+        path: '/admin/services',
       },
       {
         key: '7-2',
         label: 'Combo dịch vụ',
-        path: '/admin/carriage-layouts',
+        path: '/admin/combos',
       },
       {
         key: '7-3',
         label: 'Giá theo cân nặng',
-        path: '/admin/trains',
+        path: '/admin/weight-prices',
       },
     ],
   },

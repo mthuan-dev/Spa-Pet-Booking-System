@@ -39,7 +39,7 @@ const bookingColumns = [
   },
 ];
 
-const TrainScheduleModal = ({ date, open, onCancel, bookings = [], isLoading, isError, onRetry }) => {
+const BookingScheduleModal = ({ date, open, onCancel, bookings = [], isLoading, isError, onRetry }) => {
   const queryClient = useQueryClient();
   const { message } = App.useApp();
   const [filters, setFilters] = useState(EMPTY_FILTERS);
@@ -179,4 +179,4 @@ const TrainScheduleModal = ({ date, open, onCancel, bookings = [], isLoading, is
   );
 };
 
-export default TrainScheduleModal;
+export default BookingScheduleModal;

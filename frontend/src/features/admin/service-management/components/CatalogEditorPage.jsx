@@ -13,7 +13,7 @@ const CatalogEditorPage = ({ kind }) => {
   const query = useServiceCatalog();
   const isPrice = kind === 'price';
   const title = isPrice ? 'Giá theo cân nặng' : 'Combo dịch vụ';
-  const basePath = isPrice ? '/admin/trains' : '/admin/carriage-layouts';
+  const basePath = isPrice ? '/admin/weight-prices' : '/admin/combos';
   const item = isPrice
     ? query.data?.giadichvu.find((price) => price.magiadichvu === Number(id))
     : query.data?.dichvu.find((service) => service.madichvu === Number(id) && service.loaidichvu === 'COMBO');
