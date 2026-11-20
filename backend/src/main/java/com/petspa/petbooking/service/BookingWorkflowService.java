@@ -7,12 +7,14 @@ import com.petspa.petbooking.entity.enums.*;
 import com.petspa.petbooking.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
 import java.time.*;
 import java.math.BigDecimal;
 import java.util.*;
-
+import com.petspa.petbooking.mail.BookingCreatedEvent;
+import org.springframework.context.ApplicationEventPublisher;
 @Service
 @Transactional(readOnly=true)
 public class BookingWorkflowService {
@@ -25,12 +27,14 @@ public class BookingWorkflowService {
     private final ThanhToanRepository payments;
     private final DatLichService reader;
     private final DanhGiaRepository reviews;
+    private final ApplicationEventPublisher eventPublisher;
     public BookingWorkflowService(NguoiDungRepository users, ThuCungRepository pets, DichVuRepository services,
             GiaDichVuRepository prices, DatLichRepository bookings, ChiTietDatLichRepository details,
-            ThanhToanRepository payments, DatLichService reader, DanhGiaRepository reviews) {
+            ThanhToanRepository payments, DatLichService reader, DanhGiaRepository reviews, ApplicationEventPublisher eventPublisher) {
         this.users=users; this.pets=pets; this.services=services; this.prices=prices;
         this.bookings=bookings; this.details=details; this.payments=payments; this.reader=reader;
         this.reviews=reviews;
+        this.eventPublisher = eventPublisher;
     }
     private ResponseStatusException invalid(String message) { return new ResponseStatusException(HttpStatus.BAD_REQUEST,message); }
     public List<Map<String,Object>> catalog() {
@@ -53,9 +57,8 @@ public class BookingWorkflowService {
     public List<Map<String,Object>> staff(LocalDate date, LocalTime start, int duration, Integer exclude) {
         if(!validWindow(date,start,duration)) return List.of();
         LocalTime end=start.plusMinutes(duration);
-        var busy=bookings.findAll().stream().filter(b -> !Objects.equals(b.getMaDatLich(),exclude)
-            && b.getNgayHen().equals(date) && (b.getTrangThaiDatLich()==TrangThaiDatLich.PENDING || b.getTrangThaiDatLich()==TrangThaiDatLich.CONFIRMED)
-            && b.getGioBatDau().isBefore(end) && b.getGioKetThuc().isAfter(start)).map(b -> b.getNhanVien().getMaNguoiDung()).toList();
+        var busy=bookings.findBusyEmployeeIds(date,start,end,exclude,
+            List.of(TrangThaiDatLich.PENDING,TrangThaiDatLich.CONFIRMED));
         return users.findByVaiTro(VaiTro.ADMIN).stream().filter(u -> Integer.valueOf(1).equals(u.getTrangThai()) && !busy.contains(u.getMaNguoiDung()))
             .map(u -> Map.<String,Object>of("id",u.getMaNguoiDung(),"name",u.getHoTen(),"role","Nhân viên spa","specialties",List.of(),"avatarTone","honey")).toList();
     }
@@ -75,7 +78,7 @@ public class BookingWorkflowService {
         var review=new DanhGia(); review.setDatLich(booking); review.setSoSao(rating); review.setBinhLuan(comment); reviews.saveAndFlush(review);
         return reader.getBookingsByUserId(customer.getMaNguoiDung()).stream().filter(b -> b.id().equals(id)).findFirst().orElseThrow();
     }
-    @Transactional
+    @Transactional(isolation=Isolation.READ_COMMITTED)
     public BookingResponse reschedule(NguoiDung customer,Integer id,LocalDate date,LocalTime start,Integer employeeId) {
         var booking=owned(id,customer);
         if(booking.getTrangThaiDatLich()!=TrangThaiDatLich.PENDING) throw invalid("Chỉ lịch chờ xác nhận mới được đổi.");
@@ -92,12 +95,18 @@ public class BookingWorkflowService {
     public BookingResponse cancel(NguoiDung customer,Integer id,String reason) {
         var booking=owned(id,customer);
         if(booking.getTrangThaiDatLich()!=TrangThaiDatLich.PENDING || booking.getTrangThaiThanhToan()!=TrangThaiThanhToan.UNPAID) throw invalid("Lịch này không thể hủy.");
+        var bookingPayments=payments.findAllByDatLich_MaDatLich(id);
+        // Fail closed for missing payment data or any online payment attempt.
+        if(bookingPayments.isEmpty() || bookingPayments.stream().anyMatch(p -> p.getPhuongThuc()!=PhuongThucThanhToan.CASH
+                || p.getTrangThai()==TrangThaiGiaoDich.SUCCESS))
+            throw invalid("Chỉ lịch chưa thanh toán và chọn thanh toán tại spa mới được tự hủy. Vui lòng liên hệ spa để được hỗ trợ.");
         booking.setTrangThaiDatLich(TrangThaiDatLich.CANCELLED); booking.setLyDoHuy(reason);
-        for(var payment:payments.findAllByDatLich_MaDatLich(id)) if(payment.getTrangThai()==TrangThaiGiaoDich.PENDING) payment.setTrangThai(TrangThaiGiaoDich.CANCELLED);
+        for(var payment:bookingPayments) if(payment.getTrangThai()==TrangThaiGiaoDich.PENDING) payment.setTrangThai(TrangThaiGiaoDich.CANCELLED);
         bookings.saveAndFlush(booking);
         return reader.getBookingsByUserId(customer.getMaNguoiDung()).stream().filter(b -> b.id().equals(id)).findFirst().orElseThrow();
     }
-    @Transactional
+    // Fresh reads after waiting for the employee lock must see the winner's commit.
+    @Transactional(isolation=Isolation.READ_COMMITTED)
     public BookingResponse create(NguoiDung customer, BookingCreateRequest request) {
         if(!"CASH".equals(request.paymentMethod())) throw invalid("VNPay chưa được hỗ trợ. Vui lòng thanh toán tại spa.");
         if(customer.getSoDienThoai()==null || customer.getSoDienThoai().isBlank()) throw invalid("Vui lòng cập nhật số điện thoại trước khi đặt lịch.");
@@ -131,7 +140,20 @@ public class BookingWorkflowService {
         booking.setGhiChu(request.note()); booking.setTongTien(total); bookings.save(booking);
         for(var line:lines) line.setDatLich(booking);
         details.saveAll(lines);
-        var payment=new ThanhToan(); payment.setDatLich(booking); payment.setPhuongThuc(PhuongThucThanhToan.CASH); payment.setSoTien(total); payments.save(payment);
-        return reader.getBookingsByUserId(customer.getMaNguoiDung()).stream().filter(b -> b.id().equals(booking.getMaDatLich())).findFirst().orElseThrow();
+        var payment=new ThanhToan(); 
+        payment.setDatLich(booking); 
+        payment.setPhuongThuc(PhuongThucThanhToan.CASH); 
+        payment.setSoTien(total); 
+        payments.save(payment);
+        BookingResponse response = reader
+        .getBookingsByUserId(customer.getMaNguoiDung())
+        .stream()
+        .filter(item -> item.id().equals(booking.getMaDatLich()))
+        .findFirst()
+        .orElseThrow();
+
+        eventPublisher.publishEvent(new BookingCreatedEvent(response));
+
+        return response;
     }
 }

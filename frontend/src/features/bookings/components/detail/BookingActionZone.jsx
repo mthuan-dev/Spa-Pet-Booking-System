@@ -82,6 +82,11 @@ export default function BookingActionZone({ booking, onCancel }) {
         </p>
       )}
 
+      {booking.bookingStatus === 'PENDING' && !actions.canCancel && (
+        <p className="booking-detail-page__payment-notice">
+          Chỉ lịch chưa thanh toán và chọn thanh toán tại spa mới được tự hủy. Nếu cần hủy lịch này, vui lòng liên hệ MEOMEO để được hỗ trợ.
+        </p>
+      )}
       {paymentNotice && <p className="booking-detail-page__payment-notice" role="status">{paymentNotice}</p>}
 
       {cancelExpanded && actions.canCancel && (
