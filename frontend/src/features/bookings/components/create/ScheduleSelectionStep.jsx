@@ -122,8 +122,8 @@ export default function ScheduleSelectionStep({
         <div className="booking-schedule-section__title">
           <h3>Ngày bạn muốn đến</h3>
           <div className="booking-week-controls">
-            <button type="button" onClick={() => updateWeekOffset(Math.max(0, displayedWeekOffset - 7))} disabled={displayedWeekOffset === 0} aria-label="Xem tuần trước">{rescheduling ? <img className="booking-week-arrow booking-week-arrow--previous" src={arrowLeft} alt="" /> : '‹'}</button>
-            <button type="button" onClick={() => updateWeekOffset(Math.min(7, displayedWeekOffset + 7))} disabled={displayedWeekOffset >= 7} aria-label="Xem tuần sau">{rescheduling ? <img className="booking-week-arrow booking-week-arrow--next" src={arrowRight} alt="" /> : '›'}</button>
+            <button type="button" onClick={() => updateWeekOffset(Math.max(0, displayedWeekOffset - 7))} disabled={displayedWeekOffset === 0} aria-label="Xem tuần trước">{rescheduling ? <img className="booking-week-arrow booking-week-arrow--previous" src={arrowLeft} alt="" /> : <span style={{ display: 'inline-block', transform: 'translateY(-2px)' }}>‹</span>}</button>
+            <button type="button" onClick={() => updateWeekOffset(Math.min(7, displayedWeekOffset + 7))} disabled={displayedWeekOffset >= 7} aria-label="Xem tuần sau">{rescheduling ? <img className="booking-week-arrow booking-week-arrow--next" src={arrowRight} alt="" /> : <span style={{ display: 'inline-block', transform: 'translateY(-2px)' }}>›</span>}</button>
           </div>
         </div>
         <div className="booking-date-grid" role="group" aria-label="Chọn ngày hẹn">
@@ -166,7 +166,6 @@ export default function ScheduleSelectionStep({
           <div className="booking-slot-empty">
             <p>Hôm nay các bé ghé đông quá rồi.</p>
             <span>Bạn thử chọn một ngày khác nhé.</span>
-            <button className="text-link" type="button" onClick={() => updateWeekOffset(Math.min(7, displayedWeekOffset + 7))}>Xem tuần tiếp theo {rescheduling ? <img className="booking-schedule-arrow-icon" src={arrowRight} alt="" /> : <span aria-hidden="true">→</span>}</button>
           </div>
         )}
         {slotState === 'ready' && slots.length > 0 && (

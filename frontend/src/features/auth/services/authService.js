@@ -1,34 +1,95 @@
-import { mockUsers, userRow } from '../../../mocks/data.js';
-import { copy, credentials, currentUser, setSession, wait } from '../../profile/mocks/customerRepository.js';
-import { mapUserRow } from '../../profile/mappers/customerMapper.js';
-import { selectService } from '../../../app/config/dataSource.js';
-import { validateAccount } from '../validation/accountValidation.js';
-import { nextMockId, mockTimestamp } from '../../../mocks/utils.js';
 
-// Demo credentials stay in memory; the SQL matkhau column is never returned to the UI.
-export const authService = selectService({
-  async getCurrentUser() { await wait(); return copy(currentUser()); },
-  async login({ email, password, remember }) {
-    await wait();
-    const normalized = email.trim().toLowerCase();
-    const user = mockUsers.find((row) => row.email === normalized && row.trangthai === 1);
-    if (!user || credentials.get(normalized) !== password)
-      throw new Error('Email hoặc mật khẩu chưa đúng. Tài khoản mới tạo chỉ đăng nhập được trong phiên mở ứng dụng này.');
-    setSession(user.manguoidung, remember);
-    return copy(mapUserRow(user));
-  },
-  async register(input) {
-    await wait();
-    if (Object.keys(validateAccount(input, true)).length) throw new Error('Bạn kiểm tra lại thông tin đăng ký nhé.');
-    const email = input.email.trim().toLowerCase();
-    if (mockUsers.some((row) => row.email === email)) throw new Error('Email này đã được đăng ký.');
-    if (input.phone && mockUsers.some((row) => row.sodienthoai === input.phone)) throw new Error('Số điện thoại này đã được đăng ký.');
-    const row = userRow(nextMockId(mockUsers, 'manguoidung'), input.fullName.trim(), email, 'CUSTOMER', mockTimestamp());
-    row.sodienthoai = input.phone || null;
-    mockUsers.push(row);
+import {
+  setSession,
+  getSession,
+  getStoredUser,
+  clearSession
+} from '../utils/session.js'
 
-    credentials.set(email, input.password);
-    return copy(mapUserRow(row));
+const API_URL = 'http://localhost:8080/api'
+
+export const authService = {
+
+  async login(input) {
+    const response = await fetch(`${API_URL}/auth/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        email: input.email.trim(),
+        password: input.password
+      })
+    })
+
+    if (!response.ok) {
+      throw new Error('Email hoặc mật khẩu không chính xác')
+    }
+
+    const data = await response.json()
+
+    if (!data.authentication || !data.token || !data.user) {
+      throw new Error('Đăng nhập thất bại')
+    }
+
+    setSession(data.token, data.user, input.remember)
+
+    return data.user
   },
-  async logout() { setSession(null); },
-});
+  async register(input){
+    const response = await fetch(`${API_URL}/auth/register`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        fullname: input.fullname,
+        phone: input.phone,
+        email: input.email.trim(),
+        password: input.password
+      })
+    })
+
+    if (!response.ok) {
+      throw new Error('thông tin không chính xác')
+    }
+
+    const data = await response.json()
+
+    return data
+  },
+
+  async getCurrentUser() {
+    const token = getSession()
+
+    if (!token) return null
+
+    // API này dùng để xác minh JWT có còn hợp lệ không
+    const response = await fetch(`${API_URL}/auth/introspect`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ token })
+    })
+
+    if (!response.ok) {
+      clearSession()
+      return null
+    }
+
+    const result = await response.json()
+
+    if (!result.valid) {
+      clearSession()
+      return null
+    }
+
+    // Token hợp lệ thì khôi phục User đã lưu
+    return getStoredUser()
+  },
+
+  async logout() {
+    clearSession()
+  }
+}

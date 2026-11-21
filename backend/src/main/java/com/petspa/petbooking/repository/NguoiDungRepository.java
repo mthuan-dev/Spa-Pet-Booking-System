@@ -11,6 +11,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface NguoiDungRepository extends JpaRepository<NguoiDung, Integer> {
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @Query("select u from NguoiDung u where u.maNguoiDung = :id")
+    Optional<NguoiDung> lockById(@Param("id") Integer id);
     List<NguoiDung> findByVaiTro(VaiTro vaiTro);
     Optional<NguoiDung> findByMaNguoiDungAndVaiTro(Integer maNguoiDung, VaiTro vaiTro);
 

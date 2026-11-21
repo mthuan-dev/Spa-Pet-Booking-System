@@ -26,7 +26,7 @@ export default function BookingStepper({ activeStep, onSelectStep }) {
                 </button>
               ) : (
                 <span aria-current={isCurrent ? 'step' : undefined}>
-                  <span className="booking-stepper__number" aria-hidden="true">{index + 1}</span>
+                  <span className="booking-stepper__number" aria-hidden="true"><span className="booking-stepper__digit">{index + 1}</span></span>
                   <span className="booking-stepper__label">{label}</span>
                 </span>
               )}

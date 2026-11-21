@@ -1,9 +1,6 @@
-import { availableStaffRows } from '../../../mocks/bookings.js';
-import { mockRequest } from '../../../shared/api/mockRequest.js';
+﻿import { bookingApi } from '../../../shared/api/bookingApi.js'
 export const staffService = {
-  async getAvailableStaff(request) {
-    return mockRequest(availableStaffRows(request).map((row) => ({
-      id: row.manguoidung, name: row.hoten, role: 'Nhân viên spa', specialties: [], avatarTone: 'honey',
-    })), 150);
+  getAvailableStaff({ date, startTime, endTime, excludeBookingId }) {
+    return bookingApi('/staff?' + new URLSearchParams({ date, startTime, endTime, ...(excludeBookingId ? { excludeBookingId } : {}) }))
   },
-};
+}

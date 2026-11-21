@@ -13,13 +13,15 @@ import java.util.List;
 @RequestMapping("/api/bookings")
 public class DatLichController {
     private final DatLichService datLichService;
+    private final com.petspa.petbooking.service.CurrentCustomer currentCustomer;
 
-    public DatLichController(DatLichService datLichService) {
+    public DatLichController(DatLichService datLichService, com.petspa.petbooking.service.CurrentCustomer currentCustomer) {
         this.datLichService = datLichService;
+        this.currentCustomer = currentCustomer;
     }
 
     @GetMapping
-    public List<BookingResponse> getBookingsByUserId(@RequestParam Integer userId) {
-        return datLichService.getBookingsByUserId(userId);
+    public List<BookingResponse> getBookingsByUserId(@org.springframework.security.core.annotation.AuthenticationPrincipal org.springframework.security.oauth2.jwt.Jwt jwt) {
+        return datLichService.getBookingsByUserId(currentCustomer.require(jwt).getMaNguoiDung());
     }
 }

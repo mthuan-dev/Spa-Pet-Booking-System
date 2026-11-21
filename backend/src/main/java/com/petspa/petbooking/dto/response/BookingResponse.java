@@ -21,10 +21,12 @@ public record BookingResponse(
         String bookingStatus,
         String paymentStatus,
         List<Payment> payments,
+        Review review,
         String cancellationReason,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {
+    public record Review(Integer id, Integer rating, String comment, boolean hidden, LocalDateTime createdAt) {}
     public record Contact(String name, String phone, String email) {}
     public record Pet(Integer id, String name, String type, String species,
                       String breed, BigDecimal weight, String imageUrl) {}

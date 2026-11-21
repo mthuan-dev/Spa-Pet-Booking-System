@@ -1,211 +1,235 @@
+
 import { useState } from 'react'
-import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../app/providers/AuthProvider.jsx'
-import { authService } from '../../features/auth/services/authService.js'
-import { validateAccount } from '../../features/auth/validation/accountValidation.js'
-import { loginDestination } from '../../features/auth/utils/loginDestination.js'
+import { authService } from '~/features/auth/services/authService.js'
+import { validateAccount } from '~/features/auth/validation/accountValidation.js'
 import AccountField from '../../features/auth/components/AccountField.jsx'
 import UserHeader from '../../layouts/components/UserHeader.jsx'
 import photo from '../../assets/images/editorial/portrait.jpg'
+import { loginDestination } from '~/features/auth/utils/loginDestination.js'
 import '../../styles/account.css'
 
 export default function AccountAccessPage({ register = false }) {
-  const { user, login } = useAuth(),
-    navigate = useNavigate(),
-    location = useLocation()
+  const { login } = useAuth()
+  const navigate = useNavigate()
+  const location = useLocation()
+
   const [form, setForm] = useState({
     fullName: '',
-    email: location.state?.email || '',
     phone: '',
+    email: location.state?.email || '',
     password: '',
     confirmPassword: '',
     remember: false,
   })
-  const [errors, setErrors] = useState({}),
-    [message, setMessage] = useState(''),
-    [busy, setBusy] = useState(false)
+
+  const [errors, setErrors] = useState({})
+  const [message, setMessage] = useState('')
+  const [busy, setBusy] = useState(false)
+
+  // Trang cần quay lại sau khi đăng nhập
+  const from = location.state?.from
   const destination =
-    location.state?.from?.startsWith('/') &&
-    !location.state.from.startsWith('//') &&
-    !['/login', '/register'].includes(location.state.from)
-      ? location.state.from
-      : '/profile'
-  if (user) return <Navigate to={loginDestination(user, destination)} replace />
+      typeof from === 'string' &&
+      from.startsWith('/') &&
+      !from.startsWith('//') &&
+      !['/login', '/register'].includes(from)
+          ? from
+          : '/profile'
+
+  // Cập nhật input
   const update = (e) => {
-    setForm((v) => ({
-      ...v,
-      [e.target.name]:
-        e.target.type === 'checkbox' ? e.target.checked : e.target.value,
+    const { name, type, value, checked } = e.target
+
+    setForm(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value,
     }))
-    setErrors((v) => ({ ...v, [e.target.name]: '' }))
+
+    setErrors(prev => ({ ...prev, [name]: '' }))
     setMessage('')
   }
-  async function submit(e) {
+
+  // Xử lý đăng nhập / đăng ký
+  const submit = async (e) => {
     e.preventDefault()
+
     const validation = validateAccount(form, register)
     setErrors(validation)
-    if (Object.keys(validation).length) return
+
+    if (Object.keys(validation).length > 0) return
+
     setBusy(true)
     setMessage('')
+
     try {
       if (register) {
-        await authService.register(form)
+        const user = {
+          fullname:form.fullName,
+          email:form.email,
+          password:form.password,
+          phone:form.phone
+        }
+        await authService.register(user)
+
         navigate('/login', {
           replace: true,
-          state: { email: form.email, registered: true, from: destination },
+          state: {
+            email: form.email,
+            registered: true,
+            from: destination,
+          },
         })
       } else {
-        const authenticatedUser = await login(form)
-        navigate(loginDestination(authenticatedUser, destination), { replace: true })
+        const authenticatedUser = await login(form);
+
+        navigate(
+            loginDestination(authenticatedUser, destination),
+            { replace: true }
+        );
       }
     } catch (err) {
-      setMessage(err.message)
+      setMessage(err.message || 'Có lỗi xảy ra, vui lòng thử lại.')
     } finally {
       setBusy(false)
     }
   }
+
+  // Tạo input dùng chung
   const field = (name, label, type = 'text', autoComplete) => (
-    <AccountField
-      key={name}
-      name={name}
-      label={label}
-      type={type}
-      autoComplete={autoComplete}
-      value={form[name]}
-      onChange={update}
-      error={errors[name]}
-      disabled={busy}
-    />
+      <AccountField
+          key={name}
+          name={name}
+          label={label}
+          type={type}
+          autoComplete={autoComplete}
+          value={form[name]}
+          onChange={update}
+          error={errors[name]}
+          disabled={busy}
+      />
   )
+
   return (
-    <div className="meomeo-home">
-      <UserHeader />
-      <main
-        className={`access-page wrap ${register ? 'access-page--register' : ''}`}
-      >
-        <aside className="access-story">
-          
-      
-          <p>
-            {register
-              ? 'Lưu thông tin thú cưng và chuẩn bị cho lần hẹn tiếp theo.'
-              : 'Trở lại với những người bạn nhỏ và những cuộc hẹn chăm sóc.'}
-          </p>
-          <div className="access-photo">
-            <img
-              src={photo}
-              alt="Chú chó Pug trên nền vàng"
-              width="1400"
-              height="1867"
-            />
-          </div>
-          <span className="access-wordmark">MEOMEO</span>
-        </aside>
-        <section className="access-form">
-          <p className="account-eyebrow">
-            {register ? 'Bắt đầu cùng MEOMEO' : 'Mừng bạn trở lại'}
-          </p>
-          <h1>{register ? 'Tạo tài khoản' : 'Đăng nhập'}</h1>
-          <p>
-            {register
-              ? 'Một chút thông tin để mình làm quen nhé.'
-              : 'Đăng nhập để quản lý hồ sơ và lịch hẹn của bé.'}
-          </p>
-          <form noValidate onSubmit={submit}>
-            <fieldset disabled={busy}>
-              {register && field('fullName', 'Họ và tên', 'text', 'name')}
-              {field('email', 'Email', 'email', 'email')}
-              {register &&
-                field('phone', 'Số điện thoại (không bắt buộc)', 'tel', 'tel')}
-              {field(
-                'password',
-                'Mật khẩu',
-                'password',
-                register ? 'new-password' : 'current-password',
-              )}
-              {register &&
-                field(
-                  'confirmPassword',
-                  'Nhập lại mật khẩu',
-                  'password',
-                  'new-password',
+      <div className="meomeo-home">
+        <UserHeader />
+
+        <main className={`access-page wrap ${register ? 'access-page--register' : ''}`}>
+
+          <aside className="access-story">
+            <p>
+              {register
+                  ? 'Lưu thông tin thú cưng và chuẩn bị cho lần hẹn tiếp theo.'
+                  : 'Trở lại với những người bạn nhỏ và những cuộc hẹn chăm sóc.'}
+            </p>
+
+            <div className="access-photo">
+              <img
+                  src={photo}
+                  alt="Chú chó Pug trên nền vàng"
+                  width="1400"
+                  height="1867"
+              />
+            </div>
+
+            <span className="access-wordmark">MEOMEO</span>
+          </aside>
+
+          <section className="access-form">
+            <p className="account-eyebrow">
+              {register ? 'Bắt đầu cùng MEOMEO' : 'Mừng bạn trở lại'}
+            </p>
+
+            <h1>{register ? 'Tạo tài khoản' : 'Đăng nhập'}</h1>
+
+            <form noValidate onSubmit={submit}>
+              <fieldset disabled={busy}>
+
+                {register && field('fullName', 'Họ và tên', 'text', 'name')}
+
+                {field('email', 'Email', 'email', 'email')}
+
+                {register &&
+                    field('phone', 'Số điện thoại (không bắt buộc)', 'tel', 'tel')}
+
+                {field(
+                    'password',
+                    'Mật khẩu',
+                    'password',
+                    register ? 'new-password' : 'current-password'
                 )}
-              {!register && (
-                <label className="account-check">
-                  <input
-                    type="checkbox"
-                    name="remember"
-                    checked={form.remember}
-                    onChange={update}
-                  />{' '}
-                  Ghi nhớ đăng nhập trên thiết bị này
-                </label>
-              )}
-              {!register && <Link className="access-forgot-link" to="/forgot-password">Quên mật khẩu?</Link>}
-              {location.state?.registered && (
-                <p className="account-notice" role="status">
-                  Đã tạo tài khoản. Bạn đăng nhập để tiếp tục nhé.
-                </p>
-              )}
-              {message && (
-                <p className="account-error" role="alert">
-                  {message}
-                </p>
-              )}
-              <button className="account-primary" disabled={busy}>
-                {busy
-                  ? 'Đang xử lý…'
-                  : register
-                    ? 'Tạo tài khoản'
-                    : 'Đăng nhập'}
-              </button>
-              {!register && (
+
+                {register &&
+                    field(
+                        'confirmPassword',
+                        'Nhập lại mật khẩu',
+                        'password',
+                        'new-password'
+                    )}
+
+                {!register && (
+                    <>
+                      <label className="account-check">
+                        <input
+                            type="checkbox"
+                            name="remember"
+                            checked={form.remember}
+                            onChange={update}
+                        />
+                        {' '}Ghi nhớ đăng nhập trên thiết bị này
+                      </label>
+
+                      <Link
+                          className="access-forgot-link"
+                          to="/forgot-password"
+                      >
+                        Quên mật khẩu?
+                      </Link>
+                    </>
+                )}
+
+                {location.state?.registered && (
+                    <p className="account-notice" role="status">
+                      Đã tạo tài khoản. Bạn đăng nhập để tiếp tục nhé.
+                    </p>
+                )}
+
+                {message && (
+                    <p className="account-error" role="alert">
+                      {message}
+                    </p>
+                )}
+
                 <button
-                  className="account-secondary access-google"
-                  type="button"
-                  onClick={() =>
-                    setMessage(
-                      'Đây là bản trình diễn. Đăng nhập Google sẽ được kết nối sau; bạn dùng tài khoản mẫu bên dưới nhé.',
-                    )
-                  }
+                    type="submit"
+                    className="account-primary"
+                    disabled={busy}
                 >
-                  Đăng nhập với Google
+                  {busy
+                      ? 'Đang xử lý…'
+                      : register
+                          ? 'Tạo tài khoản'
+                          : 'Đăng nhập'}
                 </button>
-              )}
-            </fieldset>
-          </form>
-          <p className="access-switch">
-            {register ? 'Bạn đã có tài khoản? ' : 'Bạn chưa có tài khoản? '}
-            <Link
-              to={register ? '/login' : '/register'}
-              state={{ from: destination }}
-            >
-              {register ? 'Đăng nhập' : 'Tạo tài khoản'}
-            </Link>
-          </p>
-          <details className="account-demo">
-            <summary>Tài khoản dùng thử · Bản trình diễn</summary>
-            <p>
-              <strong>Khách hàng</strong>
-              <br />
-              Email: minhthuan@meomeo.vn
-              <br />
-              Mật khẩu: Meomeo123!
+
+              </fieldset>
+            </form>
+
+            <p className="access-switch">
+              {register
+                  ? 'Bạn đã có tài khoản? '
+                  : 'Bạn chưa có tài khoản? '}
+
+              <Link
+                  to={register ? '/login' : '/register'}
+                  state={{ from: destination }}
+              >
+                {register ? 'Đăng nhập' : 'Tạo tài khoản'}
+              </Link>
             </p>
-            <p>
-              <strong>Admin</strong>
-              <br />
-              Email: admin@example.com
-              <br />
-              Mật khẩu: Admin123!
-            </p>
-            <p>
-              Mật khẩu tài khoản mới chỉ giữ trong bộ nhớ cho phiên mở ứng dụng
-              này. Ghi nhớ đăng nhập chỉ mô phỏng phiên sử dụng.
-            </p>
-          </details>
-        </section>
-      </main>
-    </div>
+          </section>
+        </main>
+      </div>
   )
 }

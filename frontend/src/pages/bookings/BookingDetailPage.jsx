@@ -48,6 +48,15 @@ export default function BookingDetailPage() {
     setBooking(updated)
   }
 
+  async function refreshBooking() {
+    const updated = await bookingService.getBookingById(bookingId)
+
+    if (!updated) {
+      throw new Error('Không tìm thấy lịch hẹn.')
+    }
+
+    setBooking(updated)
+  }
   return (
     <div className="booking-detail-page" lang="vi">
       <div className="booking-detail-page__inner">
@@ -82,7 +91,7 @@ export default function BookingDetailPage() {
         )}
 
         {loadState === 'ready' && booking && (
-          <BookingDetailContent booking={booking} onCancel={cancelBooking} onSubmitReview={saveReview} />
+          <BookingDetailContent booking={booking} onCancel={cancelBooking} onSubmitReview={saveReview} onRefresh={refreshBooking} />
         )}
       </div>
     </div>

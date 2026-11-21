@@ -2,8 +2,13 @@ import { Link } from 'react-router-dom'
 import { useProfile } from '../../features/profile/hooks/useProfile.js'
 import AccountField from '../../features/auth/components/AccountField.jsx'
 import CustomerAccountNav from '../../layouts/components/CustomerAccountNav.jsx'
+import { useAuth } from '../../app/providers/AuthProvider.jsx'
 import '../../styles/account.css'
 export default function ProfilePage() {
+  const { user } = useAuth()
+
+  console.log('User từ AuthProvider:', user)
+
   const {
     profile,
     form,
@@ -17,6 +22,8 @@ export default function ProfilePage() {
     setError,
     save,
   } = useProfile()
+
+  console.log('Profile từ useProfile:', profile)
   if (!profile)
     return (
       <div className="customer-account" role="status">

@@ -2,7 +2,7 @@ import { mockUsers, mockServices, mockServicePrices, mockBookings, mockBookingDe
 import { AxiosError } from 'axios';
 import dayjs from 'dayjs';
 import { bookingBundle } from '../bookings.js';
-import { credentials, currentUserRow, setSession } from '../../features/profile/mocks/customerRepository.js';
+import { currentUserRow } from '../../features/profile/mocks/customerRepository.js';
 import { handleServiceCatalog } from './serviceCatalog.js';
 import { uploadServiceImage } from './serviceImages.js';
 const publicUserRow = ({ matkhau, ...row }) => row;
@@ -27,8 +27,7 @@ function handle(config) {
   if (path === '/auth/login' && method === 'post') {
     const email = String(body.email || '').trim().toLowerCase();
     const user = mockUsers.find((row) => row.email === email && row.trangthai === 1);
-    if (!user || credentials.get(email) !== (body.matkhau ?? body.password)) fail('Email hoặc mật khẩu chưa đúng.', 401);
-    setSession(user.manguoidung);
+    fail('Please use the backend login API.', 401);
     return { user: publicUserRow(user), token: 'petspa-mock-session', refreshToken: 'petspa-mock-session' };
   }
   if (path === '/public/services' && method === 'get') return mockServices.filter((row) => row.trangthai === 1);

@@ -166,8 +166,8 @@ export default function HomeHeader() {
                 onClick={toggleAccountMenu}
                 ref={accountTriggerRef}
               >
-                <span className="account-menu__avatar" aria-hidden="true">{user.fullName.trim().split(/\s+/).slice(-2).map(part => part[0]).join('')}</span>
-                <span className="account-menu__name">{user.fullName}</span>
+                <span className="account-menu__avatar" aria-hidden="true">{user.hoTen.trim().split(/\s+/).slice(-2).map(part => part[0]).join('')}</span>
+                <span className="account-menu__name">{user.hoTen}</span>
                 <span className="account-menu__chevron"><Chevron /></span>
               </button>
               <div className="account-menu__panel" id="account-panel" aria-hidden={accountState !== 'open'} inert={accountState !== 'open'}>

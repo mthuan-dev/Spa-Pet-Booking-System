@@ -44,7 +44,10 @@ export default function PetSelectionStep({ pets, selectedPetId, onSelectPet, onA
           <div>
             <h3>Nhà mình chưa có hồ sơ thú cưng</h3>
             <p>Thêm thông tin của bé để xem giá và chọn dịch vụ phù hợp.</p>
-            <button className="text-link booking-empty-state__add" type="button" onClick={onAddPet}><img className="booking-plus-icon" src={plusCircle} alt="" aria-hidden="true" />Thêm thú cưng đầu tiên</button>
+            <button className="pet-add-action" type="button" onClick={onAddPet}>
+              <img className="booking-plus-icon booking-plus-icon--pet" src={plusCircle} alt="" aria-hidden="true" />
+              <span>Thêm thú cưng mới</span>
+            </button>
           </div>
         </div>
       )}

@@ -17,13 +17,15 @@ public class DatLichService {
     private final DatLichRepository datLichRepository;
     private final ChiTietDatLichRepository chiTietDatLichRepository;
     private final ThanhToanRepository thanhToanRepository;
+    private final com.petspa.petbooking.repository.DanhGiaRepository reviews;
 
     public DatLichService(DatLichRepository datLichRepository,
                           ChiTietDatLichRepository chiTietDatLichRepository,
-                          ThanhToanRepository thanhToanRepository) {
+                          ThanhToanRepository thanhToanRepository, com.petspa.petbooking.repository.DanhGiaRepository reviews) {
         this.datLichRepository = datLichRepository;
         this.chiTietDatLichRepository = chiTietDatLichRepository;
         this.thanhToanRepository = thanhToanRepository;
+        this.reviews = reviews;
     }
 
     // Đầu vào userId đang lấy từ Postman; khi có đăng nhập sẽ lấy từ JWT.
@@ -69,6 +71,7 @@ public class DatLichService {
                 booking.getTrangThaiDatLich().name(),
                 booking.getTrangThaiThanhToan().name(),
                 payments,
+                reviews.findByDatLich_MaDatLich(booking.getMaDatLich()).map(r -> new BookingResponse.Review(r.getMaDanhGia(),r.getSoSao(),r.getBinhLuan(),Integer.valueOf(1).equals(r.getIsHidden()),r.getNgayTao())).orElse(null),
                 booking.getLyDoHuy(),
                 booking.getNgayTao(),
                 booking.getNgayCapNhat()

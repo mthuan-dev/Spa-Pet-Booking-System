@@ -10,4 +10,5 @@ export const ROUTES = Object.freeze({
   ADMIN_BOOKING_DETAIL: (bookingId = ':bookingId') => `/admin/bookings/${bookingId}`,
   ADMIN_CUSTOMERS: '/admin/customers', ADMIN_PETS: '/admin/pets',
   ADMIN_STAFF: '/admin/staff', ADMIN_SERVICES: '/admin/services',
+  VNPAY_RETURN: '/payment/vnpay/return',
 })

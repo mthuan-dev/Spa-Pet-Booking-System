@@ -5,6 +5,9 @@ app:
   upload-dir: ${APP_UPLOAD_DIR:uploads}
 
 spring:
+  config:
+    import: optional:file:./.env[.properties]
+
   application:
     name: pet-spa-booking
   servlet:
@@ -27,7 +30,7 @@ spring:
     properties:
       hibernate:
         jdbc:
-          time_zone: UTC
+          time_zone: Asia/Ho_Chi_Minh
   sql:
     init:
       # Ban đầu mode: always, Có dữ liệu rồi thì đổi lại mode: never.
@@ -36,16 +39,32 @@ spring:
       data-locations: classpath:/data.sql
 
   mail:
-    host: ${MAIL_HOST:}
+    host: ${MAIL_HOST:smtp.gmail.com}
     port: ${MAIL_PORT:587}
     username: ${MAIL_USERNAME:}
     password: ${MAIL_PASSWORD:}
+    default-encoding: UTF-8
     properties:
       mail:
         smtp:
           auth: true
           starttls:
             enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
+jwt:
+  signerKey: "d26e1310e24cd6c2deb823d1bf798003ec7422cd7eefbdc0644b4d58ba48d7dd"
+
+vnpay:
+  tmn-code: ${VNPAY_TMN_CODE:}
+  hash-secret: ${VNPAY_HASH_SECRET:}
+  payment-url: ${VNPAY_PAYMENT_URL:https://sandbox.vnpayment.vn/paymentv2/vpcpay.html}
+  return-url: ${VNPAY_RETURN_URL:http://localhost:5173/payment/vnpay/return}
+  query-url: ${VNPAY_QUERY_URL:https://sandbox.vnpayment.vn/merchant_webapi/api/transaction}
+  server-ip: ${VNPAY_SERVER_IP:127.0.0.1}
 # Configure spring.security.oauth2.client.registration.google.client-id and
 # client-secret from GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET when Google login is implemented.
 # Do not define an incomplete OAuth registration: Spring validates the client id at startup.

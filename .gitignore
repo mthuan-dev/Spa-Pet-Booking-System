@@ -5,6 +5,7 @@ backend/target/
 !backend/.mvn/wrapper/maven-wrapper.jar
 logs/
 backend/uploads/
+backend/booking-verification.log
 
 # IDEs
 .idea/

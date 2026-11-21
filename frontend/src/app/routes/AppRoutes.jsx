@@ -7,6 +7,7 @@ import LogoutPage from '../../pages/auth/LogoutPage.jsx'
 import CustomerLayout from '../../layouts/CustomerLayout.jsx'
 import { ROUTES } from './routePaths.js'
 import NotFoundPage from '../../pages/errors/NotFoundPage.jsx'
+import VnpayReturnPage from '../../pages/bookings/VnpayReturnPage.jsx'
 import {
   AboutPage,
   BookingDetailPage, BookingPage, BookingReschedulePage,
@@ -22,6 +23,7 @@ const pageRoutes = [
   [ROUTES.BOOKINGS, MyBookingsPage],
   [ROUTES.BOOKING_DETAIL(), BookingDetailPage],
   [ROUTES.BOOKING_RESCHEDULE(), BookingReschedulePage],
+  [ROUTES.VNPAY_RETURN, VnpayReturnPage],
 ]
 
 const publicPaths = new Set([ROUTES.HOME, ROUTES.ABOUT, ROUTES.SERVICES, ROUTES.SERVICE_DETAIL()])
@@ -29,6 +31,7 @@ const customerPaths = new Set([
   ROUTES.PROFILE, ROUTES.PETS, ROUTES.BOOKING,
   ROUTES.BOOKINGS, ROUTES.BOOKING_DETAIL(),
   ROUTES.BOOKING_RESCHEDULE(),
+  ROUTES.VNPAY_RETURN,
 ])
 
 const userRoutes = createRoutesFromElements(

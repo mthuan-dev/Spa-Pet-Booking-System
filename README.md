@@ -99,9 +99,8 @@ Code quản lý chỉ dành cho admin đặt trong `src/features/admin/<chức-n
 
 - JDK 23
 - Node.js và npm
-- XAMPP có MySQL/MariaDB
+- XAMPP có MySQL
 - IntelliJ IDEA hoặc VS Code
-- Project không sử dụng tính năng Java preview
 
 ## Chuẩn bị database
 
