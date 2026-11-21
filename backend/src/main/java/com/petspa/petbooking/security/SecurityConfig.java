@@ -40,7 +40,7 @@ public class SecurityConfig {
                 /* default Spring Security bật CRSF
                  -> chặn POST / PUT/ DELETE PATCH từ bên ngoài */
                 .csrf(AbstractHttpConfigurer::disable)
-               .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.GET, "/api/booking-data/services", "/api/booking-data/pet-images/**").permitAll()
                         .requestMatchers("/api/booking-data/**", "/api/bookings/**").authenticated()

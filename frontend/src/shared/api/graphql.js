@@ -1,16 +1,18 @@
 import { BACKEND_ENDPOINT } from '~/app/config/env.js';
+import { getSession } from '~/features/auth/utils/session.js';
 
 export async function graphqlRequest(query, variables = {}) {
   const endpoint = String(BACKEND_ENDPOINT || 'http://localhost:8080/api')
     .replace(/\/api\/?$/, '')
     .replace(/\/$/, '') + '/graphql';
 
+  const token = getSession();
   const response = await fetch(endpoint, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       Accept: 'application/json',
-      Authorization: `Bearer ${localStorage.getItem('token')}`,
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
     body: JSON.stringify({ query, variables }),
   });
