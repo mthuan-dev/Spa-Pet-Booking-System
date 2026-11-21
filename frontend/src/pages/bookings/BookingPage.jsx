@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import AddPetModal from '../../features/bookings/components/create/AddPetModal.jsx'
 import arrowLeftIcon from '../../assets/icons/booking/arrow-left.svg'
 import arrowRightIcon from '../../assets/icons/booking/arrow-right.svg'
@@ -12,6 +12,7 @@ import ScheduleSelectionStep from '../../features/bookings/components/create/Sch
 import ServiceSelectionStep from '../../features/bookings/components/create/ServiceSelectionStep.jsx'
 import { ROUTES } from '../../app/routes/routePaths.js'
 import { bookingService } from '../../features/bookings/services/bookingService.js'
+import { redirectToVnpay } from '../../features/bookings/services/vnpayPayment.js'
 import { customerService } from '../../features/profile/services/customerService.js'
 import { petService } from '../../features/pets/services/petService.js'
 import { serviceService } from '../../features/catalog/services/serviceService.js'
@@ -44,6 +45,9 @@ function createPayload({ draft }) {
 }
 
 export default function BookingPage() {
+  const navigate = useNavigate()
+  const submissionLock = useRef(false)
+  const checkoutRef = useRef(null)
   const [searchParams] = useSearchParams()
   const [activeStep, setActiveStep] = useState(0)
   const [draft, setDraft] = useState(INITIAL_DRAFT)
@@ -60,6 +64,17 @@ export default function BookingPage() {
   const stepContentRef = useRef(null)
   const preselectedService = searchParams.get('serviceId')
   const preselectedServiceId = preselectedService?.trim() ? Number(preselectedService) : null
+
+  useEffect(() => {
+    function resumePage() {
+      submissionLock.current = false
+      setIsSubmitting(false)
+      // Returning from the gateway must not present a form that creates a second booking.
+      if (checkoutRef.current) navigate(ROUTES.BOOKING_DETAIL(checkoutRef.current), { replace: true })
+    }
+    window.addEventListener('pageshow', resumePage)
+    return () => window.removeEventListener('pageshow', resumePage)
+  }, [navigate])
 
   useEffect(() => {
     let current = true
@@ -192,6 +207,8 @@ export default function BookingPage() {
   }
 
   async function submitBooking() {
+    if (submissionLock.current) return
+    submissionLock.current = true
     setIsSubmitting(true)
     setStepError('')
     const submissionDraft = {
@@ -203,11 +220,23 @@ export default function BookingPage() {
       totalPrice,
     }
     try {
-      const result = await bookingService.createBooking(createPayload({ draft }))
-      setBookingResult({ booking: result, draft: submissionDraft })
+      const result = await bookingService.checkout(createPayload({ draft }))
+      checkoutRef.current = result.booking.id
+      if (draft.paymentMethod === 'VNPAY') {
+        try {
+          redirectToVnpay(result.booking.id, result.paymentUrl)
+        } catch (redirectError) {
+          navigate(ROUTES.BOOKING_DETAIL(result.booking.id), {
+            replace: true, state: { paymentNotice: redirectError.message },
+          })
+        }
+        return
+      }
+      setBookingResult({ booking: result.booking, draft: submissionDraft })
     } catch (error) {
       setStepError(error.message || 'Chưa gửi được lịch hẹn. Bạn thử lại sau ít phút nhé.')
     } finally {
+      submissionLock.current = false
       setIsSubmitting(false)
     }
   }

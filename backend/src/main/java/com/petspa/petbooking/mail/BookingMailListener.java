@@ -5,12 +5,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
+import org.springframework.scheduling.annotation.Async;
 
 @Component
 public class BookingMailListener {
 
-    private static final Logger log =
-            LoggerFactory.getLogger(BookingMailListener.class);
+    private static final Logger log = LoggerFactory.getLogger(BookingMailListener.class);
 
     private final BookingMailService bookingMailService;
 
@@ -19,15 +19,12 @@ public class BookingMailListener {
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Async("bookingMailExecutor")
     public void onBookingCreated(BookingCreatedEvent event) {
         try {
             bookingMailService.sendBookingReceived(event.booking());
         } catch (Exception exception) {
-            log.error(
-                    "Không gửi được email cho booking {}",
-                    event.booking().code(),
-                    exception
-            );
+            log.error("Không gửi được email cho booking {}", event.booking().code(), exception);
         }
     }
 }

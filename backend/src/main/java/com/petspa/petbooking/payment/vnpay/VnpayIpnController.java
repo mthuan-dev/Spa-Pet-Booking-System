@@ -15,8 +15,7 @@ import java.util.Map;
 @RequestMapping("/api/payments/vnpay")
 public class VnpayIpnController {
 
-    private static final Logger log =
-            LoggerFactory.getLogger(VnpayIpnController.class);
+    private static final Logger log = LoggerFactory.getLogger(VnpayIpnController.class);
 
     private final VnpayIpnService ipnService;
 
@@ -25,8 +24,7 @@ public class VnpayIpnController {
     }
 
     @GetMapping("/ipn")
-    public Map<String, String> receiveIpn(
-            @RequestParam MultiValueMap<String, String> query) {
+    public Map<String, String> receiveIpn(@RequestParam MultiValueMap<String, String> query) {
 
         Map<String, String> parameters = new HashMap<>();
 
@@ -40,8 +38,7 @@ public class VnpayIpnController {
             if (entry.getValue().size() != 1) {
                 return Map.of(
                         "RspCode", "97",
-                        "Message", "Duplicate parameters"
-                );
+                        "Message", "Duplicate parameters");
             }
 
             parameters.put(name, entry.getValue().getFirst());
@@ -50,15 +47,11 @@ public class VnpayIpnController {
         try {
             return ipnService.handle(parameters);
         } catch (Exception exception) {
-            log.error(
-                    "Không xử lý được IPN VNPay.",
-                    exception
-            );
+            log.error("Không xử lý được IPN VNPay.", exception);
 
             return Map.of(
                     "RspCode", "99",
-                    "Message", "Internal error"
-            );
+                    "Message", "Internal error");
         }
     }
 }

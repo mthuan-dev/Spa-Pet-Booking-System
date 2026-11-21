@@ -1,0 +1,48 @@
+.vnpay-result .booking-success__intro {
+  line-height: 1.7;
+}
+
+.vnpay-result__notice {
+  margin: 0 auto 24px;
+  padding: 12px 16px;
+  background: #fff8dc;
+  color: #62512e;
+  font-size: 14px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.vnpay-result .booking-success__code strong {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  font-size: clamp(16px, 3vw, 23px);
+}
+
+.vnpay-result .booking-success__appointment > div {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.vnpay-result .booking-success__pet > span {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.vnpay-result .pet-avatar {
+  flex-shrink: 0;
+}
+
+.vnpay-result--failed .booking-success__mark,
+.vnpay-result--error .booking-success__mark {
+  background: #fff0e9;
+  color: #9a472c;
+}
+
+.vnpay-result .booking-success__actions {
+  flex-wrap: wrap;
+}
+
+.vnpay-result .booking-success__actions > * {
+  text-align: center;
+}

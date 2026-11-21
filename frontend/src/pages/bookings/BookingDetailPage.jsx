@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useLocation, useParams } from 'react-router-dom'
 import arrowLeftIcon from '../../assets/icons/booking/arrow-left.svg'
 import { ROUTES } from '../../app/routes/routePaths.js'
 import { bookingService } from '../../features/bookings/services/bookingService.js'
@@ -11,6 +11,7 @@ import {
 import '../../features/bookings/styles/booking-detail.css'
 
 export default function BookingDetailPage() {
+  const location = useLocation()
   const { bookingId } = useParams()
   const [booking, setBooking] = useState(null)
   const [loadState, setLoadState] = useState('loading')
@@ -63,6 +64,7 @@ export default function BookingDetailPage() {
         <Link className="booking-detail-page__back" to={ROUTES.BOOKINGS}>
           <img className="booking-detail-page__back-icon" src={arrowLeftIcon} alt="" /> Lịch đặt của tôi
         </Link>
+        {location.state?.paymentNotice && <p role="alert">{location.state.paymentNotice}</p>}
 
         {loadState === 'loading' && <BookingDetailSkeleton />}
 

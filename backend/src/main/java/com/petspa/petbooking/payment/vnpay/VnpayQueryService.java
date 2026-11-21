@@ -19,13 +19,16 @@ import java.time.format.ResolverStyle;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.security.KeyStore;
+import java.security.GeneralSecurityException;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManagerFactory;
 
 @Service
 public class VnpayQueryService {
 
     private static final DateTimeFormatter TIME_FORMAT =
-            DateTimeFormatter.ofPattern("uuuuMMddHHmmss")
-                    .withResolverStyle(ResolverStyle.STRICT);
+            DateTimeFormatter.ofPattern("uuuuMMddHHmmss").withResolverStyle(ResolverStyle.STRICT);
 
     private final VnpayProperties properties;
     private final VnpaySignature signature;
@@ -33,32 +36,42 @@ public class VnpayQueryService {
     private final HttpClient httpClient;
 
     public VnpayQueryService(
-            VnpayProperties properties,
-            VnpaySignature signature,
-            ObjectMapper objectMapper) {
+            VnpayProperties properties, VnpaySignature signature, ObjectMapper objectMapper) {
         this.properties = properties;
         this.signature = signature;
         this.objectMapper = objectMapper;
 
-        this.httpClient = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(5))
-                .build();
+        var builder = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5));
+        // On Windows, use the OS trust roots (also used by PowerShell). This keeps
+        // certificate and hostname verification enabled without JVM-wide flags.
+        if (System.getProperty("os.name", "")
+                .toLowerCase(java.util.Locale.ROOT)
+                .contains("windows")) {
+            try {
+                KeyStore roots = KeyStore.getInstance("Windows-ROOT");
+                roots.load(null, null);
+                var trust =
+                        TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+                trust.init(roots);
+                var ssl = SSLContext.getInstance("TLS");
+                ssl.init(null, trust.getTrustManagers(), null);
+                builder.sslContext(ssl);
+            } catch (GeneralSecurityException | IOException exception) {
+                throw new IllegalStateException(
+                        "Không đọc được kho chứng chỉ Windows cho VNPay.", exception);
+            }
+        }
+        this.httpClient = builder.build();
     }
 
     public Map<String, String> query(
-            String transactionRef,
-            String transactionDate,
-            String serverIp) {
+            String transactionRef, String transactionDate, String serverIp) {
 
         validateInput(transactionRef, transactionDate, serverIp);
 
-        String requestId = UUID.randomUUID()
-                .toString()
-                .replace("-", "");
+        String requestId = UUID.randomUUID().toString().replace("-", "");
 
-        String createDate = LocalDateTime.now(
-                ZoneId.of("Asia/Ho_Chi_Minh")
-        ).format(TIME_FORMAT);
+        String createDate = LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh")).format(TIME_FORMAT);
 
         String orderInfo = "Kiem tra giao dich " + transactionRef;
 
@@ -73,57 +86,54 @@ public class VnpayQueryService {
         requestData.put("vnp_IpAddr", serverIp);
         requestData.put("vnp_OrderInfo", orderInfo);
 
-        String signingData = String.join(
-                "|",
-                requestId,
-                "2.1.0",
-                "querydr",
-                properties.getTmnCode(),
-                transactionRef,
-                transactionDate,
-                createDate,
-                serverIp,
-                orderInfo
-        );
+        String signingData =
+                String.join(
+                        "|",
+                        requestId,
+                        "2.1.0",
+                        "querydr",
+                        properties.getTmnCode(),
+                        transactionRef,
+                        transactionDate,
+                        createDate,
+                        serverIp,
+                        orderInfo);
 
-        requestData.put(
-                "vnp_SecureHash",
-                signature.signQueryData(signingData)
-        );
+        requestData.put("vnp_SecureHash", signature.signQueryData(signingData));
 
         try {
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(properties.getQueryUrl()))
-                    .timeout(Duration.ofSeconds(10))
-                    .header("Content-Type", "application/json")
-                    .header("Accept", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(
-                            objectMapper.writeValueAsString(
-                                    requestData
-                            )
-                    ))
-                    .build();
+            HttpRequest request =
+                    HttpRequest.newBuilder()
+                            .uri(URI.create(properties.getQueryUrl()))
+                            .timeout(Duration.ofSeconds(10))
+                            .header("Content-Type", "application/json")
+                            .header("Accept", "application/json")
+                            .POST(
+                                    HttpRequest.BodyPublishers.ofString(
+                                            objectMapper.writeValueAsString(requestData)))
+                            .build();
 
-            HttpResponse<String> response = httpClient.send(
-                    request,
-                    HttpResponse.BodyHandlers.ofString()
-            );
+            HttpResponse<String> response =
+                    httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() != 200) {
-                throw gatewayError(
-                        "VNPay chưa trả được kết quả đối soát."
-                );
+                throw gatewayError("VNPay chưa trả được kết quả đối soát.");
             }
 
-            Map<String, String> result = objectMapper.readValue(
-                    response.body(),
-                    new TypeReference<Map<String, String>>() {}
-            );
+            Map<String, String> result =
+                    objectMapper.readValue(
+                            response.body(), new TypeReference<Map<String, String>>() {});
 
             if (result == null) {
+                throw gatewayError("Phản hồi đối soát VNPay không hợp lệ.");
+            }
+
+            // Sandbox can return an unsigned error object. Never interpret this as a
+            // payment result, or report a missing signature as the original cause.
+            if (!"00".equals(result.get("vnp_ResponseCode"))) {
                 throw gatewayError(
-                        "Phản hồi đối soát VNPay không hợp lệ."
-                );
+                        "Chưa nhận được xác nhận từ VNPay. Nếu đã thanh toán, "
+                                + "vui lòng chờ cập nhật hoặc liên hệ spa; không thanh toán thêm.");
             }
 
             verifyResponse(result, transactionRef);
@@ -134,80 +144,67 @@ public class VnpayQueryService {
             Thread.currentThread().interrupt();
 
             throw gatewayError(
-                    "Yêu cầu đối soát đã bị gián đoạn. "
-                            + "Trạng thái thanh toán chưa thay đổi."
-            );
+                    "Yêu cầu đối soát đã bị gián đoạn. " + "Trạng thái thanh toán chưa thay đổi.");
         } catch (IOException exception) {
             throw gatewayError(
                     "Không đọc được kết quả đối soát VNPay. "
-                            + "Trạng thái thanh toán chưa thay đổi."
-            );
+                            + "Trạng thái thanh toán chưa thay đổi.");
         }
     }
 
-    private void verifyResponse(
-            Map<String, String> result,
-            String transactionRef) {
+    private void verifyResponse(Map<String, String> result, String transactionRef) {
 
-        String signingData = String.join(
-                "|",
-                value(result, "vnp_ResponseId"),
-                value(result, "vnp_Command"),
-                value(result, "vnp_ResponseCode"),
-                value(result, "vnp_Message"),
-                value(result, "vnp_TmnCode"),
-                value(result, "vnp_TxnRef"),
-                value(result, "vnp_Amount"),
-                value(result, "vnp_BankCode"),
-                value(result, "vnp_PayDate"),
-                value(result, "vnp_TransactionNo"),
-                value(result, "vnp_TransactionType"),
-                value(result, "vnp_TransactionStatus"),
-                value(result, "vnp_OrderInfo"),
-                value(result, "vnp_PromotionCode"),
-                value(result, "vnp_PromotionAmount")
-        );
+        String signingData =
+                String.join(
+                        "|",
+                        value(result, "vnp_ResponseId"),
+                        value(result, "vnp_Command"),
+                        value(result, "vnp_ResponseCode"),
+                        value(result, "vnp_Message"),
+                        value(result, "vnp_TmnCode"),
+                        value(result, "vnp_TxnRef"),
+                        value(result, "vnp_Amount"),
+                        value(result, "vnp_BankCode"),
+                        value(result, "vnp_PayDate"),
+                        value(result, "vnp_TransactionNo"),
+                        value(result, "vnp_TransactionType"),
+                        value(result, "vnp_TransactionStatus"),
+                        value(result, "vnp_OrderInfo"),
+                        value(result, "vnp_PromotionCode"),
+                        value(result, "vnp_PromotionAmount"));
 
-        if (!signature.verifyQueryData(
-                signingData,
-                result.get("vnp_SecureHash"))) {
+        // Older terminals use the documented pre-promotion response shape.
+        // Select by response schema; never skip verification on a successful query.
+        if (!result.containsKey("vnp_PromotionCode")
+                && !result.containsKey("vnp_PromotionAmount")) {
+            signingData = signingData.substring(0, signingData.length() - 2);
+        }
+
+        if (!signature.verifyQueryData(signingData, result.get("vnp_SecureHash"))) {
             throw gatewayError(
                     "Chữ ký phản hồi đối soát không hợp lệ. "
-                            + "Trạng thái thanh toán chưa thay đổi."
-            );
+                            + "Trạng thái thanh toán chưa thay đổi.");
         }
 
         if (!"querydr".equals(result.get("vnp_Command"))
-                || !properties.getTmnCode()
-                        .equals(result.get("vnp_TmnCode"))
-                || !transactionRef.equals(
-                        result.get("vnp_TxnRef"))) {
-            throw gatewayError(
-                    "Phản hồi không khớp giao dịch cần đối soát."
-            );
+                || !properties.getTmnCode().equals(result.get("vnp_TmnCode"))
+                || !transactionRef.equals(result.get("vnp_TxnRef"))) {
+            throw gatewayError("Phản hồi không khớp giao dịch cần đối soát.");
         }
 
         String responseCode = result.get("vnp_ResponseCode");
 
-        if (responseCode == null
-                || !responseCode.matches("[0-9]{2}")) {
-            throw gatewayError(
-                    "Mã phản hồi đối soát không hợp lệ."
-            );
+        if (responseCode == null || !responseCode.matches("[0-9]{2}")) {
+            throw gatewayError("Mã phản hồi đối soát không hợp lệ.");
         }
     }
 
-    private String value(
-            Map<String, String> data,
-            String key) {
+    private String value(Map<String, String> data, String key) {
         String value = data.get(key);
         return value == null ? "" : value;
     }
 
-    private void validateInput(
-            String transactionRef,
-            String transactionDate,
-            String serverIp) {
+    private void validateInput(String transactionRef, String transactionDate, String serverIp) {
 
         if (properties.getTmnCode() == null
                 || properties.getTmnCode().isBlank()
@@ -216,9 +213,7 @@ public class VnpayQueryService {
                 || properties.getQueryUrl() == null
                 || properties.getQueryUrl().isBlank()) {
             throw new ResponseStatusException(
-                    HttpStatus.SERVICE_UNAVAILABLE,
-                    "Chưa cấu hình đầy đủ đối soát VNPay."
-            );
+                    HttpStatus.SERVICE_UNAVAILABLE, "Chưa cấu hình đầy đủ đối soát VNPay.");
         }
 
         if (transactionRef == null
@@ -228,25 +223,18 @@ public class VnpayQueryService {
                 || serverIp == null
                 || serverIp.isBlank()) {
             throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Thiếu hoặc sai thông tin đối soát."
-            );
+                    HttpStatus.BAD_REQUEST, "Thiếu hoặc sai thông tin đối soát.");
         }
 
         try {
             LocalDateTime.parse(transactionDate, TIME_FORMAT);
         } catch (java.time.format.DateTimeParseException exception) {
             throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Thời gian giao dịch gốc không hợp lệ."
-            );
+                    HttpStatus.BAD_REQUEST, "Thời gian giao dịch gốc không hợp lệ.");
         }
     }
 
     private ResponseStatusException gatewayError(String message) {
-        return new ResponseStatusException(
-                HttpStatus.BAD_GATEWAY,
-                message
-        );
+        return new ResponseStatusException(HttpStatus.BAD_GATEWAY, message);
     }
 }

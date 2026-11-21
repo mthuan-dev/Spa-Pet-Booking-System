@@ -16,22 +16,17 @@ public class VnpayReconcileController {
     private final CurrentCustomer currentCustomer;
 
     public VnpayReconcileController(
-            VnpayReconcileService reconcileService,
-            CurrentCustomer currentCustomer) {
+            VnpayReconcileService reconcileService, CurrentCustomer currentCustomer) {
         this.reconcileService = reconcileService;
         this.currentCustomer = currentCustomer;
     }
 
     @PostMapping("/{bookingId}/vnpay/reconcile")
     public VnpayReconcileStore.ReconcileResult reconcile(
-            @AuthenticationPrincipal Jwt jwt,
-            @PathVariable Integer bookingId) {
+            @AuthenticationPrincipal Jwt jwt, @PathVariable Integer bookingId) {
 
         var customer = currentCustomer.require(jwt);
 
-        return reconcileService.reconcile(
-                customer,
-                bookingId
-        );
+        return reconcileService.reconcile(customer, bookingId);
     }
 }

@@ -44,6 +44,7 @@ public class VnpayProperties {
     public void setReturnUrl(String returnUrl) {
         this.returnUrl = returnUrl;
     }
+
     public String getQueryUrl() {
         return queryUrl;
     }

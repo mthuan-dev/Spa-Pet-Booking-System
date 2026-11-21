@@ -24,16 +24,36 @@ public record BookingResponse(
         Review review,
         String cancellationReason,
         LocalDateTime createdAt,
-        LocalDateTime updatedAt
-) {
-    public record Review(Integer id, Integer rating, String comment, boolean hidden, LocalDateTime createdAt) {}
+        LocalDateTime updatedAt) {
+    public record Review(
+            Integer id, Integer rating, String comment, boolean hidden, LocalDateTime createdAt) {}
+
     public record Contact(String name, String phone, String email) {}
-    public record Pet(Integer id, String name, String type, String species,
-                      String breed, BigDecimal weight, String imageUrl) {}
+
+    public record Pet(
+            Integer id,
+            String name,
+            String type,
+            String species,
+            String breed,
+            BigDecimal weight,
+            String imageUrl) {}
+
     public record Employee(Integer id, String name, String avatarUrl) {}
+
     public record Appointment(LocalDate date, LocalTime startTime, LocalTime endTime) {}
-    public record ServiceItem(Integer id, Integer serviceId, String name,
-                              BigDecimal price, Integer durationMinutes) {}
-    public record Payment(Integer id, String method, BigDecimal amount,
-                          String transactionStatus, LocalDateTime paidAt) {}
+
+    public record ServiceItem(
+            Integer id,
+            Integer serviceId,
+            String name,
+            BigDecimal price,
+            Integer durationMinutes) {}
+
+    public record Payment(
+            Integer id,
+            String method,
+            BigDecimal amount,
+            String transactionStatus,
+            LocalDateTime paidAt) {}
 }
