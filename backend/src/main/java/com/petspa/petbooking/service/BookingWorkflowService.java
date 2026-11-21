@@ -28,6 +28,7 @@ public class BookingWorkflowService {
     private final DatLichService reader;
     private final DanhGiaRepository reviews;
     private final ApplicationEventPublisher eventPublisher;
+    
     public BookingWorkflowService(NguoiDungRepository users, ThuCungRepository pets, DichVuRepository services,
             GiaDichVuRepository prices, DatLichRepository bookings, ChiTietDatLichRepository details,
             ThanhToanRepository payments, DatLichService reader, DanhGiaRepository reviews, ApplicationEventPublisher eventPublisher) {
@@ -108,7 +109,14 @@ public class BookingWorkflowService {
     // Fresh reads after waiting for the employee lock must see the winner's commit.
     @Transactional(isolation=Isolation.READ_COMMITTED)
     public BookingResponse create(NguoiDung customer, BookingCreateRequest request) {
-        if(!"CASH".equals(request.paymentMethod())) throw invalid("VNPay chưa được hỗ trợ. Vui lòng thanh toán tại spa.");
+        PhuongThucThanhToan paymentMethod;
+        if ("CASH".equals(request.paymentMethod())) {
+            paymentMethod = PhuongThucThanhToan.CASH;
+        } else if ("VNPAY".equals(request.paymentMethod())) {
+            paymentMethod = PhuongThucThanhToan.VNPAY;
+        } else {
+            throw invalid("Phương thức thanh toán không hợp lệ.");
+        }
         if(customer.getSoDienThoai()==null || customer.getSoDienThoai().isBlank()) throw invalid("Vui lòng cập nhật số điện thoại trước khi đặt lịch.");
         var pet=pets.findByMaThuCungAndNguoiDung_MaNguoiDung(request.petId(),customer.getMaNguoiDung()).orElseThrow(() -> invalid("Thú cưng không thuộc tài khoản của bạn."));
         if(!Integer.valueOf(1).equals(pet.getTrangThai())) throw invalid("Thú cưng không hoạt động.");
@@ -142,7 +150,7 @@ public class BookingWorkflowService {
         details.saveAll(lines);
         var payment=new ThanhToan(); 
         payment.setDatLich(booking); 
-        payment.setPhuongThuc(PhuongThucThanhToan.CASH); 
+        payment.setPhuongThuc(paymentMethod); 
         payment.setSoTien(total); 
         payments.save(payment);
         BookingResponse response = reader

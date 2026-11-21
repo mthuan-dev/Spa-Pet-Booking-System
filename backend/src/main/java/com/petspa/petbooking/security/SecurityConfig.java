@@ -45,6 +45,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/booking-data/services", "/api/booking-data/pet-images/**").permitAll()
                         .requestMatchers("/api/booking-data/**", "/api/bookings/**").authenticated()
                         .requestMatchers( "/graphql").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/api/payments/vnpay/ipn").permitAll()
                         .requestMatchers(HttpMethod.POST,PUBLIC_ENDPOINT).permitAll()
                         .anyRequest().authenticated())
                          .oauth2ResourceServer(oauth2 ->

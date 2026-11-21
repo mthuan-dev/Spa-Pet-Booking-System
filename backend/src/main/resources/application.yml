@@ -56,6 +56,8 @@ vnpay:
   hash-secret: ${VNPAY_HASH_SECRET:}
   payment-url: ${VNPAY_PAYMENT_URL:https://sandbox.vnpayment.vn/paymentv2/vpcpay.html}
   return-url: ${VNPAY_RETURN_URL:http://localhost:5173/payment/vnpay/return}
+  query-url: ${VNPAY_QUERY_URL:https://sandbox.vnpayment.vn/merchant_webapi/api/transaction}
+  server-ip: ${VNPAY_SERVER_IP:127.0.0.1}
 # Configure spring.security.oauth2.client.registration.google.client-id and
 # client-secret from GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET when Google login is implemented.
 # Do not define an incomplete OAuth registration: Spring validates the client id at startup.

@@ -263,7 +263,7 @@ function BookingProgress({ status }) {
   )
 }
 
-export function BookingDetailContent({ booking, onCancel, onSubmitReview }) {
+export function BookingDetailContent({ booking, onCancel, onSubmitReview, onRefresh }) {
   return (
     <>
       <BookingDetailHeader booking={booking} />
@@ -276,7 +276,7 @@ export function BookingDetailContent({ booking, onCancel, onSubmitReview }) {
       </div>
 
       <BookingProgress status={booking.bookingStatus} />
-      <BookingActionZone booking={booking} onCancel={onCancel} />
+      <BookingActionZone booking={booking} onCancel={onCancel} onRefresh={onRefresh} />
       <BookingReviewSection booking={booking} onSubmit={onSubmitReview} />
     </>
   )

@@ -23,6 +23,11 @@ public class ThanhToan {
     private BigDecimal soTien;
     @Column(name = "vnp_txn_ref", length = 100, unique = true)
     private String vnpTxnRef;
+    @Column(name = "vnp_payment_url", columnDefinition = "TEXT")
+    private String vnpPaymentUrl;
+
+    @Column(name = "vnp_expires_at")
+    private LocalDateTime vnpExpiresAt;
     @Column(name = "vnp_transaction_no", length = 100, unique = true)
     private String vnpTransactionNo;
     @Enumerated(EnumType.STRING) @Column(name = "trangthai", nullable = false, length = 9)
@@ -81,4 +86,19 @@ public class ThanhToan {
     public void setNgayTao(LocalDateTime ngayTao) { this.ngayTao = ngayTao; }
     public LocalDateTime getNgayCapNhat() { return ngayCapNhat; }
     public void setNgayCapNhat(LocalDateTime ngayCapNhat) { this.ngayCapNhat = ngayCapNhat; }
+    public String getVnpPaymentUrl() {
+        return vnpPaymentUrl;
+    }
+
+    public void setVnpPaymentUrl(String vnpPaymentUrl) {
+        this.vnpPaymentUrl = vnpPaymentUrl;
+    }
+
+    public LocalDateTime getVnpExpiresAt() {
+        return vnpExpiresAt;
+    }
+
+    public void setVnpExpiresAt(LocalDateTime vnpExpiresAt) {
+        this.vnpExpiresAt = vnpExpiresAt;
+    }
 }

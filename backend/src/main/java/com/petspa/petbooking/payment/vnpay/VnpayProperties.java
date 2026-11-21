@@ -11,6 +11,7 @@ public class VnpayProperties {
     private String hashSecret;
     private String paymentUrl;
     private String returnUrl;
+    private String queryUrl;
 
     public String getTmnCode() {
         return tmnCode;
@@ -42,5 +43,12 @@ public class VnpayProperties {
 
     public void setReturnUrl(String returnUrl) {
         this.returnUrl = returnUrl;
+    }
+    public String getQueryUrl() {
+        return queryUrl;
+    }
+
+    public void setQueryUrl(String queryUrl) {
+        this.queryUrl = queryUrl;
     }
 }

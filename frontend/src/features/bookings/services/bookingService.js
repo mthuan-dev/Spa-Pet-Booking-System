@@ -15,4 +15,14 @@ export const bookingService = {
   async cancelBooking(id, reason) { return model(await bookingApi(`/bookings/${id}/cancel`, { method: 'POST', body: JSON.stringify({ reason }) })) },
   async rescheduleBooking(id, request) { return model(await bookingApi(`/bookings/${id}/reschedule`, { method: 'PUT', body: JSON.stringify(request) })) },
   async reviewBooking(id, review) { return model(await bookingApi(`/bookings/${id}/review`, { method: 'POST', body: JSON.stringify(review) })) },
+  async createVnpayPaymentUrl(id) {
+    return bookingApi(`/bookings/${id}/vnpay`, {
+      method: 'POST',
+    })
+  },
+  async reconcileVnpayPayment(id) {
+    return bookingApi(`/bookings/${id}/vnpay/reconcile`, {
+      method: 'POST',
+    })
+  },
 }
