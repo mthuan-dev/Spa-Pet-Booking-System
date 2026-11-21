@@ -1,20 +1,25 @@
 import { Col, Form, Input, InputNumber, Modal, Row, Select } from 'antd';
+import { useState } from 'react';
 import { PET_TYPES } from '~/features/profile/mappers/customerMapper.js';
+import ServiceImageInput from '~/features/admin/service-management/components/ServiceImageInput.jsx';
 
 export default function PetFormModal({ pet, onCancel, onSave, isPending }) {
   const [form] = Form.useForm();
+  const [imageFile, setImageFile] = useState(null);
+  const [imageBusy, setImageBusy] = useState(false);
+  const busy = isPending || imageBusy;
   return (
     <Modal
       title={pet ? 'Cập nhật thú cưng' : 'Thêm thú cưng'}
       open
-      onOk={form.submit}
-      onCancel={() => { if (!isPending) onCancel(); }}
+      onOk={() => { if (!busy) form.submit(); }}
+      onCancel={() => { if (!busy) onCancel(); }}
       okText="Lưu"
       cancelText="Hủy"
       confirmLoading={isPending}
-      cancelButtonProps={{ disabled: isPending }}
-      closable={!isPending}
-      keyboard={!isPending}
+      cancelButtonProps={{ disabled: busy }}
+      closable={!busy}
+      keyboard={!busy}
       mask={{ closable: false }}
     >
       <Form
@@ -22,8 +27,8 @@ export default function PetFormModal({ pet, onCancel, onSave, isPending }) {
         layout="vertical"
         variant="filled"
         initialValues={pet || { loaiThuCung: 'DOG', trangThai: 1 }}
-        onFinish={(values) => onSave({ ...values, ...(pet ? { maThuCung: pet.maThuCung } : {}) })}
-        disabled={isPending}
+        onFinish={(values) => onSave({ ...values, ...(pet ? { maThuCung: pet.maThuCung } : {}) }, imageFile)}
+        disabled={busy}
       >
         <Form.Item label="Tên thú cưng" name="tenThuCung" rules={[
           { required: true, whitespace: true, message: 'Vui lòng nhập tên thú cưng.' },
@@ -46,10 +51,15 @@ export default function PetFormModal({ pet, onCancel, onSave, isPending }) {
         <Form.Item label="Giống" name="giong" rules={[{ max: 100, message: 'Giống thú cưng tối đa 100 ký tự.' }]}>
           <Input maxLength={100} placeholder="Nhập giống thú cưng" />
         </Form.Item>
-        <Form.Item label="Hình ảnh" name="hinhAnh" rules={[
-          { max: 255, message: 'Đường dẫn hình ảnh tối đa 255 ký tự.' },
-        ]}>
-          <Input maxLength={255} placeholder="https://..." />
+        <Form.Item label="Hình ảnh" name="hinhAnh" rules={[{ max: 255, message: 'Đường dẫn hình ảnh tối đa 255 ký tự.' }]}>
+          <ServiceImageInput
+            file={imageFile}
+            onFileChange={setImageFile}
+            imageUrl={pet?.hinhAnh}
+            disabled={busy}
+            onBusyChange={setImageBusy}
+            entityLabel="thú cưng"
+          />
         </Form.Item>
         <Form.Item label="Trạng thái" name="trangThai" rules={[{ required: true, message: 'Vui lòng chọn trạng thái.' }]}>
           <Select options={[{ value: 1, label: 'Hoạt động' }, { value: 0, label: 'Vô hiệu hóa' }]} />

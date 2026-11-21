@@ -17,12 +17,19 @@ export function useSaveCustomerPet(customerId, mutationConfig = {}) {
   const { onSuccess, ...restConfig } = mutationConfig;
   return useMutation({
     ...restConfig,
-    mutationFn: ({ pet, remove = false }) => {
+    mutationFn: async ({ pet, remove = false, imageFile }) => {
       const basePath = `/users/${customerId}/pets`;
       if (remove) return api.delete(`${basePath}/${pet.maThuCung}`);
-      return pet.maThuCung
-        ? api.put(`${basePath}/${pet.maThuCung}`, pet)
-        : api.post(basePath, pet);
+      let payload = pet;
+      if (imageFile) {
+        const body = new FormData();
+        body.append('file', imageFile);
+        const { hinhAnh } = await api.post('/pet-images', body);
+        payload = { ...pet, hinhAnh };
+      }
+      return payload.maThuCung
+        ? api.put(`${basePath}/${payload.maThuCung}`, payload)
+        : api.post(basePath, payload);
     },
     onSuccess: async (...args) => {
       await queryClient.invalidateQueries({ queryKey: customerPetsQuery(customerId).queryKey });

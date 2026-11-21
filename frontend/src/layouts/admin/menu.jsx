@@ -21,6 +21,17 @@ const MenuCustom = ({ isMobile, onClose, theme = 'light', ...props }) => {
     }
   }, []);
 
+  const findPathByKey = useCallback((items, key) => {
+    for (const item of items) {
+      if (item.key === key) return item.path;
+      if (item.children) {
+        const path = findPathByKey(item.children, key);
+        if (path) return path;
+      }
+    }
+    return null;
+  }, []);
+
   const selectedKeys = useMemo(() => {
     let path = location.pathname.replace(/\/$/, '');
     let item = findItemByPath(adminMenu, path);
@@ -36,9 +47,12 @@ const MenuCustom = ({ isMobile, onClose, theme = 'light', ...props }) => {
       if (isMobile) {
         onClose();
       }
-      navigate(e.item.props.path);
+      const path = findPathByKey(adminMenu, e.key);
+      if (path) {
+        navigate(path);
+      }
     },
-    [isMobile, onClose, navigate],
+    [findPathByKey, isMobile, onClose, navigate],
   );
 
   return (
