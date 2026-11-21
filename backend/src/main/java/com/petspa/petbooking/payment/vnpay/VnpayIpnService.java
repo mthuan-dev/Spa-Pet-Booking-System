@@ -1,0 +1,176 @@
+package com.petspa.petbooking.payment.vnpay;
+
+import com.petspa.petbooking.entity.enums.PhuongThucThanhToan;
+import com.petspa.petbooking.entity.enums.TrangThaiDatLich;
+import com.petspa.petbooking.entity.enums.TrangThaiGiaoDich;
+import com.petspa.petbooking.entity.enums.TrangThaiThanhToan;
+import com.petspa.petbooking.repository.DatLichRepository;
+import com.petspa.petbooking.repository.ThanhToanRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.ResolverStyle;
+import java.util.Map;
+
+@Service
+public class VnpayIpnService {
+
+    private final DatLichRepository bookings;
+    private final ThanhToanRepository payments;
+    private final VnpayProperties properties;
+    private final VnpaySignature signature;
+
+    public VnpayIpnService(
+            DatLichRepository bookings,
+            ThanhToanRepository payments,
+            VnpayProperties properties,
+            VnpaySignature signature) {
+        this.bookings = bookings;
+        this.payments = payments;
+        this.properties = properties;
+        this.signature = signature;
+    }
+
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public Map<String, String> handle(Map<String, String> parameters) {
+
+        if (!signature.verify(parameters)) {
+            return reply("97", "Invalid signature");
+        }
+
+        if (!properties.getTmnCode()
+                .equals(parameters.get("vnp_TmnCode"))) {
+            return reply("97", "Invalid merchant");
+        }
+
+        String reference = parameters.get("vnp_TxnRef");
+        String rawAmount = parameters.get("vnp_Amount");
+        String responseCode = parameters.get("vnp_ResponseCode");
+        String transactionStatus =
+                parameters.get("vnp_TransactionStatus");
+
+        if (reference == null || reference.isBlank()
+                || responseCode == null
+                || !responseCode.matches("[0-9]{2}")
+                || transactionStatus == null
+                || !transactionStatus.matches("[0-9]{2}")) {
+            return reply("99", "Invalid parameters");
+        }
+
+        if (rawAmount == null
+                || !rawAmount.matches("[0-9]{1,12}")) {
+            return reply("04", "Invalid amount");
+        }
+
+        Integer bookingId = payments
+                .findBookingIdByReference(reference)
+                .orElse(null);
+
+        if (bookingId == null) {
+            return reply("01", "Order not found");
+        }
+
+        var booking = bookings.lockById(bookingId).orElseThrow();
+
+        var payment = payments.lockByReference(reference)
+                .orElseThrow();
+
+        if (payment.getPhuongThuc()
+                != PhuongThucThanhToan.VNPAY) {
+            return reply("01", "VNPay transaction not found");
+        }
+
+        BigDecimal receivedAmount =
+                new BigDecimal(rawAmount).movePointLeft(2);
+
+        if (receivedAmount.compareTo(payment.getSoTien()) != 0
+                || receivedAmount.compareTo(
+                        booking.getTongTien()) != 0) {
+            return reply("04", "Invalid amount");
+        }
+
+        if (payment.getTrangThai()
+                != TrangThaiGiaoDich.PENDING) {
+            return reply("02", "Order already confirmed");
+        }
+
+        boolean success = "00".equals(responseCode)
+                && "00".equals(transactionStatus);
+
+        LocalDateTime paidAt = null;
+        String transactionNo =
+                parameters.get("vnp_TransactionNo");
+
+        if (success) {
+            String payDate = parameters.get("vnp_PayDate");
+
+            if (transactionNo == null
+                    || !transactionNo.matches("[0-9]{1,100}")
+                    || payDate == null
+                    || !payDate.matches("[0-9]{14}")) {
+                return reply("99", "Invalid payment information");
+            }
+
+            try {
+                paidAt = LocalDateTime.parse(
+                        payDate,
+                        DateTimeFormatter
+                                .ofPattern("uuuuMMddHHmmss")
+                                .withResolverStyle(
+                                        ResolverStyle.STRICT
+                                )
+                );
+            } catch (java.time.format.DateTimeParseException exception) {
+                return reply("99", "Invalid payment date");
+            }
+        }
+
+        payment.setVnpResponseCode(responseCode);
+        payment.setVnpTransactionStatus(transactionStatus);
+        payment.setVnpBankCode(parameters.get("vnp_BankCode"));
+        payment.setVnpBankTranNo(
+                parameters.get("vnp_BankTranNo")
+        );
+        payment.setVnpCardType(parameters.get("vnp_CardType"));
+
+        if (success) {
+            payment.setVnpTransactionNo(transactionNo);
+            payment.setThoiGianThanhToan(paidAt);
+            payment.setTrangThai(TrangThaiGiaoDich.SUCCESS);
+
+            boolean needsReview =
+                    booking.getTrangThaiThanhToan()
+                            == TrangThaiThanhToan.PAID
+                    || booking.getTrangThaiDatLich()
+                            == TrangThaiDatLich.CANCELLED;
+
+            booking.setTrangThaiThanhToan(
+                    TrangThaiThanhToan.PAID
+            );
+
+            payment.setMessage(needsReview
+                    ? "Payment received; manual review required"
+                    : "Payment successful");
+        } else {
+            payment.setTrangThai(TrangThaiGiaoDich.FAILED);
+            payment.setMessage("VNPay payment failed");
+        }
+
+        payments.saveAndFlush(payment);
+
+        return reply("00", "Confirm Success");
+    }
+
+    private Map<String, String> reply(
+            String code,
+            String message) {
+        return Map.of(
+                "RspCode", code,
+                "Message", message
+        );
+    }
+}
