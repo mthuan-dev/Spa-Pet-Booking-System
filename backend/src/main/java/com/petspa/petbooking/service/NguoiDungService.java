@@ -35,8 +35,7 @@ public class NguoiDungService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Email này đã được sử dụng.");
         }
         if (request.getSoDienThoai() != null && !request.getSoDienThoai().isBlank()
-                && nguoiDungRepository.findAll().stream()
-                .anyMatch(u -> request.getSoDienThoai().trim().equals(u.getSoDienThoai()))) {
+                && nguoiDungRepository.existsBySoDienThoai(request.getSoDienThoai().trim())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Số điện thoại này đã được sử dụng.");
         }
         NguoiDung user = nguoidungMapper.toUser(request);
@@ -54,15 +53,13 @@ public class NguoiDungService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy người dùng."));
         validateUpdateRequest(request);
         if (request.getSoDienThoai() != null && !request.getSoDienThoai().isBlank()
-                && nguoiDungRepository.findAll().stream()
-                .anyMatch(u -> u.getMaNguoiDung() != id
-                        && request.getSoDienThoai().trim().equals(u.getSoDienThoai()))) {
+                && nguoiDungRepository.existsBySoDienThoaiAndMaNguoiDungNot(request.getSoDienThoai().trim(), id)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Số điện thoại này đã được sử dụng.");
         }
         nguoidungMapper.updateUser(user, request);
         if (request.getEmail() != null) user.setEmail(request.getEmail().trim().toLowerCase());
         if (request.getHoTen() != null) user.setHoTen(request.getHoTen().trim());
-        if (request.getSoDienThoai() != null) user.setSoDienThoai(normalizePhone(request.getSoDienThoai()));
+        if (request.isSoDienThoaiProvided()) user.setSoDienThoai(normalizePhone(request.getSoDienThoai()));
         if (request.getTrangThai() != null) user.setTrangThai(request.getTrangThai());
         if (request.getMatKhau() != null && !request.getMatKhau().isBlank()) {
             user.setMatKhau(new BCryptPasswordEncoder(10).encode(request.getMatKhau()));

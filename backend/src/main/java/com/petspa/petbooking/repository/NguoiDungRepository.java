@@ -18,6 +18,8 @@ public interface NguoiDungRepository extends JpaRepository<NguoiDung, Integer> {
     Optional<NguoiDung> findByMaNguoiDungAndVaiTro(Integer maNguoiDung, VaiTro vaiTro);
 
     Optional<NguoiDung> findByEmail(String email);
+    boolean existsBySoDienThoai(String soDienThoai);
+    boolean existsBySoDienThoaiAndMaNguoiDungNot(String soDienThoai, Integer maNguoiDung);
 
     @Query("""
             SELECT u FROM NguoiDung u

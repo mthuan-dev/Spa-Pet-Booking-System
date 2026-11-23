@@ -6,8 +6,8 @@ enum VaiTro {
 type Query {
   adminUsers(
     role: VaiTro!,
-    page: Int = 1,
-    size: Int = 8,
+    page: Int! = 1,
+    size: Int! = 8,
     keyword: String
   ): NguoiDungPage!
 }
