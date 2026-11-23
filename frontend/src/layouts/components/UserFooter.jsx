@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { CONTACT_INFO, SERVICE_CREDITS } from '../../features/home/data/homeData.js'
+import { CONTACT_INFO } from '../../features/home/data/homeData.js'
 import catDogFooter from '../../assets/custom-footer/catdogfooter.png'
 import { ROUTES } from '../../app/routes/routePaths.js'
 
@@ -36,22 +36,12 @@ export default function HomeFooter() {
           </address>
           <div className="site-footer__social">
             <h3>Mạng xã hội</h3>
-            <span><SocialMark kind="facebook" />Facebook sẽ cập nhật</span>
-            <span><SocialMark kind="instagram" />Instagram sẽ cập nhật</span>
+            <span><SocialMark kind="facebook" />Facebook</span>
+            <span><SocialMark kind="instagram" />Instagram</span>
           </div>
         </div>
       </div>
 
-      <details className="photo-credits">
-        <summary>Nguồn ảnh minh họa dịch vụ</summary>
-        <ul>
-          {Object.values(SERVICE_CREDITS).map((credit) => (
-            <li key={credit.title}>
-              <a href={credit.href} target="_blank" rel="noreferrer">“{credit.title}” — {credit.creator}, {credit.licence}, via {credit.source}</a>
-            </li>
-          ))}
-        </ul>
-      </details>
       <div className="site-footer__bottom">
         <span>© 2026 MEOMEO. All rights reserved.</span>
         <span>Made for clean paws & happy tails.</span>
