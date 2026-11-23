@@ -2,6 +2,7 @@ import { currentUser } from '../../features/profile/mocks/customerRepository.js'
 import LoadingScreen from '../../components/ui/LoadingScreen.jsx';
 
 export const createAdminRoute = (queryClient) => ({
+  // Cha
   id: 'admin',
   path: '/admin',
   hydrateFallbackElement: <LoadingScreen />,
@@ -68,14 +69,22 @@ export const createAdminRoute = (queryClient) => ({
     },
     {
       path: 'customers/:customerId/pets',
+      // lazy+loader run whenever its path is matched
       lazy: async () => {
         const CustomerPets = await import('../../pages/admin/customers/pets.jsx');
+        /* named export : export function
+          default export : export default function -> .default */
         return { Component: CustomerPets.default };
       },
+      /* loader truyền cho (params, request)
+        - params: tham số động trên url (:customerId)
+        - request: thay thế request trình duyệt gửi đến server
+      */
       loader: async ({ params }) => {
         if (currentUser()?.role !== 'ADMIN') return null;
         const { CustomerPetsLoader } = await import('../../pages/admin/customers/pets.jsx');
-        return CustomerPetsLoader(queryClient)({ params });
+        const loadPets = CustomerPetsLoader(queryClient);
+        return loadPets({ params });     
       },
     },
     {

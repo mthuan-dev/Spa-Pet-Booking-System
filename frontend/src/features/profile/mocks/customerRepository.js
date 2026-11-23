@@ -17,7 +17,7 @@ export function setSession(token, remember = false) {
 
 
 
-
+// Này là đang mock mà?
 export function currentUserRow() {
   let id;
   try { id = Number(sessionStorage.getItem(SESSION) || localStorage.getItem(SESSION)); }

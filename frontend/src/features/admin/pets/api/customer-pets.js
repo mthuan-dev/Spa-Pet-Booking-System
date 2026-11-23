@@ -10,6 +10,7 @@ export const customerPetsQuery = (customerId) => ({
   },
 });
 
+// Read
 export const useCustomerPets = (customerId) => useQuery(customerPetsQuery(customerId));
 
 export function useSaveCustomerPet(customerId, mutationConfig = {}) {
@@ -19,12 +20,13 @@ export function useSaveCustomerPet(customerId, mutationConfig = {}) {
     ...restConfig,
     mutationFn: ({ pet, remove = false }) => {
       const basePath = `/users/${customerId}/pets`;
-      if (remove) return api.delete(`${basePath}/${pet.maThuCung}`);
+      if (remove) return api.delete(`${basePath}/${pet.maThuCung}`); // Delete
       return pet.maThuCung
-        ? api.put(`${basePath}/${pet.maThuCung}`, pet)
-        : api.post(basePath, pet);
+        ? api.put(`${basePath}/${pet.maThuCung}`, pet) // Update
+        : api.post(basePath, pet);                     // Add
     },
     onSuccess: async (...args) => {
+      // Đánh dấu Query này cũ -> RQuery tự fetch lại danh sách mới
       await queryClient.invalidateQueries({ queryKey: customerPetsQuery(customerId).queryKey });
       onSuccess?.(...args);
     },

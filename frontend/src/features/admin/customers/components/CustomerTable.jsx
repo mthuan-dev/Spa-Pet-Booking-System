@@ -21,7 +21,7 @@ const DogIcon = () => (
 );
 
 export const CustomerTable = ({ onEdit, onToggleStatus, isUpdating = false }) => {
-  const navigate = useNavigate();
+  const navigate = useNavigate(); // hook chuyển trang
   const [page, setPage] = useState(1);
   const [keyword, setKeyword] = useState('');
   const { data: customers, isLoading } = useCustomers({

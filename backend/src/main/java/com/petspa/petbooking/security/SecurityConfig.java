@@ -59,7 +59,7 @@ public class SecurityConfig {
     JwtDecoder jwtDecoder(){
 
         SecretKeySpec secretKeySpec = new SecretKeySpec(signerKey.getBytes(), "HS512");
-       return NimbusJwtDecoder.withSecretKey(secretKeySpec)
+        return NimbusJwtDecoder.withSecretKey(secretKeySpec)
                .macAlgorithm(MacAlgorithm.HS512)
                .build();
     };

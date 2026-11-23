@@ -30,7 +30,9 @@ public class ThuCungService {
     public ThuCungListResponse getPets(Integer customerId) {
         NguoiDung customer = getCustomer(customerId);
         var pets = thuCungRepository.findByNguoiDung_MaNguoiDung(customerId)
-                .stream().map(this::toResponse).toList();
+                .stream()
+                .map(this::toResponse) // entity -> dto response
+                .toList();
         return ThuCungListResponse.builder()
                 .customer(nguoidungMapper.toUserResponse(customer))
                 .pets(pets)
