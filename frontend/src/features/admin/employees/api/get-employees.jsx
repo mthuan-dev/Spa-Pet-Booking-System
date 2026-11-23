@@ -1,22 +1,11 @@
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import { USER_ROLES } from "~/app/config/constants.js";
-import { api } from "~/lib/api.js";
 import { mapAdminUserPage } from '~/features/admin/users/mappers/userMapper.js';
 import { graphqlRequest } from '~/shared/api/graphql.js';
 
-export const getEmployees = (page, size, keyword) => {
-  if (import.meta.env.VITE_USE_MOCK_API !== 'false') {
-    return api.get(`/users`, {
-      params: { 
-        role: USER_ROLES.ADMIN, 
-        page, 
-        size, 
-        keyword 
-      },
-    }).then(mapAdminUserPage);
-  }
+export const getEmployees = (page = 1, size = 8, keyword) => {
   return graphqlRequest(`
-    query AdminUsers($role: VaiTro!, $page: Int, $size: Int, $keyword: String) {
+    query AdminUsers($role: VaiTro!, $page: Int!, $size: Int!, $keyword: String) {
       adminUsers(role: $role, page: $page, size: $size, keyword: $keyword) {
         content { maNguoiDung hoTen email soDienThoai vaiTro trangThai ngayTao ngayCapNhat }
         number size totalElements totalPages

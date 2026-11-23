@@ -4,6 +4,7 @@ import { mapAdminUser } from '~/features/admin/users/mappers/userMapper.js';
 
 export const customerPetsQuery = (customerId) => ({
   queryKey: ['customer-pets', String(customerId)],
+  staleTime: 30_000,
   queryFn: async () => {
     const result = await api.get(`/users/${customerId}/pets`);
     return { ...result, customer: mapAdminUser(result.customer) };

@@ -26,7 +26,7 @@ const EmployeePage = () => {
         message.success('Cập nhật thành công!');
       },
       onError: (error) => {
-        message.error(error?.response?.data?.detail);
+        message.error(error?.response?.data?.detail || 'Chưa cập nhật được nhân viên. Vui lòng thử lại.');
       },
     },
   });

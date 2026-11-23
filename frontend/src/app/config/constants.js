@@ -4,6 +4,7 @@ const USER_ROLES = {
 };
 
 const ROW_PER_PAGE = 8;
+const PET_TYPES = { DOG: 'Chó', CAT: 'Mèo', OTHER: 'Khác' };
 
 const BOOKING_TYPE = {
   ONE_WAY: 'ONE_WAY',
@@ -16,4 +17,4 @@ const SEAT_TYPE = {
   UNAVAILABLE: 'UNAVAILABLE',
 };
 
-export { USER_ROLES, ROW_PER_PAGE, BOOKING_TYPE, SEAT_TYPE };
+export { USER_ROLES, ROW_PER_PAGE, PET_TYPES, BOOKING_TYPE, SEAT_TYPE };

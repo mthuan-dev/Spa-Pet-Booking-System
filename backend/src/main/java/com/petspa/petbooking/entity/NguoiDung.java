@@ -31,8 +31,10 @@ public class NguoiDung {
      String soDienThoai;
     @Column(name = "googleid", length = 255, unique = true)
      String googleId;
+    @Builder.Default
     @Enumerated(EnumType.STRING) @Column(name = "nhacungcap", nullable = false, length = 6)
      NhaCungCap nhaCungCap = NhaCungCap.LOCAL;
+    @Builder.Default
     @Enumerated(EnumType.STRING) @Column(name = "vaitro", nullable = false, length = 8)
      VaiTro vaiTro = VaiTro.CUSTOMER;
     @Builder.Default

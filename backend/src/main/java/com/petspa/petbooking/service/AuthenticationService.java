@@ -24,6 +24,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.util.CollectionUtils;
 
 import java.text.ParseException;
@@ -44,12 +46,16 @@ public class AuthenticationService {
     @Value("${jwt.signerKey}")
     protected String SIGNER_KEY;
    public AuthenticationResponse Authenticated(AuthenticationRequest request){
-        var user = nguoiDungRepository.findByEmail(request.getEmail()).orElseThrow(() -> new RuntimeException("User not existed"));
+        var user = nguoiDungRepository.findByEmail(request.getEmail().trim().toLowerCase())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Email hoặc mật khẩu không chính xác."));
+        if (!Integer.valueOf(1).equals(user.getTrangThai()) || user.getMatKhau() == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Tài khoản không hợp lệ.");
+        }
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         boolean result = passwordEncoder.matches(request.getPassword(), user.getMatKhau());
         if(!result)
         {
-            throw new RuntimeException("User not existed");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Email hoặc mật khẩu không chính xác.");
         }
         else{
             var AccessToken = generateToken(user);
@@ -108,19 +114,26 @@ public class AuthenticationService {
 
         SignedJWT signedJWT =  SignedJWT.parse(token);
 
-        Date expriredtime = signedJWT.getJWTClaimsSet().getExpirationTime();
+        var claims = signedJWT.getJWTClaimsSet();
+        var tokenScope = claims.getStringClaim("scope");
+        Date expriredtime = claims.getExpirationTime();
         var verified = signedJWT.verify(verifier);
+        boolean active = verified && expriredtime != null && expriredtime.after(new Date())
+                && nguoiDungRepository.findByEmail(claims.getSubject())
+                    .filter(user -> Integer.valueOf(1).equals(user.getTrangThai())
+                            && user.getVaiTro().name().equals(tokenScope))
+                    .isPresent();
 
         return IntrospectResponse.builder()
-                .valid(verified && expriredtime.after(new Date()))
+                .valid(active)
                 .build();
 
 
 
     }
     private String buildScope(NguoiDung user){
-
-         return  user.getVaiTro().name();
+        // scope : ADMIN || CUSTOMER
+        return  user.getVaiTro().name();
 
     }
 

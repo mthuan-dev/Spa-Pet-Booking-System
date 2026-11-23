@@ -1,6 +1,6 @@
 import { Col, Form, Input, InputNumber, Modal, Row, Select } from 'antd';
 import { useState } from 'react';
-import { PET_TYPES } from '~/features/profile/mappers/customerMapper.js';
+import { PET_TYPES } from '~/app/config/constants.js';
 import ServiceImageInput from '~/features/admin/service-management/components/ServiceImageInput.jsx';
 
 export default function PetFormModal({ pet, onCancel, onSave, isPending }) {
