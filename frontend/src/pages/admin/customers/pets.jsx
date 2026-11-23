@@ -1,18 +1,18 @@
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
-import { App, Button, Card, Descriptions, Flex, Image, Popconfirm, Space, Table, Tag } from 'antd';
+import { Alert, App, Button, Card, Descriptions, Flex, Image, Popconfirm, Space, Table, Tag } from 'antd';
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import PageHeader from '~/components/ui/page-header.jsx';
 import { customerPetsQuery, useCustomerPets, useSaveCustomerPet } from '~/features/admin/pets/api/customer-pets.js';
 import PetFormModal from '~/features/admin/pets/components/PetFormModal.jsx';
-import { PET_TYPES } from '~/features/profile/mappers/customerMapper.js';
+import { PET_TYPES } from '~/app/config/constants.js';
 
 export const CustomerPetsLoader = (queryClient) => async ({ params }) =>
   queryClient.ensureQueryData(customerPetsQuery(params.customerId));
 
 export default function CustomerPetsPage() {
   const { customerId } = useParams();
-  const { data, isLoading } = useCustomerPets(customerId);
+  const { data, isLoading, isError, error, refetch } = useCustomerPets(customerId);
   const { message } = App.useApp();
   const [formOpen, setFormOpen] = useState(false);
   const [selectedPet, setSelectedPet] = useState(null);
@@ -93,6 +93,9 @@ export default function CustomerPetsPage() {
           Thêm mới
         </Button>
       </Flex>
+      {isError && <Alert className="mb-3" type="error" showIcon title="Chưa tải được dữ liệu thú cưng."
+        description={error?.response?.data?.detail || error?.message}
+        action={<Button onClick={() => refetch()}>Thử lại</Button>} />}
       <Card title="Khách hàng" className="mb-3">
         <Descriptions items={[
           { key: 'id', label: 'Mã khách hàng', children: customer?.id },

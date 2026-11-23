@@ -1,5 +1,5 @@
 import { DeleteOutlined, EditOutlined, ToolOutlined } from '@ant-design/icons';
-import { Button, Flex, Input, Space, Table, Tag } from 'antd';
+import { Alert, Button, Flex, Input, Space, Table, Tag } from 'antd';
 import { useMemo, useState } from 'react';
 import dayjs from 'dayjs';
 import { useNavigate } from 'react-router-dom';
@@ -24,7 +24,7 @@ export const CustomerTable = ({ onEdit, onToggleStatus, isUpdating = false }) =>
   const navigate = useNavigate(); // hook chuyển trang
   const [page, setPage] = useState(1);
   const [keyword, setKeyword] = useState('');
-  const { data: customers, isLoading } = useCustomers({
+  const { data: customers, isLoading, isError, error, refetch } = useCustomers({
     page,
     keyword,
     size: ROW_PER_PAGE,
@@ -105,12 +105,15 @@ export const CustomerTable = ({ onEdit, onToggleStatus, isUpdating = false }) =>
 
   return (
     <>
+      {isError && <Alert className="mb-3" type="error" showIcon title="Chưa tải được danh sách khách hàng."
+        description={error?.message} action={<Button onClick={() => refetch()}>Thử lại</Button>} />}
       <Table
         rowKey="id"
         columns={columns}
         dataSource={customers?.content}
         size="medium"
         pagination={{
+          showSizeChanger: false,
           current: page,
           pageSize: customers?.size,
           total: customers?.totalElements,

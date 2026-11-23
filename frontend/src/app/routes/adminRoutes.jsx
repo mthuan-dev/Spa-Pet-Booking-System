@@ -1,4 +1,4 @@
-import { currentUser } from '../../features/profile/mocks/customerRepository.js';
+import { getSession, getStoredUser } from '../../features/auth/utils/session.js';
 import LoadingScreen from '../../components/ui/LoadingScreen.jsx';
 
 export const createAdminRoute = (queryClient) => ({
@@ -81,7 +81,7 @@ export const createAdminRoute = (queryClient) => ({
         - request: thay thế request trình duyệt gửi đến server
       */
       loader: async ({ params }) => {
-        if (currentUser()?.role !== 'ADMIN') return null;
+        if (!getSession() || getStoredUser()?.vaiTro !== 'ADMIN') return null;
         const { CustomerPetsLoader } = await import('../../pages/admin/customers/pets.jsx');
         const loadPets = CustomerPetsLoader(queryClient);
         return loadPets({ params });     

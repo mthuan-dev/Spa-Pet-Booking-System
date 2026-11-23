@@ -1,5 +1,5 @@
 import { DeleteOutlined, EditOutlined, ToolOutlined } from '@ant-design/icons';
-import { Button, Flex, Input, Space, Table, Tag } from 'antd';
+import { Alert, Button, Flex, Input, Space, Table, Tag } from 'antd';
 import { useMemo, useState } from 'react';
 import dayjs from 'dayjs';
 import { useEmployees } from '../api/get-employees.jsx';
@@ -8,7 +8,7 @@ import { ROW_PER_PAGE } from '~/app/config/constants.js';
 export const EmployeeTable = ({ handleUpdateItem, handleUpdateStatus }) => {
   const [page, setPage] = useState(1);
   const [keyword, setKeyword] = useState('');
-  const { data: employees, isLoading } = useEmployees({
+  const { data: employees, isLoading, isError, error, refetch } = useEmployees({
     page,
     keyword,
     size: ROW_PER_PAGE,
@@ -83,12 +83,15 @@ export const EmployeeTable = ({ handleUpdateItem, handleUpdateStatus }) => {
 
   return (
     <>
+      {isError && <Alert className="mb-3" type="error" showIcon title="Chưa tải được danh sách nhân viên."
+        description={error?.message} action={<Button onClick={() => refetch()}>Thử lại</Button>} />}
       <Table
         rowKey="id"
         columns={columns}
         dataSource={employees?.content}
         size="medium"
         pagination={{
+          showSizeChanger: false,
           current: page,
           pageSize: employees?.size,
           total: employees?.totalElements,

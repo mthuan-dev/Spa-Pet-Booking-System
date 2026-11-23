@@ -15,7 +15,7 @@ const CreateEmployeeModal = ({ open, handleCancel }) => {
         handleCancel();
       },
       onError: (error) => {
-        message.error(error?.response?.data?.detail);
+        message.error(error?.response?.data?.detail || 'Chưa tạo được nhân viên. Vui lòng thử lại.');
       },
     },
   });
