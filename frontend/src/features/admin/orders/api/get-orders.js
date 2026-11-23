@@ -3,7 +3,7 @@ import { api } from '~/lib/api.js';
 import { mapBookingBundle } from '~/features/bookings/mappers/bookingMapper.js';
 
 export const getOrders = ({ startDate, endDate, paymentMethod, status, keyword, page, size }) => {
-  return api.get(`/ad/bookings`, {
+  return api.get('/bookings', {
     params: { startDate, endDate, paymentMethod, status, keyword, page, size },
   }).then((result) => ({ ...result, items: result.items.map(mapBookingBundle) }));
 };

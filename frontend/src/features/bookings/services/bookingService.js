@@ -6,6 +6,13 @@ function model(row) {
   return mapBookingResponse({ ...row, payment })
 }
 export const bookingService = {
+  async checkout(draft) {
+    const result = await bookingApi('/checkout', { method: 'POST', body: JSON.stringify(draft) })
+    return { booking: model(result.booking), paymentUrl: result.paymentUrl }
+  },
+  async confirmVnpayReturn(parameters) {
+    return model(await bookingApi('/vnpay/return', { method: 'POST', body: JSON.stringify(parameters) }))
+  },
   async getMyBookings() { return (await bookingApi('/bookings')).map(model) },
   async getBookingById(id) {
     try { return model(await bookingApi('/bookings/' + id)) }

@@ -8,12 +8,12 @@ import './ServiceImageInput.css';
 const formatSize = (bytes) => bytes < 1024 * 1024
   ? `${Math.max(1, Math.round(bytes / 1024))} KB` : `${(bytes / 1024 / 1024).toFixed(2)} MB`;
 
-const imageName = (path) => {
-  try { return decodeURIComponent(path?.split(/[?#]/)[0].split('/').pop() || 'Ảnh dịch vụ'); }
-  catch { return 'Ảnh dịch vụ'; }
+const imageName = (path, entityLabel) => {
+  try { return decodeURIComponent(path?.split(/[?#]/)[0].split('/').pop() || `Ảnh ${entityLabel}`); }
+  catch { return `Ảnh ${entityLabel}`; }
 };
 
-const ServiceImageInput = ({ id, value, onChange, file, onFileChange, imageUrl, disabled, onBusyChange }) => {
+const ServiceImageInput = ({ id, value, onChange, file, onFileChange, imageUrl, disabled, onBusyChange, entityLabel = 'dịch vụ' }) => {
   const inputRef = useRef(null);
   const readerRef = useRef(null);
   const dragDepth = useRef(0);
@@ -101,7 +101,7 @@ const ServiceImageInput = ({ id, value, onChange, file, onFileChange, imageUrl, 
   };
 
   const src = file ? preview : value ? imageUrl || value : '';
-  const name = file?.name || imageName(value);
+  const name = file?.name || imageName(value, entityLabel);
   const hasImage = Boolean(file || value);
   const canEdit = Boolean(src) && !disabled && !reading;
   const openCropper = () => {
@@ -112,11 +112,11 @@ const ServiceImageInput = ({ id, value, onChange, file, onFileChange, imageUrl, 
   return (
     <div className={`service-image-input${disabled ? ' service-image-input-disabled' : ''}`}>
       <input ref={inputRef} id={id} type="file" accept={SERVICE_IMAGE_TYPES.join(',')}
-        aria-label="Chọn ảnh dịch vụ" disabled={disabled} hidden
+        aria-label={`Chọn ảnh ${entityLabel}`} disabled={disabled} hidden
         onChange={(event) => { selectFile(event.target.files?.[0]); event.target.value = ''; }} />
       {!hasImage && !reading && <button type="button" className={`service-image-dropzone${dragging ? ' is-dragging' : ''}`}
         disabled={disabled} onClick={() => inputRef.current?.click()}
-        aria-label="Tải ảnh dịch vụ"
+        aria-label={`Tải ảnh ${entityLabel}`}
         onDragEnter={(event) => {
           event.preventDefault();
           if (!disabled && event.dataTransfer.types.includes('Files')) {
@@ -136,7 +136,7 @@ const ServiceImageInput = ({ id, value, onChange, file, onFileChange, imageUrl, 
           setDragging(false);
           if (disabled) return;
           if (event.dataTransfer.files.length > 1) {
-            message.error('Vui lòng chọn một ảnh cho mỗi dịch vụ.');
+            message.error(`Vui lòng chọn một ảnh cho mỗi ${entityLabel}.`);
             return;
           }
           selectFile(event.dataTransfer.files[0]);
@@ -149,9 +149,9 @@ const ServiceImageInput = ({ id, value, onChange, file, onFileChange, imageUrl, 
       {(reading || hasImage) && (
         <div className={`service-image-file${reading ? ' is-reading' : ''}`} aria-busy={Boolean(reading)}>
           <button type="button" className="service-image-file-main" disabled={!canEdit}
-            onClick={() => setPreviewOpen(true)} aria-label="Xem ảnh dịch vụ">
+            onClick={() => setPreviewOpen(true)} aria-label={`Xem ảnh ${entityLabel}`}>
             <span className="service-image-thumbnail">
-              {src ? <img src={src} alt="Ảnh dịch vụ đã chọn" /> : <UploadOutlined />}
+              {src ? <img src={src} alt={`Ảnh ${entityLabel} đã chọn`} /> : <UploadOutlined />}
               {canEdit && <span className="service-image-thumbnail-overlay"><ExpandOutlined /></span>}
             </span>
             <span className="service-image-file-info">
@@ -167,13 +167,13 @@ const ServiceImageInput = ({ id, value, onChange, file, onFileChange, imageUrl, 
           <div className="service-image-file-actions">
             {!reading && <>
               <Tooltip title="Thay ảnh"><button type="button" className="service-image-icon-button"
-                disabled={disabled} onClick={() => inputRef.current?.click()} aria-label="Thay ảnh dịch vụ"><UploadOutlined /></button></Tooltip>
+                disabled={disabled} onClick={() => inputRef.current?.click()} aria-label={`Thay ảnh ${entityLabel}`}><UploadOutlined /></button></Tooltip>
               <Tooltip title="Cắt ảnh"><button type="button" className="service-image-icon-button"
-                disabled={!canEdit} onClick={openCropper} aria-label="Cắt ảnh dịch vụ"><ScissorOutlined /></button></Tooltip>
+                disabled={!canEdit} onClick={openCropper} aria-label={`Cắt ảnh ${entityLabel}`}><ScissorOutlined /></button></Tooltip>
             </>}
             <Tooltip title={reading ? 'Hủy chọn ảnh' : 'Xóa ảnh'}><button type="button"
               className="service-image-icon-button service-image-remove" disabled={disabled}
-              onClick={reading ? cancelReading : removeImage} aria-label={reading ? 'Hủy chọn ảnh' : 'Xóa ảnh dịch vụ'}>
+              onClick={reading ? cancelReading : removeImage} aria-label={reading ? 'Hủy chọn ảnh' : `Xóa ảnh ${entityLabel}`}>
               <CloseOutlined />
             </button></Tooltip>
           </div>
@@ -183,7 +183,7 @@ const ServiceImageInput = ({ id, value, onChange, file, onFileChange, imageUrl, 
           </div>}
         </div>
       )}
-      {src && <Image src={src} alt="Ảnh dịch vụ" styles={{ root: { display: 'none' } }}
+      {src && <Image src={src} alt={`Ảnh ${entityLabel}`} styles={{ root: { display: 'none' } }}
         preview={{ open: previewOpen, onOpenChange: setPreviewOpen,
           actionsRender: (actions) => <div className="service-image-preview-tools">
             {actions}
@@ -195,7 +195,7 @@ const ServiceImageInput = ({ id, value, onChange, file, onFileChange, imageUrl, 
             </div>
           </div>,
         }} />}
-      {cropping && src && <ServiceImageCropper src={src} filename={name}
+      {cropping && src && <ServiceImageCropper src={src} filename={name} entityLabel={entityLabel}
         disabled={disabled} onClose={() => setCropping(false)} onBusyChange={onBusyChange}
         onApply={(croppedFile) => {
           onFileChange(croppedFile);

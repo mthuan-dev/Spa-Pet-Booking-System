@@ -3,7 +3,7 @@ import { api } from '~/lib/api.js';
 import { getSeatTypesQueryOptions } from './get-seat-types.jsx';
 
 export const createSeatType = ({ data }) => {
-  return api.post(`/ad/seat-types`, data);
+  return api.post('/seat-types', data);
 };
 
 export const useCreateSeatType = ({ mutationConfig }) => {

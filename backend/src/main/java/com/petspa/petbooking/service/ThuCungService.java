@@ -18,13 +18,16 @@ public class ThuCungService {
     private final NguoiDungRepository nguoiDungRepository;
     private final ThuCungRepository thuCungRepository;
     private final NguoidungMapper nguoidungMapper;
+    private final StorageService storageService;
 
     public ThuCungService(NguoiDungRepository nguoiDungRepository,
                           ThuCungRepository thuCungRepository,
-                          NguoidungMapper nguoidungMapper) {
+                          NguoidungMapper nguoidungMapper,
+                          StorageService storageService) {
         this.nguoiDungRepository = nguoiDungRepository;
         this.thuCungRepository = thuCungRepository;
         this.nguoidungMapper = nguoidungMapper;
+        this.storageService = storageService;
     }
 
     public ThuCungListResponse getPets(Integer customerId) {
@@ -51,8 +54,11 @@ public class ThuCungService {
                 .findByMaThuCungAndNguoiDung_MaNguoiDung(petId, customerId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "Không tìm thấy thú cưng của khách hàng này."));
+        String oldImage = pet.getHinhAnh();
         applyRequest(pet, request);
-        return toResponse(thuCungRepository.save(pet));
+        ThuCung savedPet = thuCungRepository.save(pet);
+        deleteOldUpload(oldImage, savedPet.getHinhAnh()); // Xoá ảnh cũ
+        return toResponse(savedPet);
     }
 
     public ThuCungResponse disablePet(Integer customerId, Integer petId) {
@@ -105,5 +111,10 @@ public class ThuCungService {
                 .ngayTao(pet.getNgayTao())
                 .ngayCapNhat(pet.getNgayCapNhat())
                 .build();
+    } // Entity -> DTO
+
+    private void deleteOldUpload(String oldImage, String newImage) {
+        if (oldImage == null || oldImage.equals(newImage)) return;
+        storageService.deleteImage(oldImage, "pets");
     }
 }

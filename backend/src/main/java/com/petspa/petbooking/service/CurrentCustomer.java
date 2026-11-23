@@ -11,12 +11,23 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class CurrentCustomer {
     private final NguoiDungRepository users;
-    public CurrentCustomer(NguoiDungRepository users) { this.users = users; }
+
+    public CurrentCustomer(NguoiDungRepository users) {
+        this.users = users;
+    }
+
     public NguoiDung require(Jwt jwt) {
-        if (jwt == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-        var user = users.findByEmail(jwt.getSubject()).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
-        if (user.getVaiTro() != VaiTro.CUSTOMER || !Integer.valueOf(1).equals(user.getTrangThai()))
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Tài khoản khách hàng không hoạt động.");
+        if (jwt == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        }
+        var user =
+                users.findByEmail(jwt.getSubject())
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
+        if (user.getVaiTro() != VaiTro.CUSTOMER
+                || !Integer.valueOf(1).equals(user.getTrangThai())) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN, "Tài khoản khách hàng không hoạt động.");
+        }
         return user;
     }
 }

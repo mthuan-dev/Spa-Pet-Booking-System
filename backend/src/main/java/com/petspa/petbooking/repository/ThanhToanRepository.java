@@ -10,27 +10,24 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
-public interface ThanhToanRepository
-        extends JpaRepository<ThanhToan, Integer> {
+public interface ThanhToanRepository extends JpaRepository<ThanhToan, Integer> {
 
     List<ThanhToan> findAllByDatLich_MaDatLich(Integer bookingId);
 
-    @Query("""
+    @Query(
+            """
         select p.datLich.maDatLich
         from ThanhToan p
         where p.vnpTxnRef = :reference
         """)
-    Optional<Integer> findBookingIdByReference(
-            @Param("reference") String reference
-    );
+    Optional<Integer> findBookingIdByReference(@Param("reference") String reference);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("""
+    @Query(
+            """
         select p
         from ThanhToan p
         where p.vnpTxnRef = :reference
         """)
-    Optional<ThanhToan> lockByReference(
-            @Param("reference") String reference
-    );
+    Optional<ThanhToan> lockByReference(@Param("reference") String reference);
 }

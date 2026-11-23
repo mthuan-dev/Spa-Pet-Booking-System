@@ -18,12 +18,19 @@ export function useSaveCustomerPet(customerId, mutationConfig = {}) {
   const { onSuccess, ...restConfig } = mutationConfig;
   return useMutation({
     ...restConfig,
-    mutationFn: ({ pet, remove = false }) => {
+    mutationFn: async ({ pet, remove = false, imageFile }) => {
       const basePath = `/users/${customerId}/pets`;
-      if (remove) return api.delete(`${basePath}/${pet.maThuCung}`); // Delete
-      return pet.maThuCung
-        ? api.put(`${basePath}/${pet.maThuCung}`, pet) // Update
-        : api.post(basePath, pet);                     // Add
+      if (remove) return api.delete(`${basePath}/${pet.maThuCung}`);
+      let payload = pet;
+      if (imageFile) {
+        const body = new FormData();
+        body.append('file', imageFile);
+        const { hinhAnh } = await api.post('/pet-images', body);
+        payload = { ...pet, hinhAnh };
+      }
+      return payload.maThuCung
+        ? api.put(`${basePath}/${payload.maThuCung}`, payload)
+        : api.post(basePath, payload);
     },
     onSuccess: async (...args) => {
       // Đánh dấu Query này cũ -> RQuery tự fetch lại danh sách mới

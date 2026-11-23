@@ -1,12 +1,19 @@
 server:
   port: ${SERVER_PORT:8080}
 
+app:
+  upload-dir: ${APP_UPLOAD_DIR:uploads}
+
 spring:
   config:
     import: optional:file:./.env[.properties]
 
   application:
     name: pet-spa-booking
+  servlet:
+    multipart:
+      max-file-size: 2MB
+      max-request-size: 5MB
   datasource:
     url: ${DB_URL:jdbc:mysql://localhost:3306/spathucung?useUnicode=true&characterEncoding=utf8&createDatabaseIfNotExist=true}
     username: ${DB_USERNAME:root}

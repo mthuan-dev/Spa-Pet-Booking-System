@@ -26,8 +26,7 @@ import java.util.UUID;
 @Service
 public class VnpayPaymentService {
 
-    private static final ZoneId ZONE =
-            ZoneId.of("Asia/Ho_Chi_Minh");
+    private static final ZoneId ZONE = ZoneId.of("Asia/Ho_Chi_Minh");
 
     private static final DateTimeFormatter VNPAY_TIME =
             DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
@@ -49,83 +48,61 @@ public class VnpayPaymentService {
     }
 
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public String createPaymentUrl(
-            NguoiDung customer,
-            Integer bookingId,
-            String clientIp) {
+    public String createPaymentUrl(NguoiDung customer, Integer bookingId, String clientIp) {
 
         validateConfiguration();
 
-        var booking = bookings.lockById(bookingId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Không tìm thấy lịch hẹn."
-                ));
+        var booking =
+                bookings.lockById(bookingId)
+                        .orElseThrow(
+                                () ->
+                                        new ResponseStatusException(
+                                                HttpStatus.NOT_FOUND, "Không tìm thấy lịch hẹn."));
 
-        if (!booking.getNguoiDung().getMaNguoiDung()
-                .equals(customer.getMaNguoiDung())) {
-            throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND,
-                    "Không tìm thấy lịch hẹn."
-            );
+        if (!booking.getNguoiDung().getMaNguoiDung().equals(customer.getMaNguoiDung())) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy lịch hẹn.");
         }
 
-        if (booking.getTrangThaiDatLich()
-                != TrangThaiDatLich.PENDING) {
-            throw invalid(
-                    "Chỉ lịch đang chờ xác nhận mới được thanh toán online."
-            );
+        if (booking.getTrangThaiDatLich() != TrangThaiDatLich.PENDING) {
+            throw invalid("Chỉ lịch đang chờ xác nhận mới được thanh toán online.");
         }
 
-        if (booking.getTrangThaiThanhToan()
-                != TrangThaiThanhToan.UNPAID) {
+        if (booking.getTrangThaiThanhToan() != TrangThaiThanhToan.UNPAID) {
             throw invalid("Lịch hẹn này đã được thanh toán.");
         }
 
         LocalDateTime now = LocalDateTime.now(ZONE);
-        LocalDateTime appointment = LocalDateTime.of(
-                booking.getNgayHen(),
-                booking.getGioBatDau()
-        );
+        LocalDateTime appointment = LocalDateTime.of(booking.getNgayHen(), booking.getGioBatDau());
 
         if (!appointment.isAfter(now)) {
             throw invalid("Lịch hẹn đã đến giờ hoặc đã qua.");
         }
 
-        var history = payments
-                .findAllByDatLich_MaDatLich(bookingId);
+        var history = payments.findAllByDatLich_MaDatLich(bookingId);
 
-        if (history.stream().anyMatch(payment ->
-                payment.getTrangThai()
-                        == TrangThaiGiaoDich.SUCCESS)) {
+        if (history.stream()
+                .anyMatch(payment -> payment.getTrangThai() == TrangThaiGiaoDich.SUCCESS)) {
             throw invalid("Lịch hẹn đã có giao dịch thành công.");
         }
 
-        ThanhToan payment = history.stream()
-                .max(Comparator.comparing(
-                        ThanhToan::getMaThanhToan
-                ))
-                .orElseThrow(() -> invalid(
-                        "Không tìm thấy giao dịch thanh toán."
-                ));
+        ThanhToan payment =
+                history.stream()
+                        .max(Comparator.comparing(ThanhToan::getMaThanhToan))
+                        .orElseThrow(() -> invalid("Không tìm thấy giao dịch thanh toán."));
 
-        if (payment.getPhuongThuc()
-                != PhuongThucThanhToan.VNPAY) {
-            throw invalid(
-                    "Lịch hẹn không chọn thanh toán VNPay."
-            );
+        if (payment.getPhuongThuc() != PhuongThucThanhToan.VNPAY) {
+            throw invalid("Lịch hẹn không chọn thanh toán VNPay.");
         }
 
         // Tìm lần thanh toán đã được cấp mã nhưng chưa có kết quả.
-        var openAttempts = history.stream()
-                .filter(item ->
-                        item.getPhuongThuc()
-                                == PhuongThucThanhToan.VNPAY
-                        && item.getTrangThai()
-                                == TrangThaiGiaoDich.PENDING
-                        && item.getVnpTxnRef() != null
-                )
-                .toList();
+        var openAttempts =
+                history.stream()
+                        .filter(
+                                item ->
+                                        item.getPhuongThuc() == PhuongThucThanhToan.VNPAY
+                                                && item.getTrangThai() == TrangThaiGiaoDich.PENDING
+                                                && item.getVnpTxnRef() != null)
+                        .toList();
 
         if (!openAttempts.isEmpty()) {
             // Không chọn tùy tiện nếu dữ liệu có nhiều lần đang chờ.
@@ -133,17 +110,13 @@ public class VnpayPaymentService {
                 throw new ResponseStatusException(
                         HttpStatus.CONFLICT,
                         "Có nhiều giao dịch chưa rõ kết quả. "
-                                + "Vui lòng liên hệ spa để kiểm tra."
-                );
+                                + "Vui lòng liên hệ spa để kiểm tra.");
             }
 
             ThanhToan openPayment = openAttempts.getFirst();
 
-            if (openPayment.getSoTien()
-                    .compareTo(booking.getTongTien()) != 0) {
-                throw invalid(
-                        "Số tiền giao dịch không khớp với lịch hẹn."
-                );
+            if (openPayment.getSoTien().compareTo(booking.getTongTien()) != 0) {
+                throw invalid("Số tiền giao dịch không khớp với lịch hẹn.");
             }
 
             String existingUrl = openPayment.getVnpPaymentUrl();
@@ -156,11 +129,7 @@ public class VnpayPaymentService {
                 return existingUrl;
             }
 
-            throw new ResponseStatusException(
-                    HttpStatus.CONFLICT,
-                    "Giao dịch trước chưa rõ kết quả hoặc URL đã hết hạn. "
-                            + "Vui lòng kiểm tra thanh toán trước khi thử lại."
-            );
+            throw new VnpayPendingPaymentException();
         }
 
         if (payment.getTrangThai() == TrangThaiGiaoDich.FAILED
@@ -169,40 +138,29 @@ public class VnpayPaymentService {
             // Tạo bản ghi mới, không ghi đè lịch sử lần thất bại.
             ThanhToan retryPayment = new ThanhToan();
             retryPayment.setDatLich(booking);
-            retryPayment.setPhuongThuc(
-                    PhuongThucThanhToan.VNPAY
-            );
+            retryPayment.setPhuongThuc(PhuongThucThanhToan.VNPAY);
             retryPayment.setSoTien(booking.getTongTien());
-            retryPayment.setTrangThai(
-                    TrangThaiGiaoDich.PENDING
-            );
+            retryPayment.setTrangThai(TrangThaiGiaoDich.PENDING);
 
             payment = retryPayment;
 
-        } else if (payment.getTrangThai()
-                != TrangThaiGiaoDich.PENDING) {
+        } else if (payment.getTrangThai() != TrangThaiGiaoDich.PENDING) {
 
             throw new ResponseStatusException(
                     HttpStatus.CONFLICT,
                     "Giao dịch trước chưa đủ điều kiện thanh toán lại. "
-                            + "Vui lòng liên hệ spa để kiểm tra."
-            );
+                            + "Vui lòng liên hệ spa để kiểm tra.");
         }
 
         // Giao dịch mới phải chưa từng được cấp mã tham chiếu.
         if (payment.getVnpTxnRef() != null) {
             throw new ResponseStatusException(
                     HttpStatus.CONFLICT,
-                    "Giao dịch đã có mã tham chiếu. "
-                            + "Vui lòng kiểm tra kết quả trước."
-            );
+                    "Giao dịch đã có mã tham chiếu. " + "Vui lòng kiểm tra kết quả trước.");
         }
 
-        if (payment.getSoTien()
-                .compareTo(booking.getTongTien()) != 0) {
-            throw invalid(
-                    "Số tiền giao dịch không khớp với lịch hẹn."
-            );
+        if (payment.getSoTien().compareTo(booking.getTongTien()) != 0) {
+            throw invalid("Số tiền giao dịch không khớp với lịch hẹn.");
         }
 
         BigDecimal amount = payment.getSoTien();
@@ -213,9 +171,7 @@ public class VnpayPaymentService {
 
         String vnpAmount;
         try {
-            vnpAmount = amount.movePointRight(2)
-                    .toBigIntegerExact()
-                    .toString();
+            vnpAmount = amount.movePointRight(2).toBigIntegerExact().toString();
         } catch (ArithmeticException exception) {
             throw invalid("Số tiền thanh toán không hợp lệ.");
         }
@@ -228,9 +184,7 @@ public class VnpayPaymentService {
             throw invalid("Không xác định được địa chỉ IP.");
         }
 
-        String transactionRef = UUID.randomUUID()
-                .toString()
-                .replace("-", "");
+        String transactionRef = UUID.randomUUID().toString().replace("-", "");
 
         LocalDateTime expiresAt = now.plusMinutes(15);
         if (expiresAt.isAfter(appointment)) {
@@ -244,23 +198,16 @@ public class VnpayPaymentService {
         parameters.put("vnp_Amount", vnpAmount);
         parameters.put("vnp_CurrCode", "VND");
         parameters.put("vnp_TxnRef", transactionRef);
-        parameters.put(
-                "vnp_OrderInfo",
-                "Thanh toan booking " + booking.getCodeDatLich()
-        );
+        parameters.put("vnp_OrderInfo", "Thanh toan booking " + booking.getCodeDatLich());
         parameters.put("vnp_OrderType", "other");
         parameters.put("vnp_Locale", "vn");
         parameters.put("vnp_ReturnUrl", properties.getReturnUrl());
         parameters.put("vnp_IpAddr", clientIp);
         parameters.put("vnp_CreateDate", now.format(VNPAY_TIME));
-        parameters.put(
-                "vnp_ExpireDate",
-                expiresAt.format(VNPAY_TIME)
-        );
+        parameters.put("vnp_ExpireDate", expiresAt.format(VNPAY_TIME));
 
-        String paymentUrl = properties.getPaymentUrl()
-                + "?"
-                + signature.buildSignedQuery(parameters);
+        String paymentUrl =
+                properties.getPaymentUrl() + "?" + signature.buildSignedQuery(parameters);
 
         payment.setVnpTxnRef(transactionRef);
         payment.setVnpPaymentUrl(paymentUrl);
@@ -281,16 +228,11 @@ public class VnpayPaymentService {
                 || properties.getReturnUrl() == null
                 || properties.getReturnUrl().isBlank()) {
             throw new ResponseStatusException(
-                    HttpStatus.SERVICE_UNAVAILABLE,
-                    "Chưa cấu hình đầy đủ thanh toán VNPay."
-            );
+                    HttpStatus.SERVICE_UNAVAILABLE, "Chưa cấu hình đầy đủ thanh toán VNPay.");
         }
     }
 
     private ResponseStatusException invalid(String message) {
-        return new ResponseStatusException(
-                HttpStatus.BAD_REQUEST,
-                message
-        );
+        return new ResponseStatusException(HttpStatus.BAD_REQUEST, message);
     }
 }

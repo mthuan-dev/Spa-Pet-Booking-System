@@ -10,9 +10,9 @@ export function handleServiceCatalog({ path, method, body, fail }) {
   const nextId = (items, key) => Math.max(0, ...items.map((item) => item[key])) + 1;
   const findService = (id) =>
     catalog.dichvu.find((service) => service.madichvu === Number(id)) || fail('Không tìm thấy dịch vụ.', 404);
-  if (path === '/ad/services' && method === 'get') return catalog;
+  if (path === '/services' && method === 'get') return catalog;
 
-  const serviceMatch = path.match(/^\/ad\/services(?:\/(\d+))?$/);
+  const serviceMatch = path.match(/^\/services(?:\/(\d+))?$/);
   if (serviceMatch && ['post', 'put'].includes(method)) {
     if ((method === 'post') === Boolean(serviceMatch[1])) fail('Đường dẫn dịch vụ không hợp lệ.');
     const previous = serviceMatch[1] ? findService(serviceMatch[1]) : null;
@@ -59,7 +59,7 @@ export function handleServiceCatalog({ path, method, body, fail }) {
     return service;
   }
 
-  const priceMatch = path.match(/^\/ad\/service-prices(?:\/(\d+))?$/);
+  const priceMatch = path.match(/^\/service-prices(?:\/(\d+))?$/);
   if (priceMatch?.[1] && method === 'delete') {
     const index = catalog.giadichvu.findIndex((price) => price.magiadichvu === Number(priceMatch[1]));
     if (index < 0) fail('Không tìm thấy giá dịch vụ.', 404);

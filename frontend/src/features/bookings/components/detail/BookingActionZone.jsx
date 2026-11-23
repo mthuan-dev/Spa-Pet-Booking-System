@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import arrowRightIcon from '../../../../assets/icons/booking/arrow-right.svg'
 import { ROUTES } from '../../../../app/routes/routePaths.js'
 import { getBookingActions } from '../../utils/bookingDetail.js'
 import { bookingService } from '../../services/bookingService.js'
+import { redirectToVnpay } from '../../services/vnpayPayment.js'
 
 function formatDate(value) {
   if (!value) return 'Ngày hẹn chưa được cập nhật'
@@ -20,14 +21,17 @@ export default function BookingActionZone({ booking, onCancel, onRefresh }) {
   const [cancelError, setCancelError] = useState('')
   const [paying, setPaying] = useState(false)
   const actions = getBookingActions(booking)
-  const [reconciling, setReconciling] = useState(false)
-  const [nextReconcileAt, setNextReconcileAt] = useState(0)
+  const paymentLock = useRef(false)
 
-  const canReconcile =
-    booking.paymentStatus === 'UNPAID' &&
-    (booking.payments ?? []).some(
-      payment => payment.method === 'VNPAY'
-    )
+  useEffect(() => {
+    function resumePage() {
+      paymentLock.current = false
+      setPaying(false)
+      onRefresh?.().catch(() => {})
+    }
+    window.addEventListener('pageshow', resumePage)
+    return () => window.removeEventListener('pageshow', resumePage)
+  }, [onRefresh])
 
   async function submitCancellation(event) {
     event.preventDefault()
@@ -46,7 +50,8 @@ export default function BookingActionZone({ booking, onCancel, onRefresh }) {
   }
 
   async function startVnpayPayment() {
-    if (paying || reconciling) return
+    if (paymentLock.current) return
+    paymentLock.current = true
 
     setPaying(true)
     setPaymentNotice('')
@@ -56,21 +61,7 @@ export default function BookingActionZone({ booking, onCancel, onRefresh }) {
         booking.id
       )
 
-      const paymentUrl = new URL(result.paymentUrl)
-
-      if (
-        paymentUrl.protocol !== 'https:' ||
-        paymentUrl.hostname !== 'sandbox.vnpayment.vn'
-      ) {
-        throw new Error('Địa chỉ thanh toán không hợp lệ.')
-      }
-
-      sessionStorage.setItem(
-        'vnpay_pending_booking_id',
-        String(booking.id)
-      )
-
-      window.location.assign(paymentUrl.href)
+      redirectToVnpay(booking.id, result.paymentUrl)
     } catch (error) {
       setPaymentNotice(
         error.message ||
@@ -78,53 +69,11 @@ export default function BookingActionZone({ booking, onCancel, onRefresh }) {
       )
 
       setPaying(false)
+      paymentLock.current = false
+      onRefresh?.().catch(() => {})
     }
   }
 
-  async function checkVnpayPayment() {
-    if (reconciling || paying) return
-
-    const now = Date.now()
-
-    if (now < nextReconcileAt) {
-      const seconds = Math.ceil(
-        (nextReconcileAt - now) / 1000
-      )
-
-      setPaymentNotice(
-        `Vui lòng chờ ${seconds} giây trước khi kiểm tra lại.`
-      )
-      return
-    }
-
-    setReconciling(true)
-    setPaymentNotice('')
-    setNextReconcileAt(now + 60_000)
-
-    let notice
-
-    try {
-      const result = await bookingService.reconcileVnpayPayment(
-        booking.id
-      )
-
-      notice = result.message
-    } catch (error) {
-      notice =
-        error.message ||
-        'Chưa đối soát được thanh toán. Vui lòng thử lại sau.'
-    }
-
-    // IPN có thể đã cập nhật dù yêu cầu đối soát bị lỗi.
-    try {
-      await onRefresh()
-    } catch {
-      notice += ' Chưa tải lại được lịch hẹn; vui lòng tải lại trang.'
-    }
-
-    setPaymentNotice(notice)
-    setReconciling(false)
-  }
   return (
     <section className="booking-detail-page__actions" aria-labelledby="booking-detail-actions-title">
       <div className="booking-detail-page__action-heading">
@@ -146,9 +95,9 @@ export default function BookingActionZone({ booking, onCancel, onRefresh }) {
               className="booking-detail-page__button booking-detail-page__button--secondary"
               type="button"
               onClick={startVnpayPayment}
-              disabled={paying || reconciling}
+              disabled={paying}
             >
-              {paying ? 'Đang mở VNPay…' : 'Thanh toán VNPay'}
+              {paying ? 'Đang mở VNPay…' : booking.payment?.transactionStatus === 'FAILED' ? 'Thanh toán lại' : 'Thanh toán VNPay'}
             </button>
           )}
 
@@ -183,18 +132,6 @@ export default function BookingActionZone({ booking, onCancel, onRefresh }) {
         <p className="booking-detail-page__payment-notice">
           Chỉ lịch chưa thanh toán và chọn thanh toán tại spa mới được tự hủy. Nếu cần hủy lịch này, vui lòng liên hệ MEOMEO để được hỗ trợ.
         </p>
-      )}
-      {canReconcile && (
-        <button
-          className="booking-detail-page__button booking-detail-page__button--secondary"
-          type="button"
-          onClick={checkVnpayPayment}
-          disabled={reconciling || paying}
-        >
-          {reconciling
-            ? 'Đang kiểm tra thanh toán…'
-            : 'Kiểm tra thanh toán'}
-        </button>
       )}
       {paymentNotice && <p className="booking-detail-page__payment-notice" role="status">{paymentNotice}</p>}
 

@@ -13,18 +13,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/booking-data/bookings")
 public class VnpayPaymentController {
 
-    private final VnpayPaymentService paymentService;
+    private final VnpayPaymentCoordinator paymentService;
     private final CurrentCustomer currentCustomer;
 
     public VnpayPaymentController(
-            VnpayPaymentService paymentService,
-            CurrentCustomer currentCustomer) {
+            VnpayPaymentCoordinator paymentService, CurrentCustomer currentCustomer) {
         this.paymentService = paymentService;
         this.currentCustomer = currentCustomer;
     }
 
-    public record PaymentUrlResponse(String paymentUrl) {
-    }
+    public record PaymentUrlResponse(String paymentUrl) {}
 
     @PostMapping("/{bookingId}/vnpay")
     public PaymentUrlResponse createPaymentUrl(
@@ -36,16 +34,11 @@ public class VnpayPaymentController {
 
         String clientIp = request.getRemoteAddr();
 
-        if ("0:0:0:0:0:0:0:1".equals(clientIp)
-                || "::1".equals(clientIp)) {
+        if ("0:0:0:0:0:0:0:1".equals(clientIp) || "::1".equals(clientIp)) {
             clientIp = "127.0.0.1";
         }
 
-        String paymentUrl = paymentService.createPaymentUrl(
-                customer,
-                bookingId,
-                clientIp
-        );
+        String paymentUrl = paymentService.open(customer, bookingId, clientIp);
 
         return new PaymentUrlResponse(paymentUrl);
     }

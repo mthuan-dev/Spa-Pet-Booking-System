@@ -6,12 +6,12 @@ import { graphqlRequest } from '~/shared/api/graphql.js';
 
 export const getCustomers = (page, size, keyword) => {
   if (import.meta.env.VITE_USE_MOCK_API !== 'false') {
-    return api.get(`/users`, {
-      params: { 
-        role: USER_ROLES.CUSTOMER, 
-        page, 
-        size, 
-        keyword 
+    return api.get('/users', {
+      params: {
+        role: USER_ROLES.CUSTOMER,
+        page,
+        size,
+        keyword,
       },
     }).then(mapAdminUserPage);
   }

@@ -18,7 +18,7 @@ export default function BookingSuccess({ booking, draft }) {
       </div>
       <p className="booking-step-heading__eyebrow">Lịch hẹn tại MEOMEO</p>
       <h1 id="booking-success-title">Đặt lịch thành công!</h1>
-      <p className="booking-success__intro">{draft.paymentMethod === 'VNPAY' ? 'Lịch của bé đã được ghi nhận. Thanh toán VNPay sẽ được kết nối trong phiên bản tiếp theo.' : 'Boss đã có lịch spa rồi. Tụi mình mong sớm được đón hai bạn.'}</p>
+      <p className="booking-success__intro">Yêu cầu đặt lịch đã được tiếp nhận và đang chờ spa xác nhận. Thông tin lịch hẹn sẽ được gửi đến email của bạn. Bạn thanh toán trực tiếp tại spa.</p>
 
       <div className="booking-success__code">
         <span>Mã lịch hẹn</span>
