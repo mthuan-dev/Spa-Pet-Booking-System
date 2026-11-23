@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import arrowRightIcon from '../../../../assets/icons/booking/arrow-right.svg'
 import { ROUTES } from '../../../../app/routes/routePaths.js'
-import { getBookingActions } from '../../utils/bookingDetail.js'
+import { getBookingActions, getPaymentDeadline } from '../../utils/bookingDetail.js'
 import { bookingService } from '../../services/bookingService.js'
 import { redirectToVnpay } from '../../services/vnpayPayment.js'
 
@@ -20,8 +20,20 @@ export default function BookingActionZone({ booking, onCancel, onRefresh }) {
   const [cancelling, setCancelling] = useState(false)
   const [cancelError, setCancelError] = useState('')
   const [paying, setPaying] = useState(false)
-  const actions = getBookingActions(booking)
+  const [now, setNow] = useState(() => Date.now())
+  const paymentDeadline = getPaymentDeadline(booking)
+  const holdExpired = Boolean(paymentDeadline && paymentDeadline.getTime() <= now)
+  const actions = getBookingActions(booking, now)
   const paymentLock = useRef(false)
+
+  // Tự ẩn nút thanh toán khi tới hạn giữ chỗ mà không cần tải lại trang.
+  useEffect(() => {
+    if (!paymentDeadline) return undefined
+    const remaining = paymentDeadline.getTime() - Date.now()
+    if (remaining <= 0) return undefined
+    const timer = setTimeout(() => setNow(Date.now()), Math.min(remaining + 500, 2 ** 31 - 1))
+    return () => clearTimeout(timer)
+  }, [paymentDeadline?.getTime()])
 
   useEffect(() => {
     function resumePage() {
@@ -124,13 +136,22 @@ export default function BookingActionZone({ booking, onCancel, onRefresh }) {
                 ? 'Cảm ơn bạn đã để MEOMEO chăm sóc bé.'
                 : booking.bookingStatus === 'CANCELLED'
                   ? 'Lịch hẹn này đã kết thúc.'
-                  : 'Các thao tác sẽ hiển thị khi trạng thái lịch hẹn được cập nhật.'}
+                  : holdExpired
+                    ? 'Đã hết hạn thanh toán. Hệ thống đang kiểm tra kết quả với VNPay và vẫn giữ khung giờ cho bạn.'
+                    : 'Các thao tác sẽ hiển thị khi trạng thái lịch hẹn được cập nhật.'}
         </p>
       )}
 
-      {booking.bookingStatus === 'PENDING' && !actions.canCancel && (
+      {booking.bookingStatus === 'PENDING' && !actions.canCancel && !holdExpired && (
         <p className="booking-detail-page__payment-notice">
           Chỉ lịch chưa thanh toán và chọn thanh toán tại spa mới được tự hủy. Nếu cần hủy lịch này, vui lòng liên hệ MEOMEO để được hỗ trợ.
+        </p>
+      )}
+      {paymentDeadline && (
+        <p className="booking-detail-page__payment-notice" role="status">
+          {holdExpired
+            ? 'Hệ thống sẽ tự hủy và giải phóng khung giờ sau khi xác nhận chưa thanh toán. Nếu kết quả chưa rõ, lịch vẫn được giữ để kiểm tra tiếp. Nếu đã trả tiền, vui lòng không thanh toán thêm.'
+            : `Vui lòng thanh toán trước ${new Intl.DateTimeFormat('vi-VN', { hour: '2-digit', minute: '2-digit' }).format(paymentDeadline)}, quá hạn lịch sẽ tự hủy.`}
         </p>
       )}
       {paymentNotice && <p className="booking-detail-page__payment-notice" role="status">{paymentNotice}</p>}

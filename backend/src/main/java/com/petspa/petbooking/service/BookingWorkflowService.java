@@ -189,6 +189,12 @@ public class BookingWorkflowService {
                 .isAfter(LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh")))) {
             throw invalid("Lịch đã đến giờ hẹn.");
         }
+        if (booking.getTrangThaiThanhToan() == TrangThaiThanhToan.UNPAID
+                && booking.getHanThanhToan() != null
+                && !booking.getHanThanhToan()
+                        .isAfter(LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh")))) {
+            throw invalid("Lịch hẹn đã hết hạn thanh toán. Vui lòng đặt lịch mới.");
+        }
         int duration =
                 details.findAllByDatLich_MaDatLich(id).stream()
                         .mapToInt(ChiTietDatLich::getThoiLuongPhut)
@@ -338,6 +344,13 @@ public class BookingWorkflowService {
         booking.setGioKetThuc(request.startTime().plusMinutes(duration));
         booking.setGhiChu(request.note());
         booking.setTongTien(total);
+        if (paymentMethod == PhuongThucThanhToan.VNPAY) {
+            // Giữ chỗ 15 phút (khớp hạn URL VNPay), không vượt quá giờ hẹn.
+            LocalDateTime hold = LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh")).plusMinutes(15);
+            LocalDateTime appointment =
+                    LocalDateTime.of(request.appointmentDate(), request.startTime());
+            booking.setHanThanhToan(hold.isAfter(appointment) ? appointment : hold);
+        }
         bookings.save(booking);
         for (var line : lines) {
             line.setDatLich(booking);

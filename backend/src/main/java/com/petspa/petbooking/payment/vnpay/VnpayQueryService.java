@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URI;
@@ -26,6 +28,8 @@ import javax.net.ssl.TrustManagerFactory;
 
 @Service
 public class VnpayQueryService {
+
+    private static final Logger log = LoggerFactory.getLogger(VnpayQueryService.class);
 
     private static final DateTimeFormatter TIME_FORMAT =
             DateTimeFormatter.ofPattern("uuuuMMddHHmmss").withResolverStyle(ResolverStyle.STRICT);
@@ -66,6 +70,18 @@ public class VnpayQueryService {
 
     public Map<String, String> query(
             String transactionRef, String transactionDate, String serverIp) {
+        return query(transactionRef, transactionDate, serverIp, false);
+    }
+
+    /**
+     * @param allowNotFound trả về phản hồi khi VNPay báo mã 91 (không tìm thấy giao dịch, tức
+     *     khách chưa từng thanh toán) thay vì ném lỗi; dùng cho job giải phóng giữ chỗ.
+     */
+    public Map<String, String> query(
+            String transactionRef,
+            String transactionDate,
+            String serverIp,
+            boolean allowNotFound) {
 
         validateInput(transactionRef, transactionDate, serverIp);
 
@@ -117,6 +133,9 @@ public class VnpayQueryService {
                     httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() != 200) {
+                log.warn(
+                        "Doi soat VNPay: txnRef={}, requestId={}, HTTP={}; khong cap nhat thanh toan",
+                        transactionRef, requestId, response.statusCode());
                 throw gatewayError("VNPay chưa trả được kết quả đối soát.");
             }
 
@@ -128,8 +147,24 @@ public class VnpayQueryService {
                 throw gatewayError("Phản hồi đối soát VNPay không hợp lệ.");
             }
 
+            // Only selected diagnostic fields; never log the body, keys or signature.
+            log.info(
+                    "Phan hoi doi soat VNPay (chua xac minh): txnRef={}, requestId={}, HTTP={}, vnp_ResponseCode={}, vnp_Message={}, vnp_TransactionStatus={}",
+                    transactionRef,
+                    requestId,
+                    response.statusCode(),
+                    logValue(result.get("vnp_ResponseCode")),
+                    logValue(result.get("vnp_Message")),
+                    logValue(result.get("vnp_TransactionStatus")));
+
             // Sandbox can return an unsigned error object. Never interpret this as a
             // payment result, or report a missing signature as the original cause.
+            if (allowNotFound
+                    && isNoTransactionCode(result.get("vnp_ResponseCode"))
+                    && (result.get("vnp_TxnRef") == null
+                            || transactionRef.equals(result.get("vnp_TxnRef")))) {
+                return result;
+            }
             if (!"00".equals(result.get("vnp_ResponseCode"))) {
                 throw gatewayError(
                         "Chưa nhận được xác nhận từ VNPay. Nếu đã thanh toán, "
@@ -138,18 +173,55 @@ public class VnpayQueryService {
 
             verifyResponse(result, transactionRef);
 
+            log.info("Doi soat VNPay: txnRef={}, requestId={}; da xac minh chu ky va ma giao dich",
+                    transactionRef, requestId);
+
             return result;
 
         } catch (InterruptedException exception) {
             Thread.currentThread().interrupt();
+            log.warn("Doi soat VNPay bi gian doan: txnRef={}, requestId={}",
+                    transactionRef, requestId);
 
             throw gatewayError(
                     "Yêu cầu đối soát đã bị gián đoạn. " + "Trạng thái thanh toán chưa thay đổi.");
         } catch (IOException exception) {
+            Throwable cause = exception;
+            while (cause.getCause() != null && cause.getCause() != cause) {
+                cause = cause.getCause();
+            }
+            log.warn(
+                    "Loi ket noi/doc phan hoi doi soat VNPay: txnRef={}, requestId={}, loaiLoi={}, nguyenNhan={}; khong cap nhat thanh toan",
+                    transactionRef, requestId, exception.getClass().getSimpleName(),
+                    cause.getClass().getSimpleName());
             throw gatewayError(
                     "Không đọc được kết quả đối soát VNPay. "
                             + "Trạng thái thanh toán chưa thay đổi.");
+        } catch (ResponseStatusException exception) {
+            log.warn("Doi soat VNPay chua duoc chap nhan: txnRef={}, requestId={}, lyDo={}",
+                    transactionRef, requestId, logValue(exception.getReason()));
+            throw exception;
         }
+    }
+
+    /**
+     * 91 = VNPay không tìm thấy giao dịch. Sandbox VNPay trả 99 ("Unexpected error") cho
+     * giao dịch mà khách chưa từng nhập thẻ/thanh toán (thoát tab). Chỉ dùng khi URL đã hết hạn.
+     */
+    public static boolean isNoTransactionCode(String code) {
+        return "91".equals(code) || "99".equals(code);
+    }
+
+    private String logValue(String value) {
+        if (value != null) {
+            if (properties.getHashSecret() != null && !properties.getHashSecret().isBlank()) {
+                value = value.replace(properties.getHashSecret(), "[key_an]");
+            }
+            if (properties.getTmnCode() != null && !properties.getTmnCode().isBlank()) {
+                value = value.replace(properties.getTmnCode(), "[merchant_an]");
+            }
+        }
+        return VnpayLogText.clean(value);
     }
 
     private void verifyResponse(Map<String, String> result, String transactionRef) {

@@ -114,6 +114,45 @@ public class VnpayReconcileStore {
                 payment.getSoTien());
     }
 
+    /** Snapshot cho job hệ thống (không có khách đăng nhập). */
+    @Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED)
+    public QuerySnapshot prepareForExpiry(Integer bookingId) {
+        var booking =
+                bookings.findById(bookingId)
+                        .orElseThrow(() -> error(HttpStatus.NOT_FOUND, "Không tìm thấy lịch hẹn."));
+        return prepare(booking.getNguoiDung(), bookingId);
+    }
+
+    /**
+     * Hủy booking VNPay quá hạn giữ chỗ. Chỉ gọi sau khi đã đối soát xác nhận chưa thanh toán; kiểm
+     * tra lại dưới khóa để không hủy nhầm đơn vừa được IPN ghi nhận thanh toán.
+     */
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public boolean cancelExpired(Integer bookingId, LocalDateTime cutoff) {
+        var booking = bookings.lockById(bookingId).orElse(null);
+        if (booking == null
+                || booking.getTrangThaiDatLich() != TrangThaiDatLich.PENDING
+                || booking.getTrangThaiThanhToan() != TrangThaiThanhToan.UNPAID
+                || booking.getHanThanhToan() == null
+                || booking.getHanThanhToan().isAfter(cutoff)) {
+            return false;
+        }
+        var history = payments.findAllByDatLich_MaDatLich(bookingId);
+        if (history.stream().anyMatch(p -> p.getTrangThai() == TrangThaiGiaoDich.SUCCESS)) {
+            return false;
+        }
+        booking.setTrangThaiDatLich(TrangThaiDatLich.CANCELLED);
+        booking.setLyDoHuy(com.petspa.petbooking.entity.DatLich.LY_DO_HET_HAN_THANH_TOAN);
+        for (var payment : history) {
+            if (payment.getTrangThai() == TrangThaiGiaoDich.PENDING) {
+                payment.setTrangThai(TrangThaiGiaoDich.CANCELLED);
+                payment.setMessage("Hold expired; booking released");
+            }
+        }
+        bookings.saveAndFlush(booking);
+        return true;
+    }
+
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public ReconcileResult apply(QuerySnapshot snapshot, Map<String, String> result) {
 

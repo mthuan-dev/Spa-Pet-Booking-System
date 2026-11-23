@@ -91,7 +91,13 @@ public class DatLichService {
                         .orElse(null),
                 booking.getLyDoHuy(),
                 booking.getNgayTao(),
-                booking.getNgayCapNhat());
+                booking.getNgayCapNhat(),
+                booking.getHanThanhToan(),
+                booking.getTrangThaiDatLich()
+                                == com.petspa.petbooking.entity.enums.TrangThaiDatLich.CANCELLED
+                        && booking.getTrangThaiThanhToan()
+                                == com.petspa.petbooking.entity.enums.TrangThaiThanhToan.UNPAID
+                        && DatLich.LY_DO_HET_HAN_THANH_TOAN.equals(booking.getLyDoHuy()));
     }
 
     private BookingResponse.ServiceItem toServiceItem(ChiTietDatLich detail) {

@@ -24,7 +24,9 @@ public record BookingResponse(
         Review review,
         String cancellationReason,
         LocalDateTime createdAt,
-        LocalDateTime updatedAt) {
+        LocalDateTime updatedAt,
+        LocalDateTime paymentDeadline,
+        boolean paymentExpired) {
     public record Review(
             Integer id, Integer rating, String comment, boolean hidden, LocalDateTime createdAt) {}
 

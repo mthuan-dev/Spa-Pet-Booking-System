@@ -29,6 +29,20 @@ public interface DatLichRepository extends JpaRepository<DatLich, Integer> {
             @org.springframework.data.repository.query.Param("exclude") Integer exclude,
             @org.springframework.data.repository.query.Param("statuses") List<String> statuses);
 
+    /** Chờ 5 phút sau hạn thanh toán rồi mới đối soát để hủy. */
+    java.time.Duration HOLD_GRACE = java.time.Duration.ofMinutes(5);
+
+    @org.springframework.data.jpa.repository.Query(
+            """
+        select b.maDatLich from DatLich b
+        where b.trangThaiDatLich = com.petspa.petbooking.entity.enums.TrangThaiDatLich.PENDING
+          and b.trangThaiThanhToan = com.petspa.petbooking.entity.enums.TrangThaiThanhToan.UNPAID
+          and b.hanThanhToan is not null and b.hanThanhToan <= :cutoff
+        """)
+    List<Integer> findExpiredHoldIds(
+            @org.springframework.data.repository.query.Param("cutoff")
+                    java.time.LocalDateTime cutoff);
+
     default List<Integer> findBusyEmployeeIds(
             java.time.LocalDate date,
             java.time.LocalTime start,

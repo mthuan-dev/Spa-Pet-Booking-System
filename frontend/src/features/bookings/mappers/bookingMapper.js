@@ -92,6 +92,8 @@ export function mapBookingResponse(response = {}) {
       paidAt: firstDefined(paymentSource.paidAt, paymentSource.thoigianthanhtoan, response.paidAt, ''),
     },
     cancellationReason: firstDefined(response.cancellationReason, response.lydohuy, null),
+    paymentDeadline: firstDefined(response.paymentDeadline, response.hanthanhtoan, null),
+    paymentExpired: booleanValue(firstDefined(response.paymentExpired, false)),
     review: reviewSource ? {
       id: numericId(firstDefined(reviewSource.id, reviewSource.reviewId, reviewSource.madanhgia)),
       rating: numericValue(firstDefined(reviewSource.rating, reviewSource.sosao)),

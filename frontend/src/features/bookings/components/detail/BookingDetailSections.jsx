@@ -63,7 +63,9 @@ function getInitials(name) {
 }
 
 function BookingDetailHeader({ booking }) {
-  const status = BOOKING_STATUS[booking.bookingStatus] ?? { label: 'Đang cập nhật', tone: 'unknown' }
+  const status = booking.paymentExpired
+    ? { label: 'Hết hạn thanh toán', tone: 'cancelled' }
+    : BOOKING_STATUS[booking.bookingStatus] ?? { label: 'Đang cập nhật', tone: 'unknown' }
 
   return (
     <header className="booking-detail-page__header">

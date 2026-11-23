@@ -39,6 +39,24 @@ export default function BookingDetailPage() {
     return () => { active = false }
   }, [bookingId, retryCount])
 
+  // The server owns cancellation. Refresh pending online bookings until it has a final result.
+  const watchPayment = loadState === 'ready' && booking?.bookingStatus === 'PENDING'
+    && booking?.paymentStatus === 'UNPAID' && Boolean(booking?.paymentDeadline)
+  useEffect(() => {
+    if (!watchPayment) return undefined
+    let active = true
+    let timer
+    async function poll() {
+      try {
+        const result = await bookingService.getBookingById(bookingId)
+        if (active && result) setBooking(result)
+      } catch { /* Keep the last known server state and retry. */ }
+      if (active) timer = window.setTimeout(poll, 10000)
+    }
+    timer = window.setTimeout(poll, 10000)
+    return () => { active = false; window.clearTimeout(timer) }
+  }, [bookingId, watchPayment])
+
   async function cancelBooking(reason) {
     const updated = await bookingService.cancelBooking(bookingId, reason)
     setBooking(updated)

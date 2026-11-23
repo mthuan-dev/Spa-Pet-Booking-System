@@ -129,7 +129,15 @@ public class VnpayPaymentService {
                 return existingUrl;
             }
 
+            if (holdExpired(booking, now)) {
+                // Không mở giao dịch mới; job sẽ đối soát với VNPay trước khi hủy.
+                throw invalid(EXPIRED_MESSAGE);
+            }
             throw new VnpayPendingPaymentException();
+        }
+
+        if (holdExpired(booking, now)) {
+            throw invalid(EXPIRED_MESSAGE);
         }
 
         if (payment.getTrangThai() == TrangThaiGiaoDich.FAILED
@@ -190,6 +198,9 @@ public class VnpayPaymentService {
         if (expiresAt.isAfter(appointment)) {
             expiresAt = appointment;
         }
+        if (booking.getHanThanhToan() != null && expiresAt.isAfter(booking.getHanThanhToan())) {
+            expiresAt = booking.getHanThanhToan();
+        }
 
         Map<String, String> parameters = new HashMap<>();
         parameters.put("vnp_Version", "2.1.0");
@@ -216,6 +227,14 @@ public class VnpayPaymentService {
         payments.saveAndFlush(payment);
 
         return paymentUrl;
+    }
+
+    private static final String EXPIRED_MESSAGE =
+            "Lịch hẹn đã hết hạn thanh toán và sẽ được hủy tự động. Vui lòng đặt lịch mới. "
+                    + "Nếu bạn đã thanh toán, hệ thống sẽ tự ghi nhận; vui lòng không thanh toán thêm.";
+
+    private static boolean holdExpired(com.petspa.petbooking.entity.DatLich booking, LocalDateTime now) {
+        return booking.getHanThanhToan() != null && !booking.getHanThanhToan().isAfter(now);
     }
 
     private void validateConfiguration() {

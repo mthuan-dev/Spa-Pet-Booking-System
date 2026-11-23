@@ -85,6 +85,21 @@ public class DatLich {
     @Column(name = "lydohuy", length = 255)
     private String lyDoHuy;
 
+    /** Lý do hủy do hệ thống ghi khi booking VNPay quá hạn giữ chỗ. */
+    public static final String LY_DO_HET_HAN_THANH_TOAN = "Hết hạn thanh toán VNPay";
+
+    /** Hạn giữ chỗ cho booking VNPay chưa thanh toán; null với thanh toán tại spa. */
+    @Column(name = "hanthanhtoan")
+    private LocalDateTime hanThanhToan;
+
+    public LocalDateTime getHanThanhToan() {
+        return hanThanhToan;
+    }
+
+    public void setHanThanhToan(LocalDateTime hanThanhToan) {
+        this.hanThanhToan = hanThanhToan;
+    }
+
     @CreationTimestamp
     @Column(name = "ngaytao", nullable = false, updatable = false)
     private LocalDateTime ngayTao;
