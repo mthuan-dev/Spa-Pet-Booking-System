@@ -3,12 +3,10 @@ import { Alert, App, Button, Card, Descriptions, Flex, Image, Popconfirm, Space,
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import PageHeader from '~/components/ui/page-header.jsx';
-import { customerPetsQuery, useCustomerPets, useSaveCustomerPet } from '~/features/admin/pets/api/customer-pets.js';
+import { useCustomerPets, useSaveCustomerPet } from '~/features/admin/pets/api/customer-pets.js';
 import PetFormModal from '~/features/admin/pets/components/PetFormModal.jsx';
+import { petImageUrl } from '~/features/admin/pets/utils/petImages.js';
 import { PET_TYPES } from '~/app/config/constants.js';
-
-export const CustomerPetsLoader = (queryClient) => async ({ params }) =>
-  queryClient.ensureQueryData(customerPetsQuery(params.customerId));
 
 export default function CustomerPetsPage() {
   const { customerId } = useParams();
@@ -35,7 +33,7 @@ export default function CustomerPetsPage() {
     {
       title: 'Ảnh', dataIndex: 'hinhAnh', width: 70, align: 'center',
       render: (value, pet) => value
-        ? <Image src={value} alt={pet.tenThuCung} width={48} height={48} style={{ objectFit: 'cover' }} />
+        ? <Image src={petImageUrl(value)} alt={pet.tenThuCung} width={48} height={48} style={{ objectFit: 'cover' }} />
         : '—',
     },
     {

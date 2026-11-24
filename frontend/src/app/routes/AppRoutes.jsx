@@ -1,6 +1,5 @@
 import { createBrowserRouter, createRoutesFromElements, Navigate, Route, RouterProvider } from 'react-router-dom'
 import { createAdminRoute } from './adminRoutes.jsx'
-import { queryClient } from '../../lib/query-client.js'
 import PublicLayout from '../../layouts/PublicLayout.jsx'
 import { RequireCustomer } from '../providers/AuthProvider.jsx'
 import LogoutPage from '../../pages/auth/LogoutPage.jsx'
@@ -57,7 +56,7 @@ const userRoutes = createRoutesFromElements(
 )
 
 const router = createBrowserRouter([
-  createAdminRoute(queryClient),
+  createAdminRoute(),
   ...userRoutes,
 ])
 

@@ -11,6 +11,10 @@ import com.petspa.petbooking.repository.NguoiDungRepository;
 import com.petspa.petbooking.repository.ThuCungRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
@@ -42,28 +46,43 @@ public class ThuCungService {
                 .build();
     }
 
+    @Transactional
     public ThuCungResponse createPet(Integer customerId, ThuCungRequest request) {
+        return createPet(customerId, request, null);
+    }
+
+    @Transactional
+    public ThuCungResponse createPet(Integer customerId, ThuCungRequest request, MultipartFile file) {
         ThuCung pet = new ThuCung();
         pet.setNguoiDung(getCustomer(customerId));
         applyRequest(pet, request);
+        storeNewImage(pet, file);
         return toResponse(thuCungRepository.save(pet));
     }
 
+    @Transactional
     public ThuCungResponse updatePet(Integer customerId, Integer petId, ThuCungRequest request) {
+        return updatePet(customerId, petId, request, null);
+    }
+
+    @Transactional
+    public ThuCungResponse updatePet(Integer customerId, Integer petId, ThuCungRequest request, MultipartFile file) {
         ThuCung pet = thuCungRepository
-                .findByMaThuCungAndNguoiDung_MaNguoiDung(petId, customerId)
+                .lockByIdAndCustomerId(petId, customerId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "Không tìm thấy thú cưng của khách hàng này."));
         String oldImage = pet.getHinhAnh();
         applyRequest(pet, request);
+        storeNewImage(pet, file);
         ThuCung savedPet = thuCungRepository.save(pet);
-        deleteOldUpload(oldImage, savedPet.getHinhAnh()); // Xoá ảnh cũ
+        deleteOldUploadAfterCommit(oldImage, savedPet.getHinhAnh());
         return toResponse(savedPet);
     }
 
+    @Transactional
     public ThuCungResponse disablePet(Integer customerId, Integer petId) {
         ThuCung pet = thuCungRepository
-                .findByMaThuCungAndNguoiDung_MaNguoiDung(petId, customerId)
+                .lockByIdAndCustomerId(petId, customerId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "Không tìm thấy thú cưng của khách hàng này."));
         pet.setTrangThai(0);
@@ -113,8 +132,30 @@ public class ThuCungService {
                 .build();
     } // Entity -> DTO
 
-    private void deleteOldUpload(String oldImage, String newImage) {
-        if (oldImage == null || oldImage.equals(newImage)) return;
-        storageService.deleteImage(oldImage, "pets");
+    private void storeNewImage(ThuCung pet, MultipartFile file) {
+        if (file == null) return;
+        String image = storageService.storeImage(file, "pets");
+        try {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCompletion(int status) {
+                    if (status == STATUS_ROLLED_BACK) storageService.deleteImage(image, "pets");
+                }
+            });
+        } catch (RuntimeException exception) {
+            storageService.deleteImage(image, "pets");
+            throw exception;
+        }
+        pet.setHinhAnh(image);
+    }
+
+    private void deleteOldUploadAfterCommit(String oldImage, String newImage) {
+        if (oldImage == null || storageService.isSameImage(oldImage, newImage, "pets")) return;
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                storageService.deleteImage(oldImage, "pets");
+            }
+        });
     }
 }

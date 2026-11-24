@@ -1,7 +1,6 @@
-import { getSession, getStoredUser } from '../../features/auth/utils/session.js';
 import LoadingScreen from '../../components/ui/LoadingScreen.jsx';
 
-export const createAdminRoute = (queryClient) => ({
+export const createAdminRoute = () => ({
   // Cha
   id: 'admin',
   path: '/admin',
@@ -69,22 +68,9 @@ export const createAdminRoute = (queryClient) => ({
     },
     {
       path: 'customers/:customerId/pets',
-      // lazy+loader run whenever its path is matched
       lazy: async () => {
         const CustomerPets = await import('../../pages/admin/customers/pets.jsx');
-        /* named export : export function
-          default export : export default function -> .default */
         return { Component: CustomerPets.default };
-      },
-      /* loader truyền cho (params, request)
-        - params: tham số động trên url (:customerId)
-        - request: thay thế request trình duyệt gửi đến server
-      */
-      loader: async ({ params }) => {
-        if (!getSession() || getStoredUser()?.vaiTro !== 'ADMIN') return null;
-        const { CustomerPetsLoader } = await import('../../pages/admin/customers/pets.jsx');
-        const loadPets = CustomerPetsLoader(queryClient);
-        return loadPets({ params });     
       },
     },
     {

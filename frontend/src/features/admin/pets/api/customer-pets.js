@@ -14,25 +14,27 @@ export const customerPetsQuery = (customerId) => ({
 // Read
 export const useCustomerPets = (customerId) => useQuery(customerPetsQuery(customerId));
 
+export async function saveCustomerPet(customerId, { pet, remove = false, imageFile }) {
+  const basePath = `/users/${customerId}/pets`;
+  const { maThuCung, ...values } = pet;
+  if (remove) return api.delete(`${basePath}/${maThuCung}`);
+  let payload = values;
+  if (imageFile) {
+    payload = new FormData();
+    payload.append('pet', new Blob([JSON.stringify(values)], { type: 'application/json' }));
+    payload.append('file', imageFile);
+  }
+  return maThuCung
+    ? api.put(`${basePath}/${maThuCung}`, payload)
+    : api.post(basePath, payload);
+}
+
 export function useSaveCustomerPet(customerId, mutationConfig = {}) {
   const queryClient = useQueryClient();
   const { onSuccess, ...restConfig } = mutationConfig;
   return useMutation({
     ...restConfig,
-    mutationFn: async ({ pet, remove = false, imageFile }) => {
-      const basePath = `/users/${customerId}/pets`;
-      if (remove) return api.delete(`${basePath}/${pet.maThuCung}`);
-      let payload = pet;
-      if (imageFile) {
-        const body = new FormData();
-        body.append('file', imageFile);
-        const { hinhAnh } = await api.post('/pet-images', body);
-        payload = { ...pet, hinhAnh };
-      }
-      return payload.maThuCung
-        ? api.put(`${basePath}/${payload.maThuCung}`, payload)
-        : api.post(basePath, payload);
-    },
+    mutationFn: (values) => saveCustomerPet(customerId, values),
     onSuccess: async (...args) => {
       // Đánh dấu Query này cũ -> RQuery tự fetch lại danh sách mới
       await queryClient.invalidateQueries({ queryKey: customerPetsQuery(customerId).queryKey });

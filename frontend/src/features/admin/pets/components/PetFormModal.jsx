@@ -2,6 +2,7 @@ import { Col, Form, Input, InputNumber, Modal, Row, Select } from 'antd';
 import { useState } from 'react';
 import { PET_TYPES } from '~/app/config/constants.js';
 import ServiceImageInput from '~/features/admin/service-management/components/ServiceImageInput.jsx';
+import { petImageUrl } from '../utils/petImages.js';
 
 export default function PetFormModal({ pet, onCancel, onSave, isPending }) {
   const [form] = Form.useForm();
@@ -55,7 +56,7 @@ export default function PetFormModal({ pet, onCancel, onSave, isPending }) {
           <ServiceImageInput
             file={imageFile}
             onFileChange={setImageFile}
-            imageUrl={pet?.hinhAnh}
+            imageUrl={petImageUrl(pet?.hinhAnh)}
             disabled={busy}
             onBusyChange={setImageBusy}
             entityLabel="thú cưng"
