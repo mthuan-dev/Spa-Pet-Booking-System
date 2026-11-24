@@ -13,6 +13,7 @@ const RULES = {
   ],
   phone: [
     { pattern: /^\+?\d{9,15}$/, message: 'Số điện thoại cần từ 9 đến 15 chữ số.' },
+    { max: 15, message: 'Số điện thoại tối đa 15 ký tự, kể cả dấu +.' },
   ],
   password: [
     { required: true, message: 'Vui lòng nhập mật khẩu.' },

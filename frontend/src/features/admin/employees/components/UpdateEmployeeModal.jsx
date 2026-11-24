@@ -9,7 +9,7 @@ const UpdateEmployeeModal = ({ mutation, open, handleCancel, selectedEmployee })
   };
 
   return (
-    <Modal title="Cập nhật nhân viên" open={open} onCancel={handleCancel} footer={null} centered>
+    <Modal title="Cập nhật nhân viên" open={open} onCancel={() => { if (!mutation.isPending) handleCancel(); }} footer={null} centered>
       <Form
         name="employee-update-form"
         form={form}

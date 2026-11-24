@@ -45,7 +45,7 @@ const EmployeePage = () => {
     if (selectedEmployee) {
       updateMutation.mutate({
         data: {
-          ...selectedEmployee,
+          id: selectedEmployee.id,
           is_deleted: !selectedEmployee?.is_deleted,
         },
       });

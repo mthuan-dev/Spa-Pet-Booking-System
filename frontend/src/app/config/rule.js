@@ -38,7 +38,7 @@ const RULES = {
   createEmployee: {
     name: [
       { required: true, whitespace: true, message: 'Vui lòng nhập tên nhân viên.' },
-      { max: 30, message: 'Tên nhân viên tối đa 30 ký tự.' },
+      { max: 100, message: 'Tên nhân viên tối đa 100 ký tự.' },
     ],
     email: [
       { required: true, message: 'Vui lòng nhập email.' },
@@ -46,6 +46,7 @@ const RULES = {
     ],
     phone: [
       { pattern: /^\+?\d{9,15}$/, message: 'Số điện thoại cần từ 9 đến 15 chữ số.' },
+      { max: 15, message: 'Số điện thoại tối đa 15 ký tự, kể cả dấu +.' },
     ],
     password: [
       { required: true, message: 'Please enter a password!' },

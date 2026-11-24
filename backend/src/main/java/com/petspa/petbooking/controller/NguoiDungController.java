@@ -40,6 +40,10 @@ public class NguoiDungController {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Bạn chỉ được sửa họ tên và số điện thoại của chính mình.");
             }
         }
+        if (Integer.valueOf(0).equals(request.getTrangThai())
+                && jwt.getSubject().equals(nguoiDungService.getUser(id).getEmail())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Bạn không thể vô hiệu hóa tài khoản đang đăng nhập.");
+        }
         return nguoiDungService.updateUser(id,request);
     }
 

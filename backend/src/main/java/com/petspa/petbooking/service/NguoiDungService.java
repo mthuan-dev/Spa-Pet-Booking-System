@@ -10,6 +10,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -52,19 +53,32 @@ public class NguoiDungService {
         NguoiDung user = nguoiDungRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy người dùng."));
         validateUpdateRequest(request);
+        String email = request.getEmail() == null ? null : request.getEmail().trim().toLowerCase();
+        if (email != null && nguoiDungRepository.findByEmail(email)
+                .filter(existing -> !existing.getMaNguoiDung().equals(id)).isPresent()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email này đã được sử dụng.");
+        }
         if (request.getSoDienThoai() != null && !request.getSoDienThoai().isBlank()
                 && nguoiDungRepository.existsBySoDienThoaiAndMaNguoiDungNot(request.getSoDienThoai().trim(), id)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Số điện thoại này đã được sử dụng.");
         }
         nguoidungMapper.updateUser(user, request);
-        if (request.getEmail() != null) user.setEmail(request.getEmail().trim().toLowerCase());
+        if (email != null) user.setEmail(email);
         if (request.getHoTen() != null) user.setHoTen(request.getHoTen().trim());
         if (request.isSoDienThoaiProvided()) user.setSoDienThoai(normalizePhone(request.getSoDienThoai()));
         if (request.getTrangThai() != null) user.setTrangThai(request.getTrangThai());
         if (request.getMatKhau() != null && !request.getMatKhau().isBlank()) {
             user.setMatKhau(new BCryptPasswordEncoder(10).encode(request.getMatKhau()));
         }
-        return nguoidungMapper.toUserResponse(nguoiDungRepository.save(user));
+        try {
+            return nguoidungMapper.toUserResponse(nguoiDungRepository.save(user));
+        } catch (DataIntegrityViolationException exception) {
+            if (email != null && nguoiDungRepository.findByEmail(email)
+                    .filter(existing -> !existing.getMaNguoiDung().equals(id)).isPresent()) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "Email này đã được sử dụng.", exception);
+            }
+            throw exception;
+        }
     }
 
     public NguoiDungResponse getUser(int id) {
@@ -113,8 +127,13 @@ public class NguoiDungService {
         if (request.getHoTen() != null && (request.getHoTen().trim().isEmpty() || request.getHoTen().length() > 100)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Họ tên cần từ 1 đến 100 ký tự.");
         }
-        if (request.getEmail() != null && request.getEmail().length() > 100) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email tối đa 100 ký tự.");
+        if (request.getEmail() != null) {
+            if (request.getEmail().isBlank()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email không được để trống.");
+            }
+            if (request.getEmail().length() > 100) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email tối đa 100 ký tự.");
+            }
         }
         validateStatus(request.getTrangThai());
         validatePhone(request.getSoDienThoai());

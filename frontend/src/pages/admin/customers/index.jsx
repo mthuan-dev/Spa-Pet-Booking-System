@@ -36,7 +36,7 @@ const CustomerPage = () => {
   const handleChangeStatus = () => {
     if (!statusCustomer || statusMutation.isPending) return;
     statusMutation.mutate({
-      data: { ...statusCustomer, is_deleted: !statusCustomer.is_deleted },
+      data: { id: statusCustomer.id, is_deleted: !statusCustomer.is_deleted },
     });
   };
 
