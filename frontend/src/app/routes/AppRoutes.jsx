@@ -2,7 +2,6 @@ import { createBrowserRouter, createRoutesFromElements, Navigate, Route, RouterP
 import { createAdminRoute } from './adminRoutes.jsx'
 import PublicLayout from '../../layouts/PublicLayout.jsx'
 import { RequireCustomer } from '../providers/AuthProvider.jsx'
-import LogoutPage from '../../pages/auth/LogoutPage.jsx'
 import CustomerLayout from '../../layouts/CustomerLayout.jsx'
 import { ROUTES } from './routePaths.js'
 import NotFoundPage from '../../pages/errors/NotFoundPage.jsx'
@@ -37,7 +36,6 @@ const userRoutes = createRoutesFromElements(
   <>
     <Route path="/auth/login" element={<Navigate to={ROUTES.LOGIN} replace />} />
     <Route path="/contact" element={<Navigate to={ROUTES.ABOUT} replace />} />
-    <Route path={ROUTES.LOGOUT} element={<LogoutPage />} />
     <Route element={<PublicLayout />}>
       {pageRoutes.filter(([path]) => publicPaths.has(path)).map(([path, Page]) => (
         <Route key={path} path={path} element={<Page />} />

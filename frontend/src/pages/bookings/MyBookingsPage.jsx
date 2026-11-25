@@ -193,13 +193,14 @@ function getEmptyState(filter, hasAnyBooking) {
   return { title: 'Không có lịch hẹn đã hủy', message: 'Mong rằng các buổi hẹn sắp tới đều diễn ra thật vui.', showBookingLink: false }
 }
 
-function BookingEmptyState({ filter, hasAnyBooking, searchQuery, onClearSearch }) {
-  if (searchQuery.trim()) {
+function BookingEmptyState({ filter, hasAnyBooking, searchQuery, selectedDate, onClearSearch, onClearDate }) {
+  if (searchQuery.trim() || selectedDate) {
     return (
       <div className="my-bookings-page__empty my-bookings-page__empty--search">
         <h2>Không tìm thấy lịch hẹn phù hợp</h2>
-        <p>Thử tìm bằng mã lịch, tên thú cưng, dịch vụ hoặc chuyên viên.</p>
-        <button className="my-bookings-page__clear-search" type="button" onClick={onClearSearch}>Xóa từ khóa tìm kiếm</button>
+        <p>{selectedDate ? `Không có lịch hẹn vào ngày ${new Intl.DateTimeFormat('vi-VN').format(new Date(`${selectedDate}T12:00:00`))}.` : 'Thử tìm bằng mã lịch, tên thú cưng, dịch vụ hoặc chuyên viên.'}</p>
+        {searchQuery.trim() && <button className="my-bookings-page__clear-search" type="button" onClick={onClearSearch}>Xóa từ khóa tìm kiếm</button>}
+        {selectedDate && <button className="my-bookings-page__clear-search" type="button" onClick={onClearDate}>Xóa ngày đã chọn</button>}
       </div>
     )
   }
@@ -229,6 +230,7 @@ function sortBookings(bookings) {
 export default function MyBookingsPage() {
   const [filter, setFilter] = useState('ALL')
   const [searchQuery, setSearchQuery] = useState('')
+  const [selectedDate, setSelectedDate] = useState('')
   const [bookings, setBookings] = useState([])
   const [loadState, setLoadState] = useState('loading')
 
@@ -247,8 +249,10 @@ export default function MyBookingsPage() {
 
   const sortedBookings = useMemo(() => sortBookings(bookings), [bookings])
   const filteredBookings = useMemo(() => sortedBookings.filter((booking) => (
-    matchesFilter(booking, filter) && matchesSearch(booking, searchQuery)
-  )), [sortedBookings, filter, searchQuery])
+    matchesFilter(booking, filter)
+      && matchesSearch(booking, searchQuery)
+      && (!selectedDate || booking.appointment.date === selectedDate)
+  )), [sortedBookings, filter, searchQuery, selectedDate])
   const nextBookingId = sortedBookings.find((booking) => ['PENDING', 'CONFIRMED'].includes(booking.bookingStatus))?.id
 
   return (
@@ -261,22 +265,33 @@ export default function MyBookingsPage() {
         </header>
 
         <div className="my-bookings-page__search" role="search">
-          <label htmlFor="my-bookings-search">Tìm lịch hẹn</label>
-          <div className="my-bookings-page__search-control">
-            <img src={searchIcon} alt="" aria-hidden="true" />
-            <input
-              id="my-bookings-search"
-              type="search"
-              value={searchQuery}
-              onChange={(event) => setSearchQuery(event.target.value)}
-              placeholder="Mã lịch, thú cưng, dịch vụ, chuyên viên"
-              autoComplete="off"
-            />
-            {searchQuery && (
-              <button type="button" aria-label="Xóa từ khóa tìm kiếm" onClick={() => setSearchQuery('')}>
-                <span aria-hidden="true">×</span>
-              </button>
-            )}
+          <div className="my-bookings-page__search-row">
+            <div className="my-bookings-page__search-field">
+              <label htmlFor="my-bookings-search">Tìm lịch hẹn</label>
+              <div className="my-bookings-page__search-control">
+                <img src={searchIcon} alt="" aria-hidden="true" />
+                <input
+                  id="my-bookings-search"
+                  type="search"
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                  placeholder="Mã lịch, thú cưng, dịch vụ, chuyên viên"
+                  autoComplete="off"
+                />
+                {searchQuery && (
+                  <button type="button" aria-label="Xóa từ khóa tìm kiếm" onClick={() => setSearchQuery('')}>
+                    <span aria-hidden="true">×</span>
+                  </button>
+                )}
+              </div>
+            </div>
+            <div className="my-bookings-page__date-control">
+              <label htmlFor="my-bookings-date">Chọn ngày</label>
+              <div className="my-bookings-page__date-input-control">
+                <input id="my-bookings-date" type="date" value={selectedDate} onChange={(event) => setSelectedDate(event.target.value)} aria-label="Lọc lịch hẹn theo ngày" />
+                {selectedDate && <button type="button" aria-label="Xóa ngày đã chọn" onClick={() => setSelectedDate('')}><span aria-hidden="true">×</span></button>}
+              </div>
+            </div>
           </div>
         </div>
 
@@ -315,7 +330,9 @@ export default function MyBookingsPage() {
             filter={filter}
             hasAnyBooking={bookings.length > 0}
             searchQuery={searchQuery}
+            selectedDate={selectedDate}
             onClearSearch={() => setSearchQuery('')}
+            onClearDate={() => setSelectedDate('')}
           />
         )}
       </div>

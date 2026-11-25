@@ -17,7 +17,7 @@ function Chevron() {
 
 export default function HomeHeader() {
   const [menuOpen, setMenuOpen] = useState(false)
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
   const navigate = useNavigate()
   const isLoggedIn = !!user
   const [accountState, setAccountState] = useState('closed')
@@ -109,7 +109,10 @@ export default function HomeHeader() {
 
   function logOut() {
     setAccountState('closing')
-    window.setTimeout(() => navigate(ROUTES.LOGOUT), 170)
+    window.setTimeout(async () => {
+      await logout()
+      navigate(ROUTES.LOGIN, { replace: true })
+    }, 170)
   }
 
   function toggleAccountMenu() {

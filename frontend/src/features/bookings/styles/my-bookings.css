@@ -4,7 +4,7 @@
 }
 
 .my-bookings-page {
-  --my-bookings-ground: #f4f3f1;
+  --my-bookings-ground: #ffffff;
   --my-bookings-ink: #28251e;
   --my-bookings-muted: #5d584c;
   --my-bookings-rule: #e9e3d8;
@@ -55,7 +55,17 @@
   margin: 0 0 25px;
 }
 
-.my-bookings-page__search label {
+.my-bookings-page__search-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 285px;
+  align-items: start;
+  gap: 12px;
+}
+
+.my-bookings-page__search-field { flex: 1 1 auto; min-width: 0; }
+
+.my-bookings-page__search-field > label,
+.my-bookings-page__date-control > label {
   display: block;
   margin-bottom: 8px;
   color: var(--my-bookings-ink);
@@ -63,6 +73,31 @@
   font-weight: 700;
   line-height: 1.4;
 }
+
+.my-bookings-page__date-control {
+  min-width: 0;
+}
+
+.my-bookings-page__date-control > label {
+  min-width: 0;
+}
+
+.my-bookings-page__date-input-control {
+  display: flex;
+  min-height: 58px;
+  align-items: center;
+  gap: 8px;
+  padding: 0 11px;
+  border: 1px solid #d8d1c5;
+  border-radius: 7px;
+  background: #fff;
+  transition: border-color 150ms ease;
+}
+
+.my-bookings-page__date-input-control:focus-within { border-color: var(--my-bookings-accent); }
+.my-bookings-page__date-input-control input { width: 100%; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--my-bookings-ink); font: inherit; font-size: 14px; }
+.my-bookings-page__date-input-control button { display: grid; width: 28px; height: 28px; flex: none; place-items: center; padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--my-bookings-muted); font: inherit; font-size: 20px; cursor: pointer; }
+.my-bookings-page__date-input-control button:hover { background: #f3efe7; color: var(--my-bookings-ink); }
 
 .my-bookings-page__search-control {
   display: flex;
@@ -75,6 +110,9 @@
   background: #fff;
   transition: border-color 150ms ease;
 }
+
+.my-bookings-page__search-field .my-bookings-page__search-control,
+.my-bookings-page__date-input-control { width: 100%; }
 
 .my-bookings-page__search-control:focus-within {
   border-color: var(--my-bookings-accent);
@@ -112,8 +150,8 @@
 
 .my-bookings-page__search-control button {
   display: grid;
-  width: 34px;
-  height: 34px;
+  width: 28px;
+  height: 28px;
   flex: none;
   place-items: center;
   padding: 0;
@@ -122,18 +160,15 @@
   background: transparent;
   color: var(--my-bookings-muted);
   font: inherit;
-  font-size: 23px;
+  font-size: 20px;
   line-height: 1;
   cursor: pointer;
+  transition: background-color 150ms ease, color 150ms ease;
 }
 
 .my-bookings-page__search-control button:hover {
   background: #f3efe7;
   color: var(--my-bookings-ink);
-}
-
-.my-bookings-page__search-control button span {
-  transform: translate(1px, 2px);
 }
 
 .my-bookings-page__filters {
@@ -182,6 +217,7 @@
 
 .my-bookings-page__filters button:focus-visible,
 .my-bookings-page__search-control button:focus-visible,
+.my-bookings-page__date-input-control button:focus-visible,
 .my-bookings-page__detail-link:focus-visible,
 .my-bookings-page__empty a:focus-visible,
 .my-bookings-page__clear-search:focus-visible,
@@ -572,6 +608,9 @@
   .my-bookings-page__intro { font-size: 16px; }
   .my-bookings-page__search { width: min(100%, 738px); margin-bottom: 23px; }
   .my-bookings-page__search-control { min-height: 52px; gap: 12px; padding-inline: 14px; }
+  .my-bookings-page__search-field > label,
+  .my-bookings-page__date-control > label { margin-bottom: 8px; font-size: 14.5px; }
+  .my-bookings-page__date-input-control { min-height: 52px; }
   .my-bookings-page__search-control input { font-size: 14.5px; }
   .my-bookings-page__filters { flex-wrap: wrap; gap: 0 32px; }
   .my-bookings-page__filters button { min-height: 44px; font-size: 14.5px; }
@@ -587,9 +626,14 @@
 }
 
 @media (max-width: 1099px) {
+  .my-bookings-page__search-row { grid-template-columns: minmax(0, 1fr) minmax(220px, .65fr); }
   .my-bookings-page__filters { flex-wrap: wrap; gap: 0 24px; }
   .my-bookings-page__booking, .my-bookings-page__skeleton-row { grid-template-columns: minmax(0, .7fr) minmax(0, 1.3fr); gap: 24px; padding: 24px 12px; }
   .my-bookings-page__service-group li { white-space: normal; overflow: visible; overflow-wrap: anywhere; }
   .my-bookings-page__aside { grid-template-columns: minmax(0, 1fr); gap: 16px; }
   .my-bookings-page__pet { flex-wrap: wrap; }
+}
+
+@media (max-width: 600px) {
+  .my-bookings-page__search-row { grid-template-columns: minmax(0, 1fr); }
 }

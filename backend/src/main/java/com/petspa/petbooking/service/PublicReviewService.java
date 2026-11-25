@@ -13,7 +13,7 @@ public class PublicReviewService {
 
     @Transactional(readOnly = true)
     public List<PublicReviewResponse> getLatest() {
-        return reviews.findTop3ByIsHiddenOrderByNgayTaoDesc(0).stream().map(review ->
+        return reviews.findTop3BySoSaoAndIsHiddenOrderByNgayTaoDescMaDanhGiaDesc(5, 0).stream().map(review ->
                 new PublicReviewResponse(review.getMaDanhGia(), review.getSoSao(), review.getBinhLuan(),
                         review.getDatLich().getTenLienHe(), review.getDatLich().getTenThuCung())).toList();
     }
