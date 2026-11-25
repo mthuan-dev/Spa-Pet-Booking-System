@@ -285,7 +285,11 @@ public class BookingWorkflowService {
                 && selected.stream().anyMatch(s -> s.getLoaiDichVu() == LoaiDichVu.COMBO)) {
             throw invalid("Combo phải được đặt riêng.");
         }
-        int duration = selected.stream().mapToInt(DichVu::getThoiLuongPhut).sum();
+        long combinedDuration = selected.stream().mapToLong(DichVu::getThoiLuongPhut).sum();
+        if (combinedDuration <= 0 || combinedDuration > 600) {
+            throw invalid("Tổng thời lượng dịch vụ phải từ 1 đến 600 phút.");
+        }
+        int duration = (int) combinedDuration;
         if (!validWindow(request.appointmentDate(), request.startTime(), duration)) {
             throw invalid("Ngày hoặc giờ hẹn không hợp lệ.");
         }

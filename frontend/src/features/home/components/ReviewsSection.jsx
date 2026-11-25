@@ -1,4 +1,6 @@
-import { SAMPLE_REVIEWS } from '../data/homeData.js'
+import { useQuery } from '@tanstack/react-query'
+import { api } from '../../../lib/api.js'
+import { queryClient } from '../../../lib/query-client.js'
 
 function StarRating({ rating }) {
   return (
@@ -13,14 +15,20 @@ function StarRating({ rating }) {
 }
 
 export default function ReviewsSection() {
+  const { data: reviews = [], isPending, isError, refetch } = useQuery({
+    queryKey: ['public-reviews'], queryFn: () => api.get('/public/reviews'),
+  }, queryClient)
   return (
     <section className="reviews-section page-gutter" aria-labelledby="reviews-title">
       <div className="reviews-section__heading">
         <h2 id="reviews-title">Lời khách kể</h2>
-        <p>Những nhận xét minh họa cho giao diện. Đánh giá thật sẽ được cập nhật sau.</p>
+        <p>Nhận xét từ khách hàng đã sử dụng dịch vụ tại spa.</p>
       </div>
       <div className="review-list">
-        {SAMPLE_REVIEWS.map((review) => (
+        {isPending && <p>Đang tải đánh giá...</p>}
+        {isError && <p>Chưa tải được đánh giá. <button type="button" onClick={() => refetch()}>Thử lại</button></p>}
+        {!isPending && !isError && !reviews.length && <p>Chưa có đánh giá.</p>}
+        {reviews.map((review) => (
           <blockquote className="review-quote" key={review.id}>
             <StarRating rating={review.rating} />
             <p>“{review.comment}”</p>

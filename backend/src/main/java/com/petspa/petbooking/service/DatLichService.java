@@ -40,7 +40,7 @@ public class DatLichService {
     }
 
     // Chuyển entity database thành DTO mà API được phép trả về.
-    private BookingResponse toBookingResponse(DatLich booking) {
+    public BookingResponse toBookingResponse(DatLich booking) {
         var pet = booking.getThuCung();
         var employee = booking.getNhanVien();
         var owner = booking.getNguoiDung();

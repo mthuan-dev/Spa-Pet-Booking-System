@@ -1,8 +1,5 @@
-import { mockBookings } from '../../../../mocks/data.js';
-import { bookingBundle } from '../../../../mocks/bookings.js';
-import { mockTimestamp } from '../../../../mocks/utils.js';
-import { currentUserRow } from '../../../profile/mocks/customerRepository.js';
-import { mapBookingBundle } from '../../../bookings/mappers/bookingMapper.js';
+import { api } from '../../../../lib/api.js';
+import { mapBookingResponse } from '../../../bookings/mappers/bookingMapper.js';
 import { searchWithoutDiacritics } from '../../../../utils/searchWithoutDiacritics.js';
 
 export const SCHEDULE_BOOKING_STATUS = {
@@ -10,19 +7,11 @@ export const SCHEDULE_BOOKING_STATUS = {
   COMPLETED: { label: 'COMPLETED', color: 'green' },
   CANCELLED: { label: 'CANCELLED', color: 'red' },
 };
-export function getBookingSchedules() {
-  if (currentUserRow()?.vaitro !== 'ADMIN') throw new Error('Bạn cần đăng nhập tài khoản quản trị.');
-  return mockBookings.map((row) => mapBookingBundle(bookingBundle(row)));
+export async function getBookingSchedules() {
+  return (await api.get('/admin/booking-schedules')).map(mapBookingResponse);
 }
-export function updateBookingScheduleStatus({ id, status }) {
-  if (currentUserRow()?.vaitro !== 'ADMIN') throw new Error('Bạn cần đăng nhập tài khoản quản trị.');
-  if (!['COMPLETED', 'CANCELLED'].includes(status)) throw new Error('Trạng thái đặt lịch không hợp lệ.');
-  const row = mockBookings.find((booking) => booking.madatlich === Number(id));
-  if (!row) throw new Error('Không tìm thấy lịch hẹn.');
-  if (row.trangthaidatlich !== 'CONFIRMED') throw new Error('Chỉ được đổi trạng thái lịch hẹn đã CONFIRMED.');
-  Object.assign(row, { trangthaidatlich: status, ngaycapnhat: mockTimestamp() });
-
-  return mapBookingBundle(bookingBundle(row));
+export async function updateBookingScheduleStatus({ id, status }) {
+  return mapBookingResponse(await api.put(`/admin/bookings/${id}/status`, { status }));
 }
 
 export function countBookingsByDate(bookings) {

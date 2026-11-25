@@ -6,6 +6,24 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface DatLichRepository extends JpaRepository<DatLich, Integer> {
+    @org.springframework.data.jpa.repository.Query("""
+            select b from DatLich b
+            where (:start is null or b.ngayTao >= :start)
+              and (:end is null or b.ngayTao < :end)
+              and (:status is null or b.trangThaiDatLich = :status)
+              and (lower(concat(b.codeDatLich, ' ', b.tenLienHe, ' ', b.sdtLienHe, ' ',
+                   coalesce(b.emailLienHe, ''), ' ', b.tenThuCung)) like lower(concat('%', :keyword, '%')))
+              and (:method is null or exists (select p.maThanhToan from ThanhToan p
+                   where p.datLich = b and p.phuongThuc = :method))
+            """)
+    org.springframework.data.domain.Page<DatLich> searchAdminBookings(
+            @org.springframework.data.repository.query.Param("start") java.time.LocalDateTime start,
+            @org.springframework.data.repository.query.Param("end") java.time.LocalDateTime end,
+            @org.springframework.data.repository.query.Param("status") com.petspa.petbooking.entity.enums.TrangThaiDatLich status,
+            @org.springframework.data.repository.query.Param("method") com.petspa.petbooking.entity.enums.PhuongThucThanhToan method,
+            @org.springframework.data.repository.query.Param("keyword") String keyword,
+            org.springframework.data.domain.Pageable pageable);
+
     @org.springframework.data.jpa.repository.Lock(
             jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
     @org.springframework.data.jpa.repository.Query(

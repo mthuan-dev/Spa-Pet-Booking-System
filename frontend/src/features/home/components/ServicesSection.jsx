@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom'
-import { SERVICES, SERVICE_CREDITS } from '../data/homeData.js'
+import { useServices } from '../../catalog/hooks/useServices.js'
+import { imageUrl } from '../../../shared/api/imageUrl.js'
 import { ROUTES } from '../../../app/routes/routePaths.js'
 
 export default function ServicesSection() {
+  const { data, loading, error, retry } = useServices()
   return (
     <section className="services-section page-gutter" id="services" aria-labelledby="services-title">
       <div className="section-heading section-heading--split">
@@ -11,14 +13,16 @@ export default function ServicesSection() {
       </div>
 
       <div className="service-list">
-        {SERVICES.filter((service) => service.trangthai === 1).map((service) => {
-          const credit = SERVICE_CREDITS[service.madichvu]
+        {loading && <p>Đang tải dịch vụ...</p>}
+        {error && <p>{error} <button type="button" onClick={retry}>Thử lại</button></p>}
+        {!loading && !error && !data?.length && <p>Chưa có dịch vụ đang mở đặt lịch.</p>}
+        {(data || []).slice(0, 4).map((service) => {
           return (
-            <article className="service-strip" key={service.madichvu}>
+            <article className="service-strip" key={service.id}>
               <img
                 className="service-strip__photo"
-                src={service.hinhanh}
-                alt={service.madichvu === 1 ? 'Nhân viên nhẹ nhàng tắm cho một chú chó' : service.madichvu === 2 ? 'Chú Shih Tzu lông trắng sau khi được tỉa gọn' : service.madichvu === 3 ? 'Chủ đang chải bộ lông dài cho chó' : 'Chú chó đã được chăm lông tại bàn grooming'}
+                src={imageUrl(service.imageUrl) || undefined}
+                alt={service.name}
                 loading="lazy"
                 decoding="async"
                 width="1280"
@@ -26,13 +30,13 @@ export default function ServicesSection() {
               />
               <div className="service-strip__scrim" aria-hidden="true" />
               <div className="service-strip__copy">
-                <h3>{service.ten}</h3>
-                <p className="service-strip__description">{service.mota}</p>
+                <h3>{service.name}</h3>
+                <p className="service-strip__description">{service.description}</p>
                 <div className="service-strip__details">
-                  <span>{service.loaidichvu === 'COMBO' ? 'Gói kết hợp' : 'Dịch vụ đơn'}</span>
-                  <span>{service.thoiluongphut} phút</span>
+                  <span>{service.category === 'COMBO' ? 'Gói kết hợp' : 'Dịch vụ đơn'}</span>
+                  <span>{service.durationMinutes} phút</span>
                   <span>Giá theo cân nặng</span>
-                  <Link to={ROUTES.SERVICE_DETAIL(service.madichvu)}>Xem chi tiết <span aria-hidden="true">↗</span></Link>
+                  <Link to={ROUTES.SERVICE_DETAIL(service.id)}>Xem chi tiết <span aria-hidden="true">↗</span></Link>
                 </div>
               </div>           
             </article>

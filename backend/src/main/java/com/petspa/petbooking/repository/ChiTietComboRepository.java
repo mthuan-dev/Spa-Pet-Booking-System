@@ -5,5 +5,5 @@ import com.petspa.petbooking.entity.ChiTietComboId;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ChiTietComboRepository extends JpaRepository<ChiTietCombo, ChiTietComboId> {
-    // TODO: Add queries when combo management is implemented.
+    java.util.List<ChiTietCombo> findById_MaCombo(Integer comboId);
 }

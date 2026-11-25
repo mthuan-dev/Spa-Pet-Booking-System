@@ -12,6 +12,22 @@ import org.springframework.graphql.execution.ErrorType;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {
+    @ExceptionHandler({org.springframework.http.converter.HttpMessageNotReadableException.class,
+            org.springframework.web.method.annotation.MethodArgumentTypeMismatchException.class,
+            org.springframework.web.bind.MissingServletRequestParameterException.class})
+    public ResponseEntity<?> malformed(Exception exception) {
+        return ResponseEntity.badRequest().body(Map.of("detail", "Dữ liệu hoặc tham số yêu cầu không hợp lệ."));
+    }
+
+    @ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
+    public ResponseEntity<?> conflict(Exception exception) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("detail", "Dữ liệu bị trùng hoặc đang được sử dụng. Vui lòng tải lại và thử lại."));
+    }
+
+    @ExceptionHandler(org.springframework.web.multipart.MaxUploadSizeExceededException.class)
+    public ResponseEntity<?> uploadSize(Exception exception) {
+        return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body(Map.of("detail", "Ảnh tối đa 2 MB."));
+    }
     @GraphQlExceptionHandler(ResponseStatusException.class)
     public GraphQLError graphQlStatus(ResponseStatusException e) {
         int status = e.getStatusCode().value();

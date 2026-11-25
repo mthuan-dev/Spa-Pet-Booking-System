@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '~/lib/api.js';
-import { resolveMockImage } from '~/mocks/imageStore.js';
+import { imageUrl } from '~/shared/api/imageUrl.js';
 
 const CATALOG_QUERY_KEY = ['admin-service-catalog'];
 
@@ -8,7 +8,7 @@ export const useServiceCatalog = () => useQuery({
   queryKey: CATALOG_QUERY_KEY,
   queryFn: async () => {
     const catalog = await api.get('/services');
-    return { ...catalog, dichvu: catalog.dichvu.map((row) => ({ ...row, hinhanhUrl: resolveMockImage(row.hinhanh) })) };
+    return { ...catalog, dichvu: catalog.dichvu.map((row) => ({ ...row, hinhanhUrl: imageUrl(row.hinhanh) })) };
   },
 });
 

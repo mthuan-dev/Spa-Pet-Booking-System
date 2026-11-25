@@ -48,12 +48,15 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.GET,
                                 "/api/booking-data/services",
+                                "/api/public/reviews",
                                 "/api/booking-data/pet-images/**",
                                 "/uploads/**", 
                                 "/api/payments/vnpay/ipn").permitAll()
                         .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINT).permitAll()
                         .requestMatchers(HttpMethod.PUT, "/api/users/*").authenticated()
-                        .requestMatchers("/graphql", "/api/users", "/api/users/**", "/api/pet-images", "/api/service-images")
+                        .requestMatchers("/graphql", "/api/users", "/api/users/**", "/api/pet-images", "/api/service-images",
+                                "/api/services", "/api/services/**", "/api/service-prices", "/api/service-prices/**",
+                                "/api/admin/**", "/api/reports/**")
                         .hasAuthority("SCOPE_ADMIN")
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> 

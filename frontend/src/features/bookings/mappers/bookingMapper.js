@@ -1,4 +1,4 @@
-import { resolveMockImage } from '../../../mocks/imageStore.js';
+import { imageUrl } from '../../../shared/api/imageUrl.js';
 
 function firstDefined(...values) {
   return values.find((value) => value !== undefined && value !== null)
@@ -35,8 +35,8 @@ export function mapBookingResponse(response = {}) {
   const petSource = response.pet ?? response.petSnapshot ?? {}
   const employeeSource = response.employee ?? {}
   const appointmentSource = response.appointment ?? {}
-  const paymentSource = response.payment ?? {}
   const rawPayments = Array.isArray(response.payments) ? response.payments : response.payment ? [response.payment] : []
+  const paymentSource = response.payment ?? rawPayments.findLast((payment) => payment.transactionStatus === 'SUCCESS') ?? rawPayments.at(-1) ?? {}
   const reviewSource = response.review ?? null
   const bookingStatus = String(firstDefined(response.bookingStatus, response.status, response.trangthaidatlich, 'PENDING')).toUpperCase()
   const paymentStatus = String(firstDefined(response.paymentStatus, response.trangthaithanhtoan, 'UNPAID')).toUpperCase()
@@ -59,7 +59,7 @@ export function mapBookingResponse(response = {}) {
       species: firstDefined(petSource.species, petType === 'CAT' ? 'Mèo' : petType === 'DOG' ? 'Chó' : petType, ''),
       breed: firstDefined(petSource.breed, response.petBreed, ''),
       weight: numericValue(firstDefined(petSource.weight, petSource.weightKg, response.petWeight, response.cannangthucung)),
-      imageUrl: firstDefined(petSource.imageUrl, petSource.image, response.petImage, ''),
+      imageUrl: imageUrl(firstDefined(petSource.imageUrl, petSource.image, response.petImage, '')),
       avatarTone: firstDefined(petSource.avatarTone, 'honey'),
     },
     employee: {
@@ -104,23 +104,4 @@ export function mapBookingResponse(response = {}) {
     createdAt: firstDefined(response.createdAt, response.ngaytao, ''),
     updatedAt: firstDefined(response.updatedAt, response.ngaycapnhat, ''),
   }
-}
-
-// The API bundle contains SQL rows and explicit relations; only this mapper builds UI aliases.
-export function mapBookingBundle(bundle) {
-  const row = bundle.datlich;
-  const pet = bundle.thucung;
-  const payments = bundle.thanhtoan || [];
-  return mapBookingResponse({
-    ...row,
-    pet: {
-      id: row.mathucung, name: row.tenthucung, type: row.loaithucung, weightKg: row.cannangthucung,
-      breed: pet?.giong || '', imageUrl: resolveMockImage(pet?.hinhanh),
-    },
-    employee: { id: bundle.nhanvien.manguoidung, name: bundle.nhanvien.hoten },
-    services: bundle.chitietdatlich,
-    payments,
-    payment: payments.findLast((payment) => payment.trangthai === 'SUCCESS') || payments.at(-1),
-    review: bundle.danhgia,
-  });
 }

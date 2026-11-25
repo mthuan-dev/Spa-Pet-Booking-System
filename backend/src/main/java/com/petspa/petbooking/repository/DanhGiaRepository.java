@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface DanhGiaRepository extends JpaRepository<DanhGia, Integer> {
     java.util.Optional<DanhGia> findByDatLich_MaDatLich(Integer id);
-    // TODO: Add queries when review features are implemented.
+    java.util.List<DanhGia> findTop3ByIsHiddenOrderByNgayTaoDesc(Integer hidden);
 }
