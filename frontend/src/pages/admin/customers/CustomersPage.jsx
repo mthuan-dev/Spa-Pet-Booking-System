@@ -43,7 +43,7 @@ const CustomersPage = () => {
   return (
     <>
       <Flex align="center" justify="space-between" className="mb-2">
-        <PageHeader heading="Quản lý khách hàng" links={[{ title: 'Trang chủ', href: '/' }, { title: 'Khách hàng' }]} />
+        <PageHeader heading="Quản lý khách hàng" links={[{ title: 'Trang chủ', href: '/admin' }, { title: 'Khách hàng' }]} />
         <Space>
           <Button onClick={handleCreate} type="primary" icon={<PlusSquareOutlined />}>
             Thêm mới

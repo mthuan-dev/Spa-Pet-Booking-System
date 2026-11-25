@@ -4,7 +4,7 @@ import {
   UserOutlined,
   TeamOutlined,
   BarChartOutlined,
-  TruckOutlined,
+  ScissorOutlined,
 } from '@ant-design/icons';
 
 const adminMenu = Object.freeze([
@@ -45,7 +45,7 @@ const adminMenu = Object.freeze([
   },
   {
     key: '7',
-    icon: <TruckOutlined />,
+    icon: <ScissorOutlined />,
     label: 'Quản lý dịch vụ',
     children: [
       {

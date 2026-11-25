@@ -56,7 +56,7 @@ const EmployeesPage = () => {
   return (
     <>
       <Flex align="center" justify="space-between" className="mb-2">
-        <PageHeader heading="Quản lý nhân viên" links={[{ title: 'Trang chủ', href: '/' }, { title: 'Nhân viên' }]} />
+        <PageHeader heading="Quản lý nhân viên" links={[{ title: 'Trang chủ', href: '/admin' }, { title: 'Nhân viên' }]} />
         <Space>
           <Button onClick={openCreateModal} type="primary" icon={<PlusSquareOutlined />}>
             Thêm mới

@@ -13,7 +13,7 @@ const AdminNotFoundPage = () => {
           <Button
             type="primary"
             onClick={() => {
-              navigate("/");
+              navigate("/admin");
             }}
           >
             Back Home

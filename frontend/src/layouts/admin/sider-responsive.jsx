@@ -33,7 +33,7 @@ const SiderResponsive = () => {
           width="240"
         >
           <>
-            <Link to="/">
+            <Link to="/admin">
               <img src={adminLogo} alt="MEOMEO Spa" className="h-16 mx-auto mb-4 object-contain" />
             </Link>
             <MenuCustom mode="inline" theme="light" isMobile={isMobile} onClose={() => setSiderVisible(false)} />
