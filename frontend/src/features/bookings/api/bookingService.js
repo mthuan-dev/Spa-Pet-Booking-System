@@ -1,4 +1,4 @@
-﻿import { bookingApi } from '../../../shared/api/bookingApi.js'
+﻿import { bookingApi } from '../../../api/bookingApi.js'
 import { mapBookingResponse } from '../mappers/bookingMapper.js'
 function model(row) {
   if (row.pet?.imageUrl?.startsWith('/api/')) row.pet.imageUrl = new URL(row.pet.imageUrl, import.meta.env.VITE_BACKEND_ENDPOINT || 'http://localhost:8080').href

@@ -1,4 +1,4 @@
-import { api } from '../../../../lib/api.js';
+import { api } from '../../../../api/client.js';
 import { mapBookingResponse } from '../../../bookings/mappers/bookingMapper.js';
 import { searchWithoutDiacritics } from '../../../../utils/searchWithoutDiacritics.js';
 

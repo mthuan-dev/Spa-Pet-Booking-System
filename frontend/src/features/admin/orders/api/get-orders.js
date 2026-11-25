@@ -1,5 +1,5 @@
 import { queryOptions, useQuery } from '@tanstack/react-query';
-import { api } from '~/lib/api.js';
+import { api } from '~/api/client.js';
 import { mapBookingResponse } from '~/features/bookings/mappers/bookingMapper.js';
 
 export const getOrders = ({ startDate, endDate, paymentMethod, status, keyword, page, size }) => {

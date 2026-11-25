@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { availabilityService } from '../../services/availabilityService.js'
-import { staffService } from '../../services/staffService.js'
+import { availabilityService } from '../../api/availabilityService.js'
+import { staffService } from '../../api/staffService.js'
 import { addMinutesToTime, formatDuration } from '../../utils/bookingDuration.js'
 import { todayIsoDate } from '../../utils/bookingDate.js'
 import checkCircle from '../../../../assets/icons/booking/check-circle.svg'

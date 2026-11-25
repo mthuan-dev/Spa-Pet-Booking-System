@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import dayjs from 'dayjs';
 import { useNavigate } from 'react-router-dom';
 import { ROW_PER_PAGE } from '~/app/config/constants.js';
-import { useCustomers } from '../api/get-customers.jsx';
+import { useCustomers } from '../api/get-customers.js';
 
 const DogIcon = () => (
   <svg

@@ -1,4 +1,4 @@
-import { getSession } from '../../features/auth/utils/session.js'
+import { getSession } from '../features/auth/utils/session.js'
 
 export async function bookingApi(path, options = {}) {
   const token = getSession()

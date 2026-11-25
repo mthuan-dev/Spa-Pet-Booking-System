@@ -1,4 +1,4 @@
-import { imageUrl } from '../../../shared/api/imageUrl.js';
+import { imageUrl } from '../../../api/imageUrl.js';
 
 function firstDefined(...values) {
   return values.find((value) => value !== undefined && value !== null)

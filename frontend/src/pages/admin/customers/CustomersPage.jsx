@@ -2,11 +2,11 @@ import { PlusSquareOutlined } from '@ant-design/icons';
 import { App, Button, Flex, Modal, Space } from 'antd';
 import { useState } from 'react';
 import PageHeader from '~/components/ui/page-header.jsx';
-import { useUpdateCustomer } from '~/features/admin/customers/api/save-customer.jsx';
+import { useUpdateCustomer } from '~/features/admin/customers/api/save-customer.js';
 import CustomerFormModal from '~/features/admin/customers/components/CustomerFormModal.jsx';
 import { CustomerTable } from '~/features/admin/customers/components/CustomerTable.jsx';
 
-const CustomerPage = () => {
+const CustomersPage = () => {
   const { message } = App.useApp();
   const [formOpen, setFormOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
@@ -83,4 +83,4 @@ const CustomerPage = () => {
     </>
   );
 };
-export default CustomerPage;
+export default CustomersPage;

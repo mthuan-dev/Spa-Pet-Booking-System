@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useServices } from '../../catalog/hooks/useServices.js'
-import { imageUrl } from '../../../shared/api/imageUrl.js'
+import { imageUrl } from '../../../api/imageUrl.js'
 import { ROUTES } from '../../../app/routes/routePaths.js'
 
 export default function ServicesSection() {

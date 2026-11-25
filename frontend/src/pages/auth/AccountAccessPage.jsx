@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../app/providers/AuthProvider.jsx'
-import { authService } from '~/features/auth/services/authService.js'
+import { authService } from '~/features/auth/api/authService.js'
 import { validateAccount } from '~/features/auth/validation/accountValidation.js'
 import AccountField from '../../features/auth/components/AccountField.jsx'
 import UserHeader from '../../layouts/components/UserHeader.jsx'

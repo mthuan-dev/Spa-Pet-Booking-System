@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useLocation, useParams } from 'react-router-dom'
 import arrowLeftIcon from '../../assets/icons/booking/arrow-left.svg'
 import { ROUTES } from '../../app/routes/routePaths.js'
-import { bookingService } from '../../features/bookings/services/bookingService.js'
+import { bookingService } from '../../features/bookings/api/bookingService.js'
 import {
   BookingDetailContent,
   BookingDetailMessage,

@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { USER_ROLES } from '~/app/config/constants.js';
-import { api } from '~/lib/api.js';
+import { api } from '~/api/client.js';
 import { mapAdminUser, userWriteRow } from '~/features/admin/users/mappers/userMapper.js';
 
 export const createCustomer = ({ data }) =>

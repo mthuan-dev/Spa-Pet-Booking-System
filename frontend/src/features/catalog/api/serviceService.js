@@ -1,4 +1,4 @@
-﻿import { bookingApi } from '../../../shared/api/bookingApi.js'
+﻿import { bookingApi } from '../../../api/bookingApi.js'
 import { mapServiceRow } from '../mappers/serviceMapper.js'
 export const serviceService = {
   async getAvailableServices() {

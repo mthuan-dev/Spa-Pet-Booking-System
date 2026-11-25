@@ -1,8 +1,8 @@
 # Hệ thống đặt lịch Spa thú cưng
 
-Đây là nền tảng dự án đặt lịch spa thú cưng của nhóm. Frontend và backend là hai ứng dụng riêng; file MariaDB hiện có là nguồn chuẩn để ánh xạ entity. Giai đoạn này chuẩn bị cấu trúc project và mapping database, chưa triển khai nghiệp vụ.
+Ứng dụng đặt lịch spa thú cưng với giao diện khách hàng và quản trị. Frontend và backend chạy riêng; schema database nằm trong `database/spathucung.sql`.
 
-## Công nghệ sử dụng
+## Công nghệ
 
 - Frontend: React/React DOM 19.3.1, Vite, JavaScript, React Router, Ant Design 6, Tailwind CSS, Axios
 - Backend: Spring Boot, Java 23, Maven, Spring Web, Spring Data JPA, Validation, Security, OAuth2 Client, Spring Mail
@@ -13,104 +13,64 @@
 ```text
 Spa-Pet-Booking-System/
 ├── backend/
-│   ├── .mvn/
-│   └── src/
-│       └── main/
-│           ├── java/com/petspa/petbooking/
-│           │   ├── config/
-│           │   ├── controller/
-│           │   ├── dto/
-│           │   │   ├── request/
-│           │   │   └── response/
-│           │   ├── entity/
-│           │   │   └── enums/
-│           │   ├── exception/
-│           │   ├── mail/
-│           │   ├── payment/
-│           │   │   └── vnpay/
-│           │   ├── repository/
-│           │   ├── security/
-│           │   ├── service/
-│           │   └── util/
-│           └── resources/
+│   ├── pom.xml
+│   └── src/main/
+│       ├── java/com/petspa/petbooking/
+│       │   ├── config/
+│       │   ├── controller/
+│       │   ├── dto/
+│       │   ├── entity/
+│       │   ├── exception/
+│       │   ├── mail/
+│       │   ├── mapper/
+│       │   ├── payment/vnpay/
+│       │   ├── repository/
+│       │   ├── security/
+│       │   ├── service/
+│       │   └── util/
+│       └── resources/
 ├── database/
-├── docs/
+│   └── spathucung.sql
 └── frontend/
-    ├── public/
-    │   └── rive/
+    ├── public/                 # Tài nguyên dùng qua URL
     └── src/
-        ├── app/                 # Router, provider và cấu hình ứng dụng
-        ├── assets/
-        │   ├── icons/
-        │   └── images/
-        │       ├── common/
-        │       ├── home/
-        │       ├── pets/
-        │       └── services/
-        ├── components/
-        │   ├── common/
-        │   └── ui/              # Thành phần giao diện tái sử dụng
-        ├── features/
-        │   ├── admin/           # Chức năng chỉ dành cho quản trị
-        │   │   ├── booking/
-        │   │   ├── carriages/
-        │   │   ├── customers/
-        │   │   ├── employees/
-        │   │   ├── orders/
-        │   │   ├── reports/
-        │   │   ├── seat-types/
-        │   │   ├── service-management/
-        │   │   ├── train-schedules/
-        │   │   └── trains/
-        │   ├── about/
-        │   ├── auth/            # Đăng nhập dùng chung cho ADMIN và CUSTOMER
-        │   ├── bookings/
-        │   ├── catalog/
-        │   ├── errors/
-        │   ├── home/
-        │   ├── pets/
-        │   └── profile/         # Hồ sơ và kho tài khoản mock dùng chung
-        ├── hooks/
-        ├── layouts/
-        │   ├── admin/           # Menu, sidebar, footer và tài khoản quản trị
-        │   └── components/      # Header/footer phía người dùng
-        ├── lib/
-        ├── mocks/
-        │   └── admin/           # API mock và dữ liệu quản trị
-        ├── pages/
-        │   ├── admin/           # Các trang route /admin
+        ├── api/
+        ├── app/
+        ├── assets/             # Ảnh và icon được import trong code
+        ├── components/         # Thành phần giao diện dùng chung
+        ├── features/           # Code theo chức năng
+        │   ├── admin/
         │   ├── about/
         │   ├── auth/
         │   ├── bookings/
         │   ├── catalog/
-        │   ├── errors/
         │   ├── home/
         │   ├── pets/
         │   └── profile/
-        ├── shared/
+        ├── hooks/
+        ├── layouts/
+        ├── lib/
+        ├── pages/
         ├── stores/
         ├── styles/
-        └── utils/
+        ├── utils/
+        └── main.jsx
 ```
 
-Code quản lý chỉ dành cho admin đặt trong `src/features/admin/<chức-năng>/`; trang tương ứng đặt trong `src/pages/admin/`. Đăng nhập, kho tài khoản và dữ liệu nghiệp vụ được cả hai phía sử dụng nằm ngoài nhóm admin để tránh tạo hai bản độc lập. Một số tên `trains`, `carriages`, `seat-types` còn được giữ từ giao diện gốc; chúng hiện thuộc khu vực admin.
+## Quy ước đặt file frontend
 
-## Yêu cầu môi trường
-
-- JDK 23
-- Node.js và npm
-- XAMPP có MySQL
-- IntelliJ IDEA hoặc VS Code
-
-## Chuẩn bị database
-
-1. Khởi động MySQL trong XAMPP.
-2. Import `database/spathucung.sql` vào database `spathucung`.
+- **Trang:** đặt trong `pages/<nhóm>/`, dùng tên rõ nghĩa như `CustomersPage.jsx`, `BookingDetailPage.jsx`. Trang admin nằm trong `pages/admin/`.
+- **Chức năng:** code riêng của một chức năng đặt trong `features/<chức-năng>/`. Code chỉ dành cho quản trị đặt trong `features/admin/<chức-năng>/`.
+- **API:** cấu hình kết nối và helper dùng chung đặt trong `src/api/`; lời gọi API theo chức năng và query/mutation liên quan đặt trong `features/<chức-năng>/api/`.
 
 
-## Chạy backend
+## Chạy dự án
 
-Từ thư mục gốc của project trên Windows:
+Cần JDK 23, Node.js/npm và MySQL/MariaDB.
+
+1. Khởi động MySQL và import `database/spathucung.sql` vào database `spathucung`.
+2. Thiết lập cấu hình database cho backend: `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, và `SERVER_PORT` nếu cần đổi cổng. Cấu hình Spring local được bỏ qua bởi Git; kiểm tra cấu hình đó khi thiết lập máy mới.
+3. Chạy backend từ thư mục gốc:
 
 ```powershell
 cd backend

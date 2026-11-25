@@ -24,7 +24,7 @@ const FILTER_OPTIONS = [
   },
 ];
 
-const ReportPage = () => {
+const ReportsPage = () => {
   const [filter, setFilter] = useState(FILTER_OPTIONS[0].value);
   const [dateRange, setDateRange] = useState({
     startDate: dayjs().startOf('week').format('YYYY-MM-DD'),
@@ -213,4 +213,4 @@ const ReportPage = () => {
   );
 };
 
-export default ReportPage;
+export default ReportsPage;

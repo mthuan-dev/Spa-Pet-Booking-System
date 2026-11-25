@@ -1,4 +1,4 @@
-import { BACKEND_ENDPOINT } from '../../app/config/env.js';
+import { BACKEND_ENDPOINT } from '../app/config/env.js';
 
 export function imageUrl(path) {
   if (!path) return '';

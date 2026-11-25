@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { serviceService } from '../services/serviceService.js'
+import { serviceService } from '../api/serviceService.js'
 
 export function useServices(id) {
   const [data, setData] = useState(null)

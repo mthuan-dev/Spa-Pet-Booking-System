@@ -1,12 +1,13 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { api } from "~/lib/api.js";
+import { api } from "~/api/client.js";
+import { USER_ROLES } from "~/app/config/constants.js";
 import { mapAdminUser, userWriteRow } from '~/features/admin/users/mappers/userMapper.js';
 
-export const updateEmployee = ({ data }) => {
-  return api.put(`/users/${data?.id}`, userWriteRow(data)).then(mapAdminUser);
+export const createEmployee = ({ data }) => {
+  return api.post(`/users`, userWriteRow(data, USER_ROLES.ADMIN)).then(mapAdminUser);
 };
 
-export const useUpdateEmployee = ({ mutationConfig }) => {
+export const useCreateEmployee = ({ mutationConfig }) => {
   const queryClient = useQueryClient();
   const { onSuccess, ...restConfig } = mutationConfig || {};
 
@@ -16,6 +17,6 @@ export const useUpdateEmployee = ({ mutationConfig }) => {
       onSuccess?.(...args);
     },
     ...restConfig,
-    mutationFn: updateEmployee,
+    mutationFn: createEmployee,
   });
 };

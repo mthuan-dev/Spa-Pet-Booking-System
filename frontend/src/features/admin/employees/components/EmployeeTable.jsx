@@ -2,7 +2,7 @@ import { DeleteOutlined, EditOutlined, ToolOutlined } from '@ant-design/icons';
 import { Alert, Button, Flex, Input, Space, Table, Tag } from 'antd';
 import { useMemo, useState } from 'react';
 import dayjs from 'dayjs';
-import { useEmployees } from '../api/get-employees.jsx';
+import { useEmployees } from '../api/get-employees.js';
 import { ROW_PER_PAGE } from '~/app/config/constants.js';
 
 export const EmployeeTable = ({ handleUpdateItem, handleUpdateStatus }) => {

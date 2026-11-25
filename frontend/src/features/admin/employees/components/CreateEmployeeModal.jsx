@@ -2,7 +2,7 @@ import { App, Button, Flex, Form, Input, Modal } from 'antd';
 import { useRef } from 'react';
 import { USER_ROLES } from '~/app/config/constants.js';
 import RULES from '~/app/config/rule.js';
-import { useCreateEmployee } from '../api/create-employee.jsx';
+import { useCreateEmployee } from '../api/create-employee.js';
 
 const CreateEmployeeModal = ({ open, handleCancel }) => {
   const { message } = App.useApp();

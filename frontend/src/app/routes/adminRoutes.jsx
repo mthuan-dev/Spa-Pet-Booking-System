@@ -1,4 +1,5 @@
 import LoadingScreen from '../../components/ui/LoadingScreen.jsx';
+import { Navigate } from 'react-router-dom';
 
 export const createAdminRoute = () => ({
   // Cha
@@ -13,92 +14,96 @@ export const createAdminRoute = () => ({
     {
       path: '',
       lazy: async () => {
-        const HomeRoute = await import('../../pages/admin/home.jsx');
-        return { Component: HomeRoute.default };
+        const HomePage = await import('../../pages/admin/HomePage.jsx');
+        return { Component: HomePage.default };
       },
     },
     {
       path: 'employees',
       lazy: async () => {
-        const EmployeePage = await import('../../pages/admin/employees/index.jsx');
-        return { Component: EmployeePage.default };
+        const EmployeesPage = await import('../../pages/admin/employees/EmployeesPage.jsx');
+        return { Component: EmployeesPage.default };
       },
     },
     {
       path: 'customers',
       lazy: async () => {
-        const CustomerPage = await import('../../pages/admin/customers/index.jsx');
-        return { Component: CustomerPage.default };
+        const CustomersPage = await import('../../pages/admin/customers/CustomersPage.jsx');
+        return { Component: CustomersPage.default };
       },
     },
     {
       path: 'combos',
       lazy: async () => {
-        const CombosPage = await import('../../pages/admin/combos/index.jsx');
+        const CombosPage = await import('../../pages/admin/combos/CombosPage.jsx');
         return { Component: CombosPage.default };
       },
     },
     {
       path: 'combos/create',
       lazy: async () => {
-        const ComboEditorPage = await import('../../pages/admin/combos/create.jsx');
-        return { Component: ComboEditorPage.default };
+        const CreateComboPage = await import('../../pages/admin/combos/CreateComboPage.jsx');
+        return { Component: CreateComboPage.default };
       },
     },
     {
       path: 'combos/:id/edit',
       lazy: async () => {
-        const ComboEditorPage = await import('../../pages/admin/combos/edit.jsx');
-        return { Component: ComboEditorPage.default };
+        const EditComboPage = await import('../../pages/admin/combos/EditComboPage.jsx');
+        return { Component: EditComboPage.default };
       },
     },
     {
       path: 'services',
       lazy: async () => {
-        const ServicesPage = await import('../../pages/admin/services/index.jsx');
+        const ServicesPage = await import('../../pages/admin/services/ServicesPage.jsx');
         return { Component: ServicesPage.default };
       },
     },
     {
       path: 'weight-prices',
       lazy: async () => {
-        const WeightPricesPage = await import('../../pages/admin/weight-prices/index.jsx');
+        const WeightPricesPage = await import('../../pages/admin/weight-prices/WeightPricesPage.jsx');
         return { Component: WeightPricesPage.default };
       },
     },
     {
       path: 'customers/:customerId/pets',
       lazy: async () => {
-        const CustomerPets = await import('../../pages/admin/customers/pets.jsx');
-        return { Component: CustomerPets.default };
+        const CustomerPetsPage = await import('../../pages/admin/customers/CustomerPetsPage.jsx');
+        return { Component: CustomerPetsPage.default };
       },
     },
     {
       path: 'booking-schedules',
       lazy: async () => {
-        const BookingSchedulesPage = await import('../../pages/admin/booking-schedules/index.jsx');
+        const BookingSchedulesPage = await import('../../pages/admin/booking-schedules/BookingSchedulesPage.jsx');
         return { Component: BookingSchedulesPage.default };
       },
     },
     {
       path: 'orders',
       lazy: async () => {
-        const OrderManagement = await import('../../pages/admin/orders/index.jsx');
-        return { Component: OrderManagement.default };
+        const OrdersPage = await import('../../pages/admin/orders/OrdersPage.jsx');
+        return { Component: OrdersPage.default };
+      },
+    },
+    {
+      path: 'reports',
+      lazy: async () => {
+        const ReportsPage = await import('../../pages/admin/reports/ReportsPage.jsx');
+        return { Component: ReportsPage.default };
       },
     },
     {
       path: 'reports/tickets',
-      lazy: async () => {
-        const TicketReport = await import('../../pages/admin/reports/index.jsx');
-        return { Component: TicketReport.default };
-      },
+      element: <Navigate to="/admin/reports" replace />,
     },
     {
       path: '*',
       lazy: async () => {
-        const NotFoundRoute = await import('../../pages/not-found.jsx');
-        return { Component: NotFoundRoute.default };
+        const AdminNotFoundPage = await import('../../pages/errors/AdminNotFoundPage.jsx');
+        return { Component: AdminNotFoundPage.default };
       },
     },
   ].map((route) => ({ ...route, id: `admin:${route.path || 'index'}` })),

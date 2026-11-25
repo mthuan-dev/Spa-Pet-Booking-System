@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from 'react'
 import { useAuth } from '../../../app/providers/AuthProvider.jsx'
-import { profileService } from '../services/profileService.js'
+import { profileService } from '../api/profileService.js'
 
 export function useProfile() {
   const { user, setUser } = useAuth()

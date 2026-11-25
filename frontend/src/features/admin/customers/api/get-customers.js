@@ -1,7 +1,7 @@
 import { queryOptions, useQuery } from '@tanstack/react-query';
 import { USER_ROLES } from '~/app/config/constants.js';
 import { mapAdminUserPage } from '~/features/admin/users/mappers/userMapper.js';
-import { graphqlRequest } from '~/shared/api/graphql.js';
+import { graphqlRequest } from '~/api/graphql.js';
 
 export const getCustomers = (page = 1, size = 8, keyword) => {
   return graphqlRequest(`

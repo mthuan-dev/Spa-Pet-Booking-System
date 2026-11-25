@@ -1,5 +1,5 @@
 import { App, Button, Flex, Form, Input, Modal } from 'antd';
-import { useCreateCustomer, useUpdateCustomer } from '../api/save-customer.jsx';
+import { useCreateCustomer, useUpdateCustomer } from '../api/save-customer.js';
 
 const RULES = {
   name: [

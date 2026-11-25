@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { petService, validatePet } from '../services/petService.js'
+import { petService, validatePet } from '../api/petService.js'
 const blank = () => ({
   name: '',
   type: 'DOG',

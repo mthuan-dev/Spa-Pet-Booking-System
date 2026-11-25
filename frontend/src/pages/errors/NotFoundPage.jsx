@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { DotLottieReact } from '@lottiefiles/dotlottie-react'
 import { Link } from 'react-router-dom'
 import { ROUTES } from '../../app/routes/routePaths.js'
-import '../../features/errors/styles/not-found.css'
+import './not-found.css'
 
 function usePrefersReducedMotion() {
   const [reducedMotion, setReducedMotion] = useState(() => (

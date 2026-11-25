@@ -69,17 +69,8 @@ const adminMenu = Object.freeze([
     key: '8',
     icon: <BarChartOutlined />,
     label: 'Báo cáo & Thống kê',
-    path: '/admin/reports/tickets',
+    path: '/admin/reports',
   },
 ]);
 
-const userMenu = Object.freeze([
-  { title: 'Trang chủ', href: '/' },
-  { title: 'Lịch trình', href: '/schedules' },
-  { title: 'Vé tàu', href: '/tickets' },
-  { title: 'Đơn hàng', href: '/orders' },
-  { title: 'Liên hệ', href: '/contacts' },
-  { title: 'Về chúng tôi', href: '/about' },
-]);
-
-export { adminMenu, userMenu };
+export { adminMenu };

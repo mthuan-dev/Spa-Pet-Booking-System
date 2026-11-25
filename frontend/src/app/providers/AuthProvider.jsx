@@ -1,7 +1,7 @@
 
 import { createContext, useContext, useEffect, useState } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
-import { authService } from '../../features/auth/services/authService.js'
+import { authService } from '../../features/auth/api/authService.js'
 import { queryClient } from '../../lib/query-client.js'
 
 const Context = createContext(null)

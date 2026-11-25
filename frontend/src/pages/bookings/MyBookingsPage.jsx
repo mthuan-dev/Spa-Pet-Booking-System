@@ -4,7 +4,7 @@ import PetAvatar from '../../features/bookings/components/create/PetAvatar.jsx'
 import searchIcon from '../../assets/icons/booking/look.svg'
 import arrowRightIcon from '../../assets/icons/booking/arrow-right.svg'
 import { ROUTES } from '../../app/routes/routePaths.js'
-import { bookingService } from '../../features/bookings/services/bookingService.js'
+import { bookingService } from '../../features/bookings/api/bookingService.js'
 import { formatVnd } from '../../features/bookings/utils/bookingPrice.js'
 import '../../features/bookings/styles/my-bookings.css'
 

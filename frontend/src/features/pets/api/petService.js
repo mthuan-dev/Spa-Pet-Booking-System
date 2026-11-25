@@ -1,4 +1,4 @@
-﻿import { bookingApi } from '../../../shared/api/bookingApi.js'
+﻿import { bookingApi } from '../../../api/bookingApi.js'
 import { PET_TYPES } from '../../profile/mappers/customerMapper.js'
 function model(row) {
   return { id: row.maThuCung, ownerId: row.maNguoiDung, name: row.tenThuCung,

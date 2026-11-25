@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom'
 import arrowRightIcon from '../../../../assets/icons/booking/arrow-right.svg'
 import { ROUTES } from '../../../../app/routes/routePaths.js'
 import { getBookingActions, getPaymentDeadline } from '../../utils/bookingDetail.js'
-import { bookingService } from '../../services/bookingService.js'
-import { redirectToVnpay } from '../../services/vnpayPayment.js'
+import { bookingService } from '../../api/bookingService.js'
+import { redirectToVnpay } from '../../utils/vnpayPayment.js'
 
 function formatDate(value) {
   if (!value) return 'Ngày hẹn chưa được cập nhật'

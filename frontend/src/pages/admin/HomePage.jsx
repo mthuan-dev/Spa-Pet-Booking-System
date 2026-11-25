@@ -11,7 +11,7 @@ import BarChart from '~/components/ui/charts/BarChart.jsx';
 import { useCustomersReport } from '~/features/admin/reports/api/get-customers-report.js';
 import PieChart from '~/components/ui/charts/PieChart.jsx';
 
-const ReportPage = () => {
+const HomePage = () => {
   const { data: reportData } = useBookingsReport({
     startDate: dayjs().startOf('week').format('YYYY-MM-DD'),
     endDate: dayjs().endOf('week').format('YYYY-MM-DD'),
@@ -130,4 +130,4 @@ const ReportPage = () => {
   );
 };
 
-export default ReportPage;
+export default HomePage;

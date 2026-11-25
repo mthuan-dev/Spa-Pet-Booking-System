@@ -1,7 +1,7 @@
 import { Button, Flex, Result } from "antd";
 import { useNavigate } from "react-router-dom";
 
-const NotFoundRoute = () => {
+const AdminNotFoundPage = () => {
   const navigate = useNavigate();
   return (
     <Flex className="h-screen items-center">
@@ -25,4 +25,4 @@ const NotFoundRoute = () => {
   );
 };
 
-export default NotFoundRoute;
+export default AdminNotFoundPage;

@@ -1,4 +1,4 @@
-import { imageUrl } from '../../../shared/api/imageUrl.js';
+import { imageUrl } from '../../../api/imageUrl.js';
 export const PET_TYPES = { DOG: 'Chó', CAT: 'Mèo', OTHER: 'Khác' }
 // Convert database field names into the fields used by the UI.
 export function mapUserRow(row) {

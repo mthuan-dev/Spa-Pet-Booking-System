@@ -11,7 +11,7 @@ import {
 
 const { RangePicker } = DatePicker;
 
-const OrderManagement = () => {
+const OrdersPage = () => {
   const [keyword, setKeyword] = useState('');
   const [filter, setFilter] = useState(DATE_FILTER_OPTIONS[0].value);
   const [dateRange, setDateRange] = useState({
@@ -102,4 +102,4 @@ const OrderManagement = () => {
   );
 };
 
-export default OrderManagement;
+export default OrdersPage;

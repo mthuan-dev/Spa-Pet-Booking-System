@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { api } from '~/lib/api.js';
-import { imageUrl } from '~/shared/api/imageUrl.js';
+import { api } from '~/api/client.js';
+import { imageUrl } from '~/api/imageUrl.js';
 
 const CATALOG_QUERY_KEY = ['admin-service-catalog'];
 

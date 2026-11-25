@@ -1,4 +1,4 @@
-import { imageUrl } from '../../../shared/api/imageUrl.js';
+import { imageUrl } from '../../../api/imageUrl.js';
 
 export function mapServiceRow(row, prices = []) {
   const servicePrices = prices.filter((price) => price.madichvu === row.madichvu)

@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { api } from '~/lib/api.js';
+import { api } from '~/api/client.js';
 import { mapAdminUser } from '~/features/admin/users/mappers/userMapper.js';
 
 export const customerPetsQuery = (customerId) => ({
