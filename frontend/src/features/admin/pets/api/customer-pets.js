@@ -11,13 +11,13 @@ export const customerPetsQuery = (customerId) => ({
   },
 });
 
-// Read
+// GET /api/users/:customerId/pets
 export const useCustomerPets = (customerId) => useQuery(customerPetsQuery(customerId));
 
 export async function saveCustomerPet(customerId, { pet, remove = false, imageFile }) {
   const basePath = `/users/${customerId}/pets`;
   const { maThuCung, ...values } = pet;
-  if (remove) return api.delete(`${basePath}/${maThuCung}`);
+  if (remove) return api.delete(`${basePath}/${maThuCung}`); // DELETE
   let payload = values;
   if (imageFile) {
     payload = new FormData();
@@ -25,8 +25,8 @@ export async function saveCustomerPet(customerId, { pet, remove = false, imageFi
     payload.append('file', imageFile);
   }
   return maThuCung
-    ? api.put(`${basePath}/${maThuCung}`, payload)
-    : api.post(basePath, payload);
+    ? api.put(`${basePath}/${maThuCung}`, payload)    // PUT
+    : api.post(basePath, payload);                    // POST
 }
 
 export function useSaveCustomerPet(customerId, mutationConfig = {}) {
@@ -36,7 +36,7 @@ export function useSaveCustomerPet(customerId, mutationConfig = {}) {
     ...restConfig,
     mutationFn: (values) => saveCustomerPet(customerId, values),
     onSuccess: async (...args) => {
-      // Đánh dấu Query này cũ -> RQuery tự fetch lại danh sách mới
+      // Đánh dấu Query này cũ -> RQuery tự fetch lại danh sách mới (invalidateQueries)
       await queryClient.invalidateQueries({ queryKey: customerPetsQuery(customerId).queryKey });
       onSuccess?.(...args);
     },

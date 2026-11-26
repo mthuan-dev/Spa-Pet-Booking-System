@@ -54,7 +54,7 @@ public class SecurityConfig {
                                 "/api/payments/vnpay/ipn").permitAll()
                         .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINT).permitAll()
                         .requestMatchers(HttpMethod.PUT, "/api/users/*").authenticated()
-                        .requestMatchers("/graphql", "/api/users", "/api/users/**", "/api/pet-images", "/api/service-images",
+                        .requestMatchers("/api/graphql", "/api/users", "/api/users/**", "/api/pet-images", "/api/service-images",
                                 "/api/services", "/api/services/**", "/api/service-prices", "/api/service-prices/**",
                                 "/api/admin/**", "/api/reports/**")
                         .hasAuthority("SCOPE_ADMIN")

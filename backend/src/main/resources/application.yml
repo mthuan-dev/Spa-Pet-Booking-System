@@ -8,6 +8,10 @@ spring:
   config:
     import: optional:file:./.env[.properties]
 
+  graphql:
+    http:
+      path: /api/graphql
+
   application:
     name: pet-spa-booking
   servlet:

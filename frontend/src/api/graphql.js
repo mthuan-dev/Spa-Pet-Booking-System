@@ -2,9 +2,9 @@ import { BACKEND_ENDPOINT } from '~/app/config/env.js';
 import { getSession } from '~/features/auth/utils/session.js';
 
 export async function graphqlRequest(query, variables = {}) {
-  const endpoint = String(BACKEND_ENDPOINT || 'http://localhost:8080/api')
-    .replace(/\/api\/?$/, '')
-    .replace(/\/$/, '') + '/graphql';
+  const endpoint = String(
+    BACKEND_ENDPOINT || 'http://localhost:8080/api'
+  ).replace(/\/$/, '') + '/graphql';
 
   const token = getSession();
   const response = await fetch(endpoint, {
@@ -17,7 +17,7 @@ export async function graphqlRequest(query, variables = {}) {
     body: JSON.stringify({ query, variables }),
   });
 
-  const payload = await response.json().catch(() => null);
+  const payload = await response.json().catch(() => null); // body server response
   if (!response.ok || payload?.errors?.length || !payload?.data) {
     const firstError = payload?.errors?.[0];
     const classification = firstError?.extensions?.classification;
@@ -29,5 +29,8 @@ export async function graphqlRequest(query, variables = {}) {
     error.response = { status, data: { detail: error.message } };
     throw error;
   }
+  
+  // async return Promise 
+  // Promise {playload.data} 
   return payload.data;
 }

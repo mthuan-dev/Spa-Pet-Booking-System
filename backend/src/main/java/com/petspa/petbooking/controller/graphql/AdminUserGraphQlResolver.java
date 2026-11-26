@@ -15,6 +15,7 @@ public class AdminUserGraphQlResolver {
         this.nguoiDungService = nguoiDungService;
     }
 
+    // FE: trang đầu 1, Spring: trang đầu 0
     @QueryMapping
     public Page<NguoiDungResponse> adminUsers(
             @Argument VaiTro role,

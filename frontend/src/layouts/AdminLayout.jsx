@@ -31,7 +31,7 @@ const AdminLayout = () => {
             overflow: 'initial',
           }}
         >
-          <Outlet />
+          <Outlet /> 
         </Content>
         <FooterAdmin />
       </Layout>

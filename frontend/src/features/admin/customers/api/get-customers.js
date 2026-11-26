@@ -3,7 +3,9 @@ import { USER_ROLES } from '~/app/config/constants.js';
 import { mapAdminUserPage } from '~/features/admin/users/mappers/userMapper.js';
 import { graphqlRequest } from '~/api/graphql.js';
 
+// frontend\src\api\graphql.js -> POST /api/graphql
 export const getCustomers = (page = 1, size = 8, keyword) => {
+  // Promise {playload.data} -> Promise { adminUsers: {..} }
   return graphqlRequest(`
     query AdminUsers($role: VaiTro!, $page: Int!, $size: Int!, $keyword: String) {
       adminUsers(role: $role, page: $page, size: $size, keyword: $keyword) {
@@ -12,7 +14,7 @@ export const getCustomers = (page = 1, size = 8, keyword) => {
       }
     }
   `, { role: USER_ROLES.CUSTOMER, page, size, keyword: keyword || null })
-    .then((data) => mapAdminUserPage(data.adminUsers));
+    .then((data) => mapAdminUserPage(data.adminUsers)); // Dịch data
 };
 
 export const getCustomersQueryOptions = ({ page, size, keyword }) => {
@@ -23,6 +25,7 @@ export const getCustomersQueryOptions = ({ page, size, keyword }) => {
 };
 
 export const useCustomers = ({ queryConfig, page, size, keyword }) => {
+  // Đưa (qKey, qFn) cho useQuery dùng
   return useQuery({
     ...getCustomersQueryOptions({ page, size, keyword }),
     ...queryConfig,
