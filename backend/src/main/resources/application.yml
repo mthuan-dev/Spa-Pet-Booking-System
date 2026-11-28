@@ -4,6 +4,9 @@ server:
 app:
   upload-dir: ${APP_UPLOAD_DIR:uploads}
 
+booking:
+  redis-holds-enabled: ${BOOKING_REDIS_HOLDS_ENABLED:false}
+
 spring:
   config:
     import: optional:file:./.env[.properties]
@@ -14,6 +17,11 @@ spring:
 
   application:
     name: pet-spa-booking
+  data:
+    redis:
+      url: ${BOOKING_REDIS_URL:redis://localhost:6379}
+      connect-timeout: 2s
+      timeout: 2s
   servlet:
     multipart:
       max-file-size: 2MB

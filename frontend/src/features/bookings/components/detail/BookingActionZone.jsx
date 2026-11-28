@@ -113,16 +113,15 @@ export default function BookingActionZone({ booking, onCancel, onRefresh }) {
             </button>
           )}
 
-          
           {actions.canCancel && (
             <button
-              className="booking-detail-page__cancel-trigger"
+              className="booking-detail-page__button booking-detail-page__cancel-trigger"
               type="button"
               aria-expanded={cancelExpanded}
               aria-controls={`booking-cancel-${booking.id}`}
               onClick={() => setCancelExpanded((expanded) => !expanded)}
             >
-              {cancelExpanded ? 'Đóng phần hủy lịch' : 'Hủy lịch'}
+              {cancelExpanded ? 'Đóng biểu mẫu hủy' : 'Hủy lịch'}
             </button>
           )}
         </div>

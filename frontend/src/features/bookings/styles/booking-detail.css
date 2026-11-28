@@ -650,21 +650,58 @@
   background: #713a35;
 }
 
-.booking-detail-page__cancel-trigger {
-  padding: 10px 0;
-  border: 0;
-  background: transparent;
-  color: #8b4942;
-  font: inherit;
-  font-size: 15px;
-  font-weight: 600;
-  text-decoration: underline;
-  text-underline-offset: 4px;
-  cursor: pointer;
+.booking-detail-page__button--review {
+  flex-shrink: 0;
+  min-height: 48px;
+  padding-inline: 18px;
+  border: 1px solid transparent;
+  background: var(--meomeo-yellow);
+  color: var(--meomeo-ink);
 }
 
-.booking-detail-page__cancel-trigger:hover {
+.booking-detail-page__button--review svg {
+  width: 19px;
+  height: 19px;
+  flex: none;
+}
+
+.booking-detail-page__button--review:hover {
+  background: var(--meomeo-yellow-deep);
+}
+
+.booking-detail-page__button--review[aria-expanded="true"] {
+  border-color: var(--booking-detail-rule);
+  background: transparent;
+  color: var(--booking-detail-ink);
+}
+
+.booking-detail-page__button--review[aria-expanded="true"]:hover {
+  background: #fff8dc;
+}
+
+.booking-detail-page__cancel-trigger {
+  border: 1px solid #d9aca6;
+  background: transparent;
+  color: #8b4942;
+}
+
+.booking-detail-page__cancel-trigger:hover,
+.booking-detail-page__cancel-trigger[aria-expanded="true"] {
+  background: #fdf0ed;
   color: #713a35;
+}
+
+.booking-detail-page__button--review:active,
+.booking-detail-page__cancel-trigger:active {
+  transform: translateY(1px);
+}
+
+@media (max-width: 560px) {
+  .booking-detail-page__review .booking-detail-page__review-invitation {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 16px;
+  }
 }
 
 .booking-detail-page__action-message,

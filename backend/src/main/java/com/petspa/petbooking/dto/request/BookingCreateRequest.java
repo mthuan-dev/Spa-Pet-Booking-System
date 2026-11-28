@@ -12,4 +12,5 @@ public record BookingCreateRequest(
         @NotNull LocalTime startTime,
         @NotEmpty List<@NotNull Integer> serviceIds,
         @Size(max = 2000) String note,
-        @NotNull String paymentMethod) {}
+        @NotNull String paymentMethod,
+        @Size(max = 36) String holdToken) {}

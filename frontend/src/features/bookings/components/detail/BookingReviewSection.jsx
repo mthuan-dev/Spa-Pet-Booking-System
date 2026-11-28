@@ -100,13 +100,14 @@ export default function BookingReviewSection({ booking, onSubmit }) {
           <p>Bạn cảm thấy buổi chăm sóc hôm nay thế nào?</p>
         </div>
         <button
-          className="booking-detail-page__button booking-detail-page__button--secondary"
+          className="booking-detail-page__button booking-detail-page__button--review"
           type="button"
           aria-expanded={isExpanded}
           aria-controls={`booking-review-form-${booking.id}`}
           onClick={() => setIsExpanded((expanded) => !expanded)}
         >
-          {isExpanded ? 'Đóng biểu mẫu' : 'Đánh giá trải nghiệm'}
+          <StarIcon filled={!isExpanded} />
+          {isExpanded ? 'Đóng đánh giá' : 'Viết đánh giá'}
         </button>
       </div>
 
@@ -145,7 +146,9 @@ export default function BookingReviewSection({ booking, onSubmit }) {
             placeholder="Điều gì khiến bạn hài lòng trong buổi chăm sóc?"
           />
           <div className="booking-detail-page__review-actions">
-            <button className="booking-detail-page__button booking-detail-page__button--primary" type="submit" disabled={submitting}>Gửi đánh giá</button>
+            <button className="booking-detail-page__button booking-detail-page__button--primary" type="submit" disabled={submitting}>
+              {submitting ? 'Đang gửi…' : 'Gửi đánh giá'}
+            </button>
             <button className="booking-detail-page__button booking-detail-page__button--quiet" type="button" onClick={closeReviewForm}>Đóng</button>
           </div>
         </form>

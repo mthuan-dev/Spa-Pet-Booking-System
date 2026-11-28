@@ -6,6 +6,14 @@ function model(row) {
   return mapBookingResponse({ ...row, payment })
 }
 export const bookingService = {
+  holdSchedule(draft) {
+    return bookingApi('/holds', { method: 'POST', body: JSON.stringify(draft) })
+  },
+  releaseSchedule({ appointmentDate, token }) {
+    return bookingApi('/holds', {
+      method: 'DELETE', body: JSON.stringify({ appointmentDate, token }), keepalive: true,
+    })
+  },
   async checkout(draft) {
     const result = await bookingApi('/checkout', { method: 'POST', body: JSON.stringify(draft) })
     return { booking: model(result.booking), paymentUrl: result.paymentUrl }

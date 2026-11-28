@@ -29,6 +29,7 @@ public class BookingWorkflowService {
     private final DatLichService reader;
     private final DanhGiaRepository reviews;
     private final ApplicationEventPublisher eventPublisher;
+    private final BookingHoldService holds;
 
     public BookingWorkflowService(
             NguoiDungRepository users,
@@ -40,7 +41,8 @@ public class BookingWorkflowService {
             ThanhToanRepository payments,
             DatLichService reader,
             DanhGiaRepository reviews,
-            ApplicationEventPublisher eventPublisher) {
+            ApplicationEventPublisher eventPublisher,
+            BookingHoldService holds) {
         this.users = users;
         this.pets = pets;
         this.services = services;
@@ -51,6 +53,7 @@ public class BookingWorkflowService {
         this.reader = reader;
         this.reviews = reviews;
         this.eventPublisher = eventPublisher;
+        this.holds = holds;
     }
 
     private ResponseStatusException invalid(String message) {
@@ -142,10 +145,37 @@ public class BookingWorkflowService {
                 .toList();
     }
 
-    public List<String> slots(LocalDate date, int duration, Integer exclude) {
+    public BookingHoldService.Hold hold(NguoiDung customer, LocalDate date, LocalTime start,
+            Integer employee, List<Integer> serviceIds) {
+        if (!holds.enabled()) return new BookingHoldService.Hold(null, 0);
+        var selected = services.findAllById(serviceIds);
+        if (selected.size() != serviceIds.size()
+                || selected.stream().anyMatch(s -> !Integer.valueOf(1).equals(s.getTrangThai()))
+                || (selected.size() > 1 && selected.stream().anyMatch(s -> s.getLoaiDichVu() == LoaiDichVu.COMBO))) {
+            throw invalid("Dịch vụ không hợp lệ.");
+        }
+        long duration = selected.stream().mapToLong(DichVu::getThoiLuongPhut).sum();
+        if (duration <= 0 || duration > 600 || !validWindow(date, start, (int) duration)) {
+            throw invalid("Ngày hoặc giờ hẹn không hợp lệ.");
+        }
+        if (staff(date, start, (int) duration, null).stream().noneMatch(s -> employee.equals(s.get("id")))) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Khung giờ vừa được đặt. Bạn chọn lại nhé.");
+        }
+        return holds.acquire(customer.getMaNguoiDung(), date, start, (int) duration, employee);
+    }
+
+    public List<Map<String, Object>> availableStaff(
+            int customerId, LocalDate date, LocalTime start, int duration, Integer exclude) {
+        var available = staff(date, start, duration, exclude);
+        if (available.isEmpty()) return available;
+        var held = holds.busy(customerId, date, start, duration);
+        return available.stream().filter(s -> !held.contains(s.get("id"))).toList();
+    }
+
+    public List<String> slots(int customerId, LocalDate date, int duration, Integer exclude) {
         return List.of("08:00", "09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00")
                 .stream()
-                .filter(t -> !staff(date, LocalTime.parse(t), duration, exclude).isEmpty())
+                .filter(t -> !availableStaff(customerId, date, LocalTime.parse(t), duration, exclude).isEmpty())
                 .toList();
     }
 
@@ -204,7 +234,7 @@ public class BookingWorkflowService {
         }
         var employee =
                 users.lockById(employeeId).orElseThrow(() -> invalid("Nhân viên không tồn tại."));
-        if (staff(date, start, duration, id).stream()
+        if (availableStaff(customer.getMaNguoiDung(), date, start, duration, id).stream()
                 .noneMatch(s -> s.get("id").equals(employeeId))) {
             throw new ResponseStatusException(
                     HttpStatus.CONFLICT, "Nhân viên không còn trống ở khung giờ này.");
@@ -303,6 +333,8 @@ public class BookingWorkflowService {
             throw new ResponseStatusException(
                     HttpStatus.CONFLICT, "Khung giờ vừa được đặt. Vui lòng chọn lại.");
         }
+        holds.verifyAndReleaseAfterCommit(customer.getMaNguoiDung(), request.appointmentDate(),
+                request.startTime(), duration, request.employeeId(), request.holdToken());
         var allPrices = prices.findAll();
         List<ChiTietDatLich> lines = new ArrayList<>();
         BigDecimal total = BigDecimal.ZERO;

@@ -48,6 +48,8 @@ export default function BookingPage() {
   const navigate = useNavigate()
   const submissionLock = useRef(false)
   const checkoutRef = useRef(null)
+  const holdRef = useRef(null)
+  const mounted = useRef(false)
   const [searchParams] = useSearchParams()
   const [activeStep, setActiveStep] = useState(0)
   const [draft, setDraft] = useState(INITIAL_DRAFT)
@@ -59,14 +61,43 @@ export default function BookingPage() {
   const [stepError, setStepError] = useState('')
   const [isPetModalOpen, setIsPetModalOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [holdDeadline, setHoldDeadline] = useState(null)
   const [bookingResult, setBookingResult] = useState(null)
   const [availableEmployees, setAvailableEmployees] = useState([])
   const stepContentRef = useRef(null)
   const preselectedService = searchParams.get('serviceId')
   const preselectedServiceId = preselectedService?.trim() ? Number(preselectedService) : null
 
+  const releaseHold = useCallback(() => {
+    const hold = holdRef.current
+    holdRef.current = null
+    if (hold) bookingService.releaseSchedule(hold).catch(() => {})
+  }, [])
+
   useEffect(() => {
-    function resumePage() {
+    mounted.current = true
+    return () => {
+      mounted.current = false
+      if (!submissionLock.current) releaseHold()
+    }
+  }, [releaseHold])
+
+  useEffect(() => {
+    if (!holdDeadline || activeStep !== 3 || isSubmitting || bookingResult) return
+    const timer = window.setTimeout(() => {
+      releaseHold()
+      setHoldDeadline(null)
+      setAvailableEmployees([])
+      setDraft((current) => ({ ...current, startTime: null, endTime: null, employeeId: null }))
+      setActiveStep(2)
+      setStepError('Lượt giữ chỗ đã hết hạn. Bạn chọn lại lịch nhé.')
+    }, Math.max(0, holdDeadline - Date.now()))
+    return () => window.clearTimeout(timer)
+  }, [activeStep, bookingResult, holdDeadline, isSubmitting, releaseHold])
+
+  useEffect(() => {
+    function resumePage(event) {
+      if (!event.persisted) return
       submissionLock.current = false
       setIsSubmitting(false)
       // Returning from the gateway must not present a form that creates a second booking.
@@ -118,7 +149,7 @@ export default function BookingPage() {
     setStepError('')
   }, [])
 
-  const selectTime = useCallback((time) => {
+  const applyTime = useCallback((time) => {
     setAvailableEmployees([])
     updateDraft({
       startTime: time,
@@ -127,7 +158,12 @@ export default function BookingPage() {
     })
   }, [totalDuration, updateDraft])
 
-  const selectEmployee = useCallback((employeeId) => updateDraft({ employeeId }), [updateDraft])
+  const selectTime = useCallback((time) => {
+    if (!submissionLock.current) applyTime(time)
+  }, [applyTime])
+  const selectEmployee = useCallback((employeeId) => {
+    if (!submissionLock.current) updateDraft({ employeeId })
+  }, [updateDraft])
   const closePetModal = useCallback(() => setIsPetModalOpen(false), [])
 
   useEffect(() => {
@@ -179,6 +215,7 @@ export default function BookingPage() {
   }
 
   function selectDate(date) {
+    if (submissionLock.current) return
     setAvailableEmployees([])
     updateDraft({ date, startTime: null, endTime: null, employeeId: null })
   }
@@ -191,11 +228,36 @@ export default function BookingPage() {
     setIsPetModalOpen(false)
   }
 
-  function continueToNextStep() {
+  async function continueToNextStep() {
+    if (submissionLock.current) return
     if (activeStep === 0 && !pet) return setStepError('Bạn chọn một bạn nhỏ hoặc thêm hồ sơ mới nhé.')
     if (activeStep === 1 && selectedItems.length === 0) return setStepError('Chọn ít nhất một dịch vụ để tiếp tục nhé.')
     if (activeStep === 2 && (!draft.date || !draft.startTime || !selectedEmployee)) {
       return setStepError(!draft.startTime ? 'Bạn chọn một khung giờ phù hợp nhé.' : !selectedEmployee ? 'Bạn chọn chuyên viên đồng hành nhé.' : 'Bạn chọn ngày hẹn nhé.')
+    }
+    if (activeStep === 2) {
+      submissionLock.current = true
+      setIsSubmitting(true)
+      setStepError('')
+      const { appointmentDate, startTime, employeeId, serviceIds } = createPayload({ draft })
+      const requestedAt = Date.now()
+      try {
+        const hold = await bookingService.holdSchedule({ appointmentDate, startTime, employeeId, serviceIds })
+        if (hold.token) {
+          holdRef.current = { appointmentDate, token: hold.token }
+          if (!mounted.current) return releaseHold()
+          setHoldDeadline(requestedAt + hold.expiresInSeconds * 1000)
+        }
+        if (mounted.current) setActiveStep(3)
+      } catch (error) {
+        if (!mounted.current) return
+        if (error.status === 409) applyTime(null)
+        setStepError(error.message)
+      } finally {
+        submissionLock.current = false
+        if (mounted.current) setIsSubmitting(false)
+      }
+      return
     }
     if (activeStep < 3) {
       setStepError('')
@@ -220,7 +282,12 @@ export default function BookingPage() {
       totalPrice,
     }
     try {
-      const result = await bookingService.checkout(createPayload({ draft }))
+      const result = await bookingService.checkout({
+        ...createPayload({ draft }),
+        holdToken: holdRef.current?.token,
+      })
+      holdRef.current = null
+      setHoldDeadline(null)
       checkoutRef.current = result.booking.id
       if (draft.paymentMethod === 'VNPAY') {
         try {
@@ -234,15 +301,28 @@ export default function BookingPage() {
       }
       setBookingResult({ booking: result.booking, draft: submissionDraft })
     } catch (error) {
+      if (error.status === 409 && holdRef.current) {
+        releaseHold()
+        setHoldDeadline(null)
+        applyTime(null)
+        setActiveStep(2)
+      }
       setStepError(error.message || 'Chưa gửi được lịch hẹn. Bạn thử lại sau ít phút nhé.')
     } finally {
       submissionLock.current = false
+      if (!mounted.current) releaseHold()
       setIsSubmitting(false)
     }
   }
 
   function changeStep(step) {
+    if (submissionLock.current) return
     if (step < activeStep) {
+      if (activeStep === 3) {
+        releaseHold()
+        setHoldDeadline(null)
+      }
+      if (step < 2) selectTime(null)
       setStepError('')
       setActiveStep(step)
     }
@@ -288,6 +368,10 @@ export default function BookingPage() {
             {resourceState === 'ready' && (
               <>
                 {currentStepContent()}
+                {activeStep === 3 && holdDeadline && (
+                  <p role="status">Lịch được giữ tạm đến {new Date(holdDeadline).toLocaleTimeString('vi-VN')}.</p>
+                )}
+                {activeStep === 2 && isSubmitting && <p role="status">Đang giữ chỗ…</p>}
                 <div className="booking-stage-actions">
                   {activeStep > 0 ? (
                     <button className="booking-text-button booking-stage-actions__back" type="button" onClick={() => changeStep(activeStep - 1)} disabled={isSubmitting}><img src={arrowLeftIcon} alt="" aria-hidden="true" /> Quay lại</button>

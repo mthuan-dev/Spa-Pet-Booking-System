@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { usePets } from '../../features/pets/hooks/usePets.js'
 import PetAvatar from '../../features/bookings/components/create/PetAvatar.jsx'
+import { defaultPetAvatar } from '../../features/pets/utils/defaultPetAvatar.js'
 import AccountField from '../../features/auth/components/AccountField.jsx'
 import CustomerAccountNav from '../../layouts/components/CustomerAccountNav.jsx'
 import '../../styles/account.css'
@@ -201,17 +202,11 @@ export default function PetsPage() {
               <div
                 className={`pet-record-portrait pet-record-portrait--${i % 2}`}
               >
-                {p.imageUrl ? (
-                  <img
-                    className="pet-record-image"
-                    src={p.imageUrl}
-                    alt={p.name}
-                  />
-                ) : (
-                  <span className="pet-monogram" aria-hidden="true">
-                    {p.name.trim().slice(0, 1)}
-                  </span>
-                )}
+                <img
+                  className="pet-record-image"
+                  src={p.imageUrl || defaultPetAvatar(p.species)}
+                  alt={p.imageUrl ? p.name : ''}
+                />
                 <span className="account-tag">{p.species}</span>
               </div>
               <div className="pet-record-body">

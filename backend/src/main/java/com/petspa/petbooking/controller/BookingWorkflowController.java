@@ -18,18 +18,21 @@ public class BookingWorkflowController {
     private final ThuCungService pets;
     private final NguoiDungService users;
     private final DatLichService bookings;
+    private final BookingHoldService holds;
 
     public BookingWorkflowController(
             BookingWorkflowService workflow,
             CurrentCustomer current,
             ThuCungService pets,
             NguoiDungService users,
-            DatLichService bookings) {
+            DatLichService bookings,
+            BookingHoldService holds) {
         this.workflow = workflow;
         this.current = current;
         this.pets = pets;
         this.users = users;
         this.bookings = bookings;
+        this.holds = holds;
     }
 
     @GetMapping("/customer")
@@ -75,7 +78,7 @@ public class BookingWorkflowController {
         if (excludeBookingId != null) {
             booking(jwt, excludeBookingId);
         }
-        return workflow.slots(date, totalDuration, excludeBookingId);
+        return workflow.slots(current.require(jwt).getMaNguoiDung(), date, totalDuration, excludeBookingId);
     }
 
     @GetMapping("/staff")
@@ -88,11 +91,38 @@ public class BookingWorkflowController {
         if (excludeBookingId != null) {
             booking(jwt, excludeBookingId);
         }
-        return workflow.staff(
+        return workflow.availableStaff(
+                current.require(jwt).getMaNguoiDung(),
                 date,
                 startTime,
                 (int) java.time.Duration.between(startTime, endTime).toMinutes(),
                 excludeBookingId);
+    }
+
+    public record HoldRequest(
+            @jakarta.validation.constraints.NotNull LocalDate appointmentDate,
+            @jakarta.validation.constraints.NotNull LocalTime startTime,
+            @jakarta.validation.constraints.NotNull Integer employeeId,
+            @jakarta.validation.constraints.NotEmpty
+                    List<@jakarta.validation.constraints.NotNull Integer> serviceIds) {}
+
+    public record ReleaseHoldRequest(
+            @jakarta.validation.constraints.NotNull LocalDate appointmentDate,
+            @jakarta.validation.constraints.NotBlank
+                    @jakarta.validation.constraints.Size(max = 36) String token) {}
+
+    @PostMapping("/holds")
+    public BookingHoldService.Hold hold(
+            @AuthenticationPrincipal Jwt jwt, @Valid @RequestBody HoldRequest request) {
+        return workflow.hold(current.require(jwt), request.appointmentDate(), request.startTime(),
+                request.employeeId(), request.serviceIds());
+    }
+
+    @DeleteMapping("/holds")
+    @ResponseStatus(org.springframework.http.HttpStatus.NO_CONTENT)
+    public void releaseHold(
+            @AuthenticationPrincipal Jwt jwt, @Valid @RequestBody ReleaseHoldRequest request) {
+        holds.release(current.require(jwt).getMaNguoiDung(), request.appointmentDate(), request.token());
     }
 
     @GetMapping("/bookings")
