@@ -1,5 +1,5 @@
 ﻿.booking-detail-page.booking-reschedule-page {
-  --booking-detail-ground: #f8f7f3;
+  --booking-detail-ground: #ffffff;
   --booking-detail-ink: #28251e;
   --booking-detail-muted: #5d584c;
   --booking-detail-accent: #e4a932;
@@ -46,6 +46,7 @@
 }
 .booking-reschedule-page .reschedule-stage {
   padding: 24px 30px 21px;
+  border: 1px solid #e5e1d9;
   border-radius: 7px;
   background: #fff;
 }
